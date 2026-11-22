@@ -99,10 +99,18 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
   border: 1px solid var(--line); border-radius: 28px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 40px rgba(0, 0, 0, .55);
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
-.tabbtn { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 2px 9px;
-  background: none; border: 0; border-radius: 20px; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; }
-.tabbtn.on { color: #0b0c12; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 22px rgba(255, 255, 255, .45); }
+.tabbtn { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 2px 9px;
+  background: none; border: 0; border-radius: 20px; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: color .3s ease, box-shadow .4s ease; }
+/* белая заливка: растёт от центра кнопки одновременно со сменой экрана */
+.tabbtn::before { content: ""; position: absolute; inset: 0; border-radius: 20px; z-index: 0;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
+  clip-path: circle(0% at 50% 50%); opacity: 0; transition: clip-path .4s cubic-bezier(.3, .7, .2, 1), opacity .3s ease; }
+.tabbtn > * { position: relative; z-index: 1; }
+.tabbtn svg { transition: transform .35s cubic-bezier(.3, 1.5, .5, 1); }
+.tabbtn.on { color: #0b0c12; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 22px rgba(255, 255, 255, .45); }
+.tabbtn.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
+.tabbtn.on svg { transform: translateY(-1px) scale(1.08); }
 
 /* поиск, плитки и календарь */
 .search { width: 100%; background: rgba(5, 8, 22, .55); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px;
@@ -283,3 +291,28 @@ body.fs .view { padding-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-
 .nav #backBtn { width: 58px; padding-left: 0; padding-right: 0; }
 body.compact2 .nav .btn { height: 52px; }
 body.compact2 .nav #backBtn { width: 52px; }
+
+.sheetbox p.diag { font-size: 12px; opacity: .7; text-align: center; margin: -4px 0 0; overflow-wrap: anywhere; }
+
+/* плавный переход между экранами: старый уходит и тает, новый приезжает со стороны нажатой вкладки */
+#views { position: relative; }
+.view.entering { animation: view-in .32s cubic-bezier(.2, .7, .2, 1) both; }
+.view.from-r { --dx: 28px; }
+.view.from-l { --dx: -28px; }
+.view.leaving { position: fixed; top: 0; left: 0; right: 0; margin: 0 auto; width: 100%; max-width: 520px; height: 100dvh;
+  min-height: 0; overflow: hidden; pointer-events: none; z-index: 1; animation: view-out .22s ease-in both; }
+.view.to-r { --dx: -28px; }
+.view.to-l { --dx: 28px; }
+@keyframes view-in  { from { opacity: 0; transform: translateX(var(--dx)); } to { opacity: 1; transform: none; } }
+@keyframes view-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(var(--dx)); } }
+@media (prefers-reduced-motion: reduce) {
+  .tabbtn::before, .tabbtn svg, .tabbtn { transition: none; }
+}
+
+/* конфетти и «поп» огонька */
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
+.chip.pop { animation: chip-pop 1s cubic-bezier(.3, 1.6, .5, 1); }
+.chip.pop .flame { animation: flame-glow 1s ease-out; }
+@keyframes chip-pop { 0% { transform: scale(1); } 22% { transform: scale(1.38); } 55% { transform: scale(.94); } 100% { transform: scale(1); } }
+@keyframes flame-glow { 0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 140, 30, .75)); } 25% { filter: drop-shadow(0 0 16px rgba(255, 190, 60, 1)); } }
+@media (prefers-reduced-motion: reduce) { .chip.pop, .chip.pop .flame { animation: none; } }

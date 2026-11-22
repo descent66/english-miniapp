@@ -1,6 +1,11 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js";
-import * as Store from "./storage.js";
+import * as Core from "./core.js?v=7";
+import * as Store from "./storage.js?v=7";
+
+// версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
+const APP_VERSION = "2026-11-22.7";
+let tgRef = null;
+const fsInfo = { supported: null, requested: false, failed: "" };
 
 const params = new URLSearchParams(location.search);
 const ASK_DEFAULT = 30;                                 // время на ответ (можно изменить в настройках)
@@ -146,7 +151,7 @@ function updateCountdown() {
 function updateGoal() {
   const n = progress.todayCorrect(), goal = progress.goal(), streak = progress.streak();
   const done = n >= goal;
-  el.goalNum.textContent = `${n}/${goal}`;
+  el.goalNum.textContent = `${Math.min(n, goal)}/${goal}`; // после достижения цели счёт не растёт: 20/20, а не 21/20
   el.goalFill.style.width = `${Math.min(100, (n / goal) * 100)}%`;
   el.goalText.classList.toggle("done", done);
   el.streakNum.textContent = String(streak);
@@ -287,8 +292,10 @@ function reveal(ok) {
   const before = progress.state(cur);
   const state = progress.record(cur, ok);
   if (session && !session.finished) { session.done += 1; session.correct += ok ? 1 : 0; }
+  const todayBefore = progress.todayCorrect();
   progress.logAnswer(ok);
   updateGoal();
+  if (ok && todayBefore < progress.goal() && progress.todayCorrect() >= progress.goal()) celebrate();
   if (state === "mastered") {
     setStatus(`Верно! ${Core.NEEDED_STREAK} подряд — фраза выучена навсегда`, "ok");
   } else if (state === "learning" && before === "new") {
@@ -335,15 +342,40 @@ let view = "learn";
 let invTab = "hard";
 let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
+let swapTimer = null;
+
+/** Завершить переход: убрать служебные классы, оставить видимым только текущий экран. */
+function finishSwap() {
+  clearTimeout(swapTimer);
+  for (const v of VIEWS) {
+    const e = $(v);
+    e.classList.remove("leaving", "entering", "to-r", "to-l", "from-r", "from-l");
+    e.hidden = v !== view;
+  }
+}
+
+/** Переключить вкладку: старый экран плавно уходит в сторону, новый приезжает; белая заливка на кнопке идёт параллельно. */
 function showView(name) {
+  const prev = view;
+  finishSwap(); // если прошлый переход ещё идёт (быстрые нажатия) — сразу завершаем его
   view = name;
-  for (const v of VIEWS) $(v).hidden = v !== name;
   for (const b of document.querySelectorAll(".tabbtn")) b.classList.toggle("on", b.dataset.view === name);
   if (name === "rev") renderRev();
   if (name === "saved") renderSaved();
   if (name === "inv") renderInv();
   if (name === "prog") renderProg();
+  const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still) {
+    finishSwap();
+    window.scrollTo(0, 0);
+    return;
+  }
+  const dir = VIEWS.indexOf(name) > VIEWS.indexOf(prev) ? "r" : "l"; // куда «едем»: вправо или влево
   window.scrollTo(0, 0);
+  $(prev).classList.add("leaving", "to-" + dir);
+  $(name).hidden = false;
+  $(name).classList.add("entering", "from-" + dir);
+  swapTimer = setTimeout(finishSwap, 340);
 }
 
 function make(tag, cls, text) {
@@ -489,7 +521,7 @@ function renderProg() {
   const streak = progress.streak();
   // у каждой плитки: главный текст по центру, подпись ниже, а позади — большой полупрозрачный анимированный значок
   for (const [num, label, gold, icon, cls] of [
-    [`${progress.todayCorrect()}/${progress.goal()}`, "сегодня", false, calendarSvg(), "calicon"],
+    [`${Math.min(progress.todayCorrect(), progress.goal())}/${progress.goal()}`, "сегодня", false, calendarSvg(), "calicon"],
     [String(streak), streak % 10 === 1 && streak % 100 !== 11 ? "день подряд" : "дней подряд", done, FLAME,
       "flamebg" + (streak > 0 ? " on" : "")],
     [acc !== null ? `${acc}%` : "—", "точность", false, TARGET, "targeticon"],
@@ -542,6 +574,81 @@ function renderProg() {
     `Уже знал: ${s.known}`));
 }
 
+// ---------- конфетти: цель дня достигнута, огонёк «загорелся» ----------
+const CONFETTI_COLORS = ["#ffffff", "#ffd24a", "#ff9a1f", "#ff6a1a", "#e5484d", "#dfe1e6"];
+const CONFETTI_SECONDS = 3.9;
+
+function confettiPiece(x, y, vx, vy, g, drag) {
+  return {
+    x, y, vx, vy, g, drag,
+    w: 5 + Math.random() * 6, h: 3 + Math.random() * 5,
+    flip: Math.random() * 6.28, vflip: 5 + Math.random() * 9, rot: Math.random() * 6.28, vrot: (Math.random() - 0.5) * 9,
+    c: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)], round: Math.random() < 0.25,
+  };
+}
+
+/** Конфетти на весь экран: взрыв из точки (x, y) и «дождь» сверху; холст сам исчезает через ~4 секунды. */
+function confetti(x, y) {
+  const cv = document.createElement("canvas");
+  cv.className = "confetti";
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = window.innerWidth, H = window.innerHeight;
+  cv.width = W * dpr;
+  cv.height = H * dpr;
+  document.body.append(cv);
+  const ctx = cv.getContext("2d");
+  ctx.scale(dpr, dpr);
+  const parts = [];
+  for (let i = 0; i < 110; i++) { // взрыв во все стороны из огонька
+    const a = Math.random() * Math.PI * 2, sp = 260 + Math.random() * 560;
+    parts.push(confettiPiece(x, y, Math.cos(a) * sp, Math.sin(a) * sp, 1000, 0.9));
+  }
+  for (let i = 0; i < 120; i++) { // дождь: стартует выше экрана в разное время, плавно падает по всей ширине
+    parts.push(confettiPiece(Math.random() * W, -Math.random() * H * 0.7 - 10, (Math.random() - 0.5) * 90,
+      60 + Math.random() * 160, 420, 1.6));
+  }
+  const t0 = performance.now();
+  let last = t0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    const alpha = Math.max(0, Math.min(1, (CONFETTI_SECONDS - t) / 0.9));
+    for (const p of parts) {
+      p.vx *= 1 - 1.2 * dt;
+      p.vy = p.vy * (1 - p.drag * dt) + p.g * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.flip += p.vflip * dt; p.rot += p.vrot * dt;
+      if (p.y > H + 20) continue;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.c;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.scale(1, Math.cos(p.flip)); // переворот: бумажка поблёскивает ребром
+      if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, 6.283); ctx.fill(); }
+      else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    if (t < CONFETTI_SECONDS) requestAnimationFrame(frame);
+    else cv.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+/** Цель дня выполнена: огонёк в шапке подпрыгивает, из него вылетает конфетти. */
+function celebrate() {
+  const chip = el.streakChip;
+  chip.classList.remove("pop");
+  void chip.offsetWidth; // перезапуск анимации
+  chip.classList.add("pop");
+  setTimeout(() => chip.classList.remove("pop"), 1100);
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = chip.getBoundingClientRect();
+  confetti(r.width ? r.left + r.width / 2 : window.innerWidth / 2, r.height ? r.top + r.height / 2 : 60);
+}
+
 // ---------- настройки и выбор цели ----------
 const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
@@ -572,6 +679,19 @@ function setRow(label, control) {
 
 const GOALS = [10, 20, 30];
 
+/** Мелкая строка внизу настроек: какая версия страницы и что ответил Телеграм про полный экран. */
+function diagText() {
+  const tg = tgRef;
+  let fs;
+  if (!tg) fs = "вне Телеграма";
+  else if (tg.isFullscreen) fs = "включён";
+  else if (!["android", "ios"].includes(tg.platform)) fs = "только на телефонах";
+  else if (!fsInfo.supported) fs = "не поддерживается этой версией Телеграма";
+  else fs = fsInfo.failed ? `отказ: ${fsInfo.failed}` : fsInfo.requested ? "запрошен, ответа нет" : "не запрошен";
+  const where = tg ? `Telegram ${tg.version || "?"}, ${tg.platform || "?"}` : "браузер";
+  return `Версия страницы ${APP_VERSION} · ${where} · полный экран: ${fs}`;
+}
+
 function openSettings() {
   sheetOpen((box) => {
     box.append(make("h2", "", "Настройки"));
@@ -591,6 +711,7 @@ function openSettings() {
     const done = make("button", "btn primary wide", "Готово");
     done.addEventListener("click", sheetClose);
     box.append(done);
+    box.append(make("p", "diag", diagText()));
   }, true);
 }
 
@@ -637,9 +758,17 @@ async function boot() {
     tg.onEvent("fullscreenChanged", refit);
     tg.onEvent("safeAreaChanged", fit);
     tg.onEvent("contentSafeAreaChanged", fit);
-    try {
-      if (["android", "ios"].includes(tg.platform) && tg.isVersionAtLeast("8.0")) tg.requestFullscreen();
-    } catch { /* старый клиент: остаётся обычный вид */ }
+    tgRef = tg;
+    const wantFs = ["android", "ios"].includes(tg.platform);
+    try { fsInfo.supported = tg.isVersionAtLeast("8.0"); } catch { fsInfo.supported = false; }
+    tg.onEvent("fullscreenFailed", (p) => { fsInfo.failed = String((p && p.error) || "ошибка"); });
+    const tryFullscreen = () => {
+      if (!wantFs || !fsInfo.supported || tg.isFullscreen) return;
+      try { fsInfo.requested = true; tg.requestFullscreen(); } catch (e) { fsInfo.failed = String((e && e.message) || e); }
+    };
+    tryFullscreen();
+    // некоторые клиенты принимают запрос только после касания пользователя — повторяем один раз
+    document.addEventListener("pointerdown", tryFullscreen, { once: true });
     applyFullscreen();
     fit();
   }
