@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>English widget</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -14,7 +14,7 @@
     <main id="learn" class="view">
       <header class="hdr">
         <div class="goalbox">
-          <div class="goaltext"><span id="goalLabel" class="muted">Сегодня</span> <b id="goalNum">0/20</b></div>
+          <div class="goaltext"><span id="goalLabel" class="muted">Сегодня:</span> <b id="goalNum">0/20</b></div>
           <div class="track"><i id="goalFill"></i></div>
         </div>
         <div id="streakChip" class="chip" title="Дней подряд"><span class="flame-slot"></span><b id="streakNum">0</b></div>
@@ -53,6 +53,12 @@
           <button id="easyBtn" class="btn" hidden>Легко</button>
           <button id="normalBtn" class="btn" hidden>Нормально</button>
           <button id="hardBtn" class="btn" hidden>Трудно</button>
+        </div>
+
+        <div class="row bottom">
+          <button id="modeBtn" class="icon" aria-label="Что учить: выбрать виды">
+            <svg viewBox="0 0 24 24" width="30" height="30"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.6"/><circle cx="8" cy="17" r="2.6"/></svg>
+          </button>
         </div>
       </div>
 
@@ -123,6 +129,6 @@
     </button>
   </nav>
 
-  <script type="module" src="app.js?v=10"></script>
+  <script type="module" src="app.js?v=11"></script>
 </body>
 </html>

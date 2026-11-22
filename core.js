@@ -190,10 +190,12 @@ export class Progress {
   }
 
   // --- выбор следующей карточки ---
-  pick(recent = [], now = nowSec()) {
+  /** types — необязательный набор видов (Set строк phrase.type): режим «что учить». null = все виды. */
+  pick(recent = [], now = nowSec(), types = null) {
     const skip = new Set(recent.slice(-RECENT_SKIP));
     const dueLearning = [], dueNew = [], unseen = [], waiting = [];
     for (const key of this.phrases.keys()) {
+      if (types && !types.has(this.phrases.get(key).type)) continue;
       const st = this.state(key);
       if (st === "mastered" || st === "known") continue;
       const c = this.cards[key];

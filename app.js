@@ -1,10 +1,10 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=10";
-import * as Store from "./storage.js?v=10";
-import { startMolten } from "./molten.js?v=10";
+import * as Core from "./core.js?v=11";
+import * as Store from "./storage.js?v=11";
+import { startMolten } from "./molten.js?v=11";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.10";
+const APP_VERSION = "2026-11-22.11";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -22,7 +22,7 @@ const $ = (id) => document.getElementById(id);
 const el = {
   tag: $("tag"), prompt: $("prompt"), entry: $("entry"), status: $("status"), answer: $("answer"),
   example: $("example"), countdown: $("countdown"), timerFill: $("timerFill"), goalNum: $("goalNum"), goalFill: $("goalFill"),
-  goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"),
+  goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"), mode: $("modeBtn"),
   check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
   savedBody: $("savedBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
@@ -69,9 +69,11 @@ function calendarSvg() {
 </svg>`;
 }
 
-// ---------- звуки (файлы из виджета) ----------
+// ---------- звуки (correct, error, next — файлы из виджета; fill, ping, leaf, streak — новые файлы пользователя) ----------
+// fill — кнопка «назад», ping — добавление в закладки, unstar — повторное нажатие на звезду и «Отменить» в уведомлении,
+// leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
 const sounds = {};
-for (const n of ["correct", "error", "next", "back", "fav"]) {
+for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak"]) {
   const a = new Audio(`sounds/${n}.wav`);
   a.preload = "auto";
   sounds[n] = a;
@@ -200,12 +202,12 @@ function nextCard() {
     key = pool[Math.floor(Math.random() * pool.length)];
     session.seen.push(key);
   } else {
-    key = progress.pick(recent());
+    key = progress.pick(recent(), undefined, allowedTypes());
   }
   if (key === null) {
     cur = null;
     schedule(askSec(), "ask");
-    setIdle("Все фразы выучены 🎉");
+    setIdle(allowedTypes() ? "В выбранных видах всё выучено 🎉" : "Все фразы выучены 🎉");
     return;
   }
   progress.data.recent = [...recent(), key].slice(-Core.RECENT_SKIP);
@@ -348,8 +350,8 @@ const TOAST_KIND = {
 
 function toggleFav() {
   if (!cur) return;
-  play("fav");
   const on = progress.toggleFav(cur);
+  play(on ? "ping" : "unstar");
   refreshFav(true);
   if (on) {
     // в описании нет самой фразы: в режиме RU→EN она выдала бы ответ — только её вид (слово, идиома…)
@@ -357,7 +359,7 @@ function toggleFav() {
     const kind = TOAST_KIND[progress.phrases.get(key)?.type] || "Фраза";
     showToast({
       title: "Добавлено в закладки", description: `${kind} в «Закладках»`, actionLabel: "Отменить",
-      onAction: () => { progress.toggleFav(key); refreshFav(true); },
+      onAction: () => { progress.toggleFav(key); play("unstar"); refreshFav(true); },
     });
   } else {
     hideToast();
@@ -640,9 +642,15 @@ function renderList(body, keys, kind, emptyText) {
       rm.setAttribute("aria-label", "Убрать из закладок");
       rm.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M6 6l12 12M18 6L6 18"/></svg>';
       rm.addEventListener("click", () => {
+        rm.disabled = true;
+        play("leaf");
         progress.toggleFav(key);
         refreshFav();
-        renderSaved();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderSaved(); return; }
+        row.style.height = row.offsetHeight + "px";   // чтобы высота плавно уменьшалась до нуля
+        void row.offsetHeight;
+        row.classList.add("removing");
+        setTimeout(renderSaved, 440);                  // после анимации — перерисовать список
       });
       row.append(rm);
     } else {
@@ -870,6 +878,8 @@ function confetti(x, y) {
 
 /** Цель дня выполнена: огонёк в шапке подпрыгивает, из него вылетает конфетти. */
 function celebrate() {
+  try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }  // «серия» заменяет «верно»
+  play("streak");
   const chip = el.streakChip;
   chip.classList.remove("pop");
   void chip.offsetWidth; // перезапуск анимации
@@ -884,8 +894,9 @@ function celebrate() {
 const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
 // окно выезжает снизу и проявляется плавно (классы .show в style.css); если оно уже открыто — только обновляется
-let sheetTimer = 0;
+let sheetTimer = 0, sheetAfterClose = null;
 function sheetOpen(build, closable) {
+  sheetAfterClose = null;
   sheetBox.replaceChildren();
   build(sheetBox);
   sheetEl.dataset.closable = closable ? "1" : "";
@@ -900,7 +911,68 @@ const sheetClose = () => {
   sheetEl.classList.remove("show");
   clearTimeout(sheetTimer);
   sheetTimer = setTimeout(() => { sheetEl.hidden = true; }, 400);
+  const after = sheetAfterClose;               // что сделать после закрытия (любым способом)
+  sheetAfterClose = null;
+  after?.();
 };
+
+// ---------- режим «что учить»: кнопка в правом нижнем углу карточки, выбор видов ----------
+const KINDS = [
+  ["word", "Слова"], ["phrasal verb", "Фразовые глаголы"], ["conversational", "Фразы"],
+  ["idiom", "Идиомы"], ["slang", "Сленг"], ["proverb", "Пословицы"],
+];
+
+/** Набор выбранных видов или null, если выбраны все (тогда ничего не фильтруется). */
+function allowedTypes() {
+  const k = settings().kinds;
+  if (!Array.isArray(k)) return null;
+  const set = new Set(k.filter((t) => KINDS.some(([v]) => v === t)));
+  return set.size && set.size < KINDS.length ? set : null;
+}
+
+const refreshModeBtn = () => el.mode.classList.toggle("on", !!allowedTypes());
+
+/** После закрытия окна выбора: если текущая карточка не подходит (или карточек не было) — взять новую. */
+function applyModes() {
+  refreshModeBtn();
+  if (session) return;                          // сессия «Повтор» живёт по своим правилам
+  const a = allowedTypes();
+  if (!cur || (a && !a.has(progress.phrases.get(cur)?.type))) nextCard();
+}
+
+function openModes() {
+  const counts = {};
+  for (const p of progress.phrases.values()) counts[p.type] = (counts[p.type] || 0) + 1;
+  const everyone = () => new Set(KINDS.map(([v]) => v));
+  const sel = allowedTypes() || everyone();
+  const save = (set) => {
+    settings().kinds = set.size === KINDS.length ? null : [...set];
+    progress.save(); refreshModeBtn(); openModes();
+  };
+  sheetOpen((box) => {
+    box.append(make("h2", "", "Что учить"));
+    box.append(make("p", "", "Выберите один или несколько видов. Новые карточки и повторения будут только из выбранных."));
+    const grid = make("div", "kindgrid");
+    const all = make("button", "btn all" + (sel.size === KINDS.length ? " on" : ""), "Все виды");
+    all.addEventListener("click", () => save(everyone()));
+    grid.append(all);
+    for (const [value, label] of KINDS) {
+      const b = make("button", "btn" + (sel.size < KINDS.length && sel.has(value) ? " on" : ""));
+      b.append(label, make("small", "", String(counts[value] || 0)));
+      b.addEventListener("click", () => {
+        const next = new Set(sel.size === KINDS.length ? [] : sel);   // из «Все виды» выбор начинается с нуля
+        if (next.has(value)) next.delete(value); else next.add(value);
+        if (next.size) save(next);                                    // хотя бы один вид остаётся выбранным
+      });
+      grid.append(b);
+    }
+    box.append(grid);
+    const done = make("button", "btn primary wide", "Готово");
+    done.addEventListener("click", sheetClose);
+    box.append(done);
+  }, true);
+  sheetAfterClose = applyModes;
+}
 
 // ---------- задний фон: «Анимация» / «Без движения» / «Выкл» (настройка bg) ----------
 let bgCtl = null;
@@ -1028,8 +1100,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json").then((r) => r.json()),
-    fetch("data/aspect.json").then((r) => r.json()),
+    fetch("data/phrases.json?v=11").then((r) => r.json()),
+    fetch("data/aspect.json?v=11").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -1037,10 +1109,12 @@ async function boot() {
   progress = new Core.Progress(phrases, saved, Store.save);
   if (Store.usingCloud) Store.save(progress.data); // если локальная копия была новее — подтянуть облако
   applyBg();
+  refreshModeBtn();
+  el.mode.addEventListener("click", openModes);
 
   el.check.addEventListener("click", submit);
   el.show.addEventListener("click", giveUp);
-  el.back.addEventListener("click", () => { play("back"); back(); });
+  el.back.addEventListener("click", () => { play("fill"); back(); });
   el.next.addEventListener("click", () => { play("next"); nextCard(); }); // звук «Дальше» — только по клику
   el.known.addEventListener("click", onKnown);
   el.easy.addEventListener("click", () => onRate("easy"));
