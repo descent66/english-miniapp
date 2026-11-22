@@ -31,6 +31,38 @@ const FLAME = `<svg class="flame" viewBox="0 0 24 24" width="26" height="26" ari
   <g class="f3"><path d="${FLAME_PATH}" transform="translate(12 21.6) scale(.38) translate(-12 -21.6)" fill="#fff0a6" stroke="none"/></g>
 </svg>`;
 
+// ---------- мишень с дротиком (попадает в яблочко) и отрывной календарь ----------
+const TARGET = `<svg class="ico target" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+  <g class="tgt" stroke="none">
+    <circle cx="12" cy="12" r="10" fill="#e5484d"/>
+    <circle cx="12" cy="12" r="7.7" fill="#ffffff"/>
+    <circle cx="12" cy="12" r="5.4" fill="#e5484d"/>
+    <circle cx="12" cy="12" r="3.1" fill="#ffffff"/>
+    <circle cx="12" cy="12" r="1.3" fill="#e5484d"/>
+  </g>
+  <circle class="hit" cx="12" cy="12" r="4" fill="none" stroke="#ffd24a" stroke-width="1.3"/>
+  <g class="dart">
+    <path d="M12 12L19.4 4.6" stroke="#3b3f4a" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M12 12l1.7-.9-.8-.8z" fill="#9aa0ad" stroke="none"/>
+    <path d="M16.6 8.4l-1.4 3 3-1.4zM19.4 4.6l1.9-1.9.6 3.4-3.4.6z" fill="#ffb524" stroke="none"/>
+  </g>
+</svg>`;
+
+/** Отрывной календарь: верхний листок (вчера) отлетает, под ним сегодняшний. */
+function calendarSvg() {
+  const day = new Date().getDate(), prev = new Date(Date.now() - 864e5).getDate();
+  const sheet = (n) => `<rect x="3" y="4.5" width="18" height="17" rx="3" fill="#f4f5f7" stroke="none"/>
+    <path d="M3 7.5a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v2.5H3z" fill="#e5484d" stroke="none"/>
+    <text x="12" y="18.4" text-anchor="middle" font-size="8.6" font-weight="700" fill="#2b2e38" stroke="none"
+      font-family="Inter, system-ui, sans-serif">${n}</text>`;
+  return `<svg class="ico calendar" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+  <g class="back">${sheet(day)}</g>
+  <g class="front">${sheet(prev)}</g>
+  <rect x="7" y="2.2" width="2.2" height="4.2" rx="1.1" fill="#8a8f9c" stroke="none"/>
+  <rect x="14.8" y="2.2" width="2.2" height="4.2" rx="1.1" fill="#8a8f9c" stroke="none"/>
+</svg>`;
+}
+
 // ---------- звуки (файлы из виджета) ----------
 const sounds = {};
 for (const n of ["correct", "error", "next", "back", "fav"]) {
@@ -52,9 +84,22 @@ const touch = window.matchMedia("(pointer: coarse)").matches;
 let keepFocus = true; // false — пользователь сам убрал клавиатуру, новые карточки её не вызывают
 let maxViewH = 0;
 
+/** Невысокий экран -> сжимаем отступы (классы compact / compact2). В режиме «на весь экран» часть высоты
+ *  занимают кнопки Телеграма сверху, поэтому считаем оставшееся место. */
+function fit() {
+  const cs = getComputedStyle(document.documentElement);
+  const px = (name) => parseFloat(cs.getPropertyValue(name)) || 0;
+  const fs = document.body.classList.contains("fs");
+  const top = fs ? px("--tg-safe-area-inset-top") + (px("--tg-content-safe-area-inset-top") || 44) - 4 : 0;
+  const eff = (maxViewH || window.innerHeight) - top;
+  document.body.classList.toggle("compact", eff <= 780);
+  document.body.classList.toggle("compact2", eff <= 690);
+}
+
 function checkKeyboard() {
   const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   maxViewH = Math.max(maxViewH, h);
+  fit();
   const typing = document.activeElement && document.activeElement.tagName === "INPUT";
   document.body.classList.toggle("kbd", touch && typing && h < maxViewH - 120);
 }
@@ -441,20 +486,19 @@ function renderProg() {
   const done = progress.todayCorrect() >= progress.goal();
 
   const tiles = make("div", "tiles");
-  for (const [num, label, gold] of [
-    [`${progress.todayCorrect()}/${progress.goal()}`, "сегодня", false],
-    [String(progress.streak()), progress.streak() % 10 === 1 && progress.streak() % 100 !== 11 ? "день подряд" : "дней подряд", done],
-    [acc !== null ? `${acc}%` : "—", "точность", false],
+  const streak = progress.streak();
+  // у каждой плитки: главный текст по центру, подпись ниже, а позади — большой полупрозрачный анимированный значок
+  for (const [num, label, gold, icon, cls] of [
+    [`${progress.todayCorrect()}/${progress.goal()}`, "сегодня", false, calendarSvg(), "calicon"],
+    [String(streak), streak % 10 === 1 && streak % 100 !== 11 ? "день подряд" : "дней подряд", done, FLAME,
+      "flamebg" + (streak > 0 ? " on" : "")],
+    [acc !== null ? `${acc}%` : "—", "точность", false, TARGET, "targeticon"],
   ]) {
-    const t = make("div", "tile" + (gold ? " gold" : ""));
-    const b = make("b", "", num);
-    if (label.endsWith("подряд")) { // плитка серии: рядом анимированный огонёк
-      const fl = make("span", "flamewrap" + (progress.streak() > 0 ? " on" : ""));
-      fl.innerHTML = FLAME;
-      b.prepend(fl);
-    }
-    t.append(b, make("span", "", label));
-    tiles.append(t);
+    const tile = make("div", "tile" + (gold ? " gold" : ""));
+    const bg = make("span", "bgicon " + cls);
+    bg.innerHTML = icon;
+    tile.append(bg, make("b", "", num), make("span", "lbl", label));
+    tiles.append(tile);
   }
   body.append(tiles);
 
@@ -580,6 +624,24 @@ async function boot() {
     try { tg.setHeaderColor("#05060d"); tg.setBackgroundColor("#05060d");
       if (tg.setBottomBarColor) tg.setBottomBarColor("#05060d"); } catch { /* старый клиент */ }
     try { tg.disableVerticalSwipes(); } catch { /* старый клиент */ }
+    // на телефоне — на весь экран, как у других мини-приложений; кнопки «закрыть» и «…» тогда рисует сам Телеграм
+    // поверх страницы, а серия 🔥 переезжает в верхнюю полосу между ними
+    const applyFullscreen = () => {
+      const fs = !!tg.isFullscreen, chip = $("streakChip"), top = $("topbar");
+      document.body.classList.toggle("fs", fs);
+      top.hidden = !fs;
+      if (fs) top.append(chip);
+      else document.querySelector(".hdr").insertBefore(chip, $("settingsBtn"));
+    };
+    const refit = () => { applyFullscreen(); fit(); };
+    tg.onEvent("fullscreenChanged", refit);
+    tg.onEvent("safeAreaChanged", fit);
+    tg.onEvent("contentSafeAreaChanged", fit);
+    try {
+      if (["android", "ios"].includes(tg.platform) && tg.isVersionAtLeast("8.0")) tg.requestFullscreen();
+    } catch { /* старый клиент: остаётся обычный вид */ }
+    applyFullscreen();
+    fit();
   }
   const [list, aspect, saved] = await Promise.all([
     fetch("data/phrases.json").then((r) => r.json()),

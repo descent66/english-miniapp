@@ -2,6 +2,7 @@
 @font-face { font-family: "Inter"; font-weight: 600; font-style: normal; font-display: swap; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); }
 :root {
   --bg: #05060d; --fg: #f4f6ff; --muted: #8e93ad; --line: rgba(255, 255, 255, .09);
+  --bar-gap: calc(max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)) * .5 + 2px);
   --ok: #5fd08a; --bad: #ff7b7b; --gold: #ffd24a;
   --glass: linear-gradient(145deg, rgba(255, 255, 255, .11), rgba(18, 18, 26, .72) 55%, rgba(10, 10, 16, .8));
 }
@@ -20,7 +21,7 @@ button, input { font: inherit; color: inherit; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 #views { width: 100%; max-width: 520px; }
-.view { min-height: 100dvh; padding: 14px 16px calc(98px + env(safe-area-inset-bottom));
+.view { min-height: 100dvh; padding: 14px 16px calc(104px + var(--bar-gap));
   display: flex; flex-direction: column; gap: 12px; }
 .view h1 { font-size: 28px; font-weight: 600; margin: 8px 2px 2px; }
 
@@ -92,7 +93,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .segbtn.on { color: #0b0c12; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 18px rgba(255, 255, 255, .45); }
 
 /* нижняя панель */
-#bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom));
+#bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: var(--bar-gap);
   width: calc(100% - 16px); max-width: 504px; display: flex; gap: 2px; padding: 7px; z-index: 5;
   background: linear-gradient(180deg, rgba(44, 44, 58, .78), rgba(10, 10, 16, .9));
   border: 1px solid var(--line); border-radius: 28px;
@@ -187,8 +188,7 @@ body.kbd .view { padding-bottom: 14px; }
 .goalpick .btn small { display: block; font-size: 12px; font-weight: 500; opacity: .7; margin-top: 4px; }
 
 /* анимированный огонёк */
-.flame-slot, .flamewrap { display: inline-flex; align-items: center; }
-.flamewrap { margin-right: 6px; vertical-align: -5px; }
+.flame-slot { display: inline-flex; align-items: center; }
 .flame { display: block; overflow: visible; stroke: none; filter: drop-shadow(0 0 5px rgba(255, 140, 30, .75)); }
 .flame g { transform-box: view-box; transform-origin: 12px 21.6px; }
 .flame .f1 { animation: flick 1.1s ease-in-out infinite alternate; }
@@ -205,30 +205,81 @@ body.kbd .view { padding-bottom: 14px; }
   100% { transform: scale(.88, 1.18); opacity: 1; }
 }
 /* серия 0 — огонёк погашен: серый и неподвижный */
-.chip:not(.on) .flame, .flamewrap:not(.on) .flame { filter: grayscale(1) brightness(.7); opacity: .6; }
-.chip:not(.on) .flame g, .flamewrap:not(.on) .flame g { animation: none; }
-@media (prefers-reduced-motion: reduce) { .flame g { animation: none !important; } }
+.chip:not(.on) .flame, .flamebg:not(.on) .flame { filter: grayscale(1) brightness(.7); }
+.chip:not(.on) .flame { opacity: .6; }
+.chip:not(.on) .flame g, .flamebg:not(.on) .flame g { animation: none; }
+@media (prefers-reduced-motion: reduce) { .flame g, .bgicon * { animation: none !important; } }
 
 /* невысокие экраны (многие телефоны в Телеграме): сжимаем отступы, чтобы кнопки не прятались под панелью */
-@media (max-height: 760px) {
-  .view { gap: 8px; padding-top: 10px; }
-  .hdr { padding: 8px 12px; }
-  .glass { gap: 8px; padding: 12px 14px 14px; }
-  .icon { width: 44px; height: 44px; }
-  #prompt { min-height: 52px; padding-top: 8px; font-size: 28px; }
-  #entry { padding-top: 14px; padding-bottom: 14px; }
-  .btn.wide { padding-top: 15px; padding-bottom: 15px; }
-  #example { min-height: 28px; }
+  body.compact .view { gap: 8px; padding-top: 10px; padding-bottom: calc(98px + var(--bar-gap)); }
+  body.compact .hdr { padding: 8px 12px; }
+  body.compact .glass { gap: 8px; padding: 12px 14px 14px; }
+  body.compact .icon { width: 44px; height: 44px; }
+  body.compact #prompt { min-height: 52px; padding-top: 8px; font-size: 28px; }
+  body.compact #entry { padding-top: 14px; padding-bottom: 14px; }
+  body.compact .btn.wide { padding-top: 15px; padding-bottom: 15px; }
+  body.compact #example { min-height: 28px; }
+  body.compact2 .view { gap: 6px; padding-top: 8px; padding-bottom: calc(96px + var(--bar-gap)); }
+  body.compact2 .glass { gap: 6px; padding: 10px 12px 12px; }
+  body.compact2 #prompt { min-height: 44px; font-size: 26px; padding-top: 4px; }
+  body.compact2 .btn { padding-top: 12px; padding-bottom: 12px; }
+  body.compact2 .btn.wide { padding-top: 13px; padding-bottom: 13px; font-size: 19px; }
+  body.compact2 #entry { padding-top: 12px; padding-bottom: 12px; font-size: 19px; }
+  body.compact2 #example { min-height: 22px; }
+  body.compact2 #status { min-height: 18px; }
+  body.compact2 #bar { padding: 5px; }
+  body.compact2 .tabbtn { padding: 7px 2px 6px; }
+
+/* на весь экран в Телеграме: свои кнопки «закрыть» и «…» рисует Телеграм поверх страницы, оставляем под них место */
+#topbar { position: absolute; left: 0; right: 0; z-index: 4; display: flex; align-items: center; justify-content: center;
+  top: var(--tg-safe-area-inset-top, 0px); height: var(--tg-content-safe-area-inset-top, 44px); pointer-events: none; }
+#topbar .chip { pointer-events: auto; }
+body.fs .view { padding-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 44px) + 10px); }
+
+/* плитка «дней подряд»: большой огонёк позади текста, прозрачность 77% (то есть непрозрачность 23%) */
+
+/* плитки на экране «Прогресс»: одинаковая высота, главный текст ровно по центру, подпись внизу на одном уровне */
+.tile { position: relative; overflow: hidden; height: 100px; padding: 0; }
+.tile > b { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); z-index: 1;
+  line-height: 1; font-size: 28px; text-shadow: 0 1px 10px rgba(0, 0, 0, .55); }
+.tile > span.lbl { position: absolute; left: 0; right: 0; bottom: 10px; margin: 0; z-index: 1; line-height: 1;
+  font-size: 13px; text-shadow: 0 1px 8px rgba(0, 0, 0, .6); }
+.tile > .bgicon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: .23;
+  pointer-events: none; display: block; margin: 0; }
+.bgicon svg { display: block; overflow: visible; }
+.flamebg svg { width: 92px; height: 92px; }
+.targeticon svg, .calicon svg { width: 86px; height: 86px; }
+.flamebg { margin-top: 1px; }
+
+/* мишень: дротик прилетает, попадает в яблочко, дрожит; от попадания расходится кольцо */
+.target .dart { transform-origin: 12px 12px; animation: dart-fly 3.4s ease-out infinite; }
+.target .tgt { transform-origin: 12px 12px; animation: tgt-hit 3.4s ease-out infinite; }
+.target .hit { transform-origin: 12px 12px; opacity: 0; animation: hit-ring 3.4s ease-out infinite; }
+@keyframes dart-fly {
+  0%   { transform: translate(11px, -11px); opacity: 0; }
+  4%   { opacity: 1; }
+  15%  { transform: translate(0, 0) rotate(0deg); opacity: 1; animation-timing-function: ease-out; }
+  19%  { transform: translate(.5px, -.5px) rotate(-6deg); }
+  24%  { transform: translate(0, 0) rotate(5deg); }
+  30%  { transform: rotate(-2.5deg); }
+  36%, 88% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  96%, 100% { transform: translate(0, 0); opacity: 0; }
 }
-@media (max-height: 680px) {
-  .view { gap: 6px; padding-top: 8px; }
-  .glass { gap: 6px; padding: 10px 12px 12px; }
-  #prompt { min-height: 44px; font-size: 26px; padding-top: 4px; }
-  .btn { padding-top: 12px; padding-bottom: 12px; }
-  .btn.wide { padding-top: 13px; padding-bottom: 13px; font-size: 19px; }
-  #entry { padding-top: 12px; padding-bottom: 12px; font-size: 19px; }
-  #example { min-height: 22px; }
-  #status { min-height: 18px; }
-  #bar { padding: 5px; }
-  .tabbtn { padding: 7px 2px 6px; }
+@keyframes tgt-hit { 0%, 14% { transform: scale(1); } 18% { transform: scale(1.08); } 27%, 100% { transform: scale(1); } }
+@keyframes hit-ring { 0%, 14% { transform: scale(.4); opacity: 0; } 16% { opacity: .95; } 36% { transform: scale(2.6); opacity: 0; } 100% { opacity: 0; } }
+
+/* календарь: верхний листок отрывается и улетает, под ним новый день */
+.calendar .front { transform-origin: 12px 4.5px; animation: peel 3.6s ease-in-out infinite; }
+@keyframes peel {
+  0%, 42% { transform: translateY(0) scaleY(1) skewX(0deg); opacity: 1; }
+  60%     { transform: translateY(1px) scaleY(.2) skewX(-8deg); opacity: 1; }
+  70%     { transform: translateY(7px) scaleY(.05) skewX(-14deg); opacity: 0; }
+  90%     { transform: translateY(0) scaleY(1) skewX(0deg); opacity: 0; }
+  100%    { transform: translateY(0) scaleY(1) skewX(0deg); opacity: 1; }
 }
+
+/* ряд «назад / дальше / показать ответ»: все три кнопки одной высоты, «назад» — ровный круг */
+.nav .btn { height: 58px; padding-top: 0; padding-bottom: 0; }
+.nav #backBtn { width: 58px; padding-left: 0; padding-right: 0; }
+body.compact2 .nav .btn { height: 52px; }
+body.compact2 .nav #backBtn { width: 52px; }
