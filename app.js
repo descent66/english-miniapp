@@ -1,9 +1,9 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=8";
-import * as Store from "./storage.js?v=8";
+import * as Core from "./core.js?v=9";
+import * as Store from "./storage.js?v=9";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.8";
+const APP_VERSION = "2026-11-22.9";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -336,15 +336,234 @@ function onKnown() {
   nextCard();
 }
 
-function refreshFav() {
+function refreshFav(animate = false) {
+  el.fav.classList.toggle("instant", !animate);   // анимация заливки — только при нажатии на звезду
   el.fav.classList.toggle("on", !!(cur && progress.isFav(cur)));
 }
+
+const TOAST_KIND = {
+  word: "Слово", slang: "Слово", idiom: "Идиома", "phrasal verb": "Глагол", proverb: "Пословица", conversational: "Фраза",
+};
 
 function toggleFav() {
   if (!cur) return;
   play("fav");
-  progress.toggleFav(cur);
-  refreshFav();
+  const on = progress.toggleFav(cur);
+  refreshFav(true);
+  if (on) {
+    // в описании нет самой фразы: в режиме RU→EN она выдала бы ответ — только её вид (слово, идиома…)
+    const key = cur;
+    const kind = TOAST_KIND[progress.phrases.get(key)?.type] || "Фраза";
+    showToast({
+      title: "Добавлено в закладки", description: `${kind} в «Закладках»`, actionLabel: "Отменить",
+      onAction: () => { progress.toggleFav(key); refreshFav(true); },
+    });
+  } else {
+    hideToast();
+  }
+}
+
+// ---------- всплывающее окно ----------
+// Точный перенос компонента SwipeToast (React Bits, версия JS+CSS) на обычный JS; стили — в style.css (.swipe-toast).
+// Параметры из примера: slideMs 400, settleBounce 0.2, swipeDistance 40, duration 4000, fuse bottom, pauseOnHover.
+// Единственное отличие от оригинала — вид кнопки «Отменить» (под стиль приложения).
+const ST = {
+  ease: "cubic-bezier(0.23, 1, 0.32, 1)", flick: 0.11, dead: 3, resist: 24, exit: 0.7,
+  slideMs: 400, bounce: 0.2, swipe: 40, duration: 2000,
+};
+let toast = null;
+
+const rubberband = (over, dim, c = 0.55) => (over * dim * c) / (dim + c * Math.abs(over));
+const velocityOf = (hist) => {
+  if (hist.length < 2) return 0;
+  const [t0, y0] = hist[0];
+  const [t1, y1] = hist[hist.length - 1];
+  return performance.now() - t1 > 100 ? 0 : (y1 - y0) / Math.max(1, t1 - t0);
+};
+
+/** Пружина (как type:"spring" в библиотеке motion): duration — «видимая» длительность, bounce — отскок. */
+function runSpring(from, to, duration, bounce, v0, onTick, onDone) {
+  const w = (2 * Math.PI) / duration, z = 1 - bounce;
+  let x = from - to, v = v0, last = performance.now(), raf = 0;
+  const step = (now) => {
+    const dt = Math.min(0.032, (now - last) / 1000);
+    last = now;
+    const n = Math.max(1, Math.ceil(dt / 0.004)), h = dt / n;
+    for (let i = 0; i < n; i++) { v += (-w * w * x - 2 * z * w * v) * h; x += v * h; }
+    if (Math.abs(x) < 0.3 && Math.abs(v) < 5) { onTick(to); onDone?.(); return; }
+    onTick(to + x);
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+
+function hideToast(why = "programmatic") { toast?.close(why); }
+
+function showToast({ title, description = "", actionLabel = "", onAction, onClose, duration = ST.duration }) {
+  toast?.destroy();
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let phase = "open", leaving = false, drag = null, pendingClose = null, closeTimer = 0;
+  let stopSpring = null, fadeAnim = null, burn = null, lastInput = "pointer", y = 0;
+  const flags = { hover: false, interacting: false, focus: false, hidden: document.hidden };
+
+  // --- разметка (как в SwipeToast.jsx) ---
+  const root = make("div", "swipe-toast");
+  root.dataset.phase = "open";
+  root.dataset.mounted = "false";
+  root.dataset.fuse = duration > 0 ? "bottom" : "none";
+  const lift = make("div", "swipe-toast__lift");
+  const card = make("div", "swipe-toast__card");
+  card.setAttribute("role", "status");
+  card.setAttribute("aria-live", "polite");
+  card.setAttribute("aria-atomic", "true");
+  card.tabIndex = 0;
+  const body = make("span", "swipe-toast__body");
+  body.append(make("span", "swipe-toast__title", title));
+  if (description) body.append(make("span", "swipe-toast__desc", description));
+  card.append(body);
+  if (actionLabel) {
+    const act = make("button", "btn swipe-toast__action", actionLabel);
+    act.type = "button";
+    act.addEventListener("click", () => { onAction?.(); close("action"); });
+    card.append(act);
+  }
+  const fuseEl = make("i", "swipe-toast__fuse");
+  fuseEl.setAttribute("aria-hidden", "true");
+  card.append(fuseEl);
+  lift.append(card);
+  const gate = make("div", "swipe-toast__gate");
+  gate.append(lift);
+  root.append(gate);
+
+  // окно стоит над нижней панелью (если панель спрятана клавиатурой — у нижнего края)
+  const bar = $("bar"), br = bar.getBoundingClientRect();
+  root.style.bottom = getComputedStyle(bar).display !== "none" && br.height
+    ? `${window.innerHeight - br.top + 10}px`
+    : "calc(16px + env(safe-area-inset-bottom, 0px))";
+  document.body.append(root);
+  void lift.offsetHeight;                       // чтобы выезд проигрался
+  root.dataset.mounted = "true";
+
+  // --- «фитиль» ---
+  const syncFuse = () => {
+    if (!burn) return;
+    if (flags.hover || flags.interacting || flags.focus || flags.hidden) burn.pause();
+    else if (burn.playState === "paused") burn.play();
+  };
+  const startFuse = () => {
+    if (duration <= 0) return;
+    burn?.cancel();
+    burn = fuseEl.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }],
+      { duration, easing: "linear", fill: "forwards" });
+    burn.onfinish = () => close("timeout");
+    syncFuse();
+  };
+
+  const setPhase = (p) => { phase = p; root.dataset.phase = p; };
+  const setY = (v) => { y = v; card.style.transform = `translateY(${v}px)`; };
+  const onVis = () => { flags.hidden = document.hidden; syncFuse(); };
+  document.addEventListener("visibilitychange", onVis);
+
+  function cleanup() {
+    clearTimeout(closeTimer);
+    stopSpring?.();
+    burn?.cancel();
+    document.removeEventListener("visibilitychange", onVis);
+    root.remove();
+    if (toast === api) toast = null;
+  }
+  function finish(why) {
+    setPhase("gone");
+    leaving = false;
+    cleanup();
+    onClose?.(why);
+  }
+  function close(why) {
+    if (phase !== "open" || leaving) return;
+    if (drag) { pendingClose = why; return; }
+    burn?.pause();
+    const now = why === "escape" || ((why === "action" || why === "close") && lastInput === "keyboard");
+    if (now) root.setAttribute("data-instant", "");
+    setPhase("closing");
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => finish(why), now ? 0 : ST.slideMs * ST.exit + 60);
+  }
+  function rescue() {
+    clearTimeout(closeTimer);
+    root.removeAttribute("data-instant");
+    setY(0);
+    card.style.opacity = "";
+    setPhase("open");
+    startFuse();
+  }
+  function swipeOut(dy, v) {
+    burn?.pause();
+    leaving = true;
+    pendingClose = null;
+    if (!reduce) stopSpring = runSpring(dy, dy + card.offsetHeight, 0.3, 0, v * 1000, setY);
+    fadeAnim = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: ST.ease, fill: "forwards" });
+    fadeAnim.onfinish = () => finish("swipe");
+  }
+
+  // --- мышь, касание, клавиатура ---
+  card.addEventListener("pointerdown", (e) => {
+    lastInput = "pointer";
+    if (e.button !== 0 || drag || leaving || e.target.closest("button")) return;
+    if (phase === "closing") rescue();
+    try { card.setPointerCapture(e.pointerId); } catch { /* не страшно */ }
+    stopSpring?.();
+    drag = { id: e.pointerId, startY: e.clientY, grab: null, moved: false, hist: [[performance.now(), y]] };
+    flags.interacting = true;
+    syncFuse();
+  });
+  card.addEventListener("pointermove", (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    if (drag.grab === null) {
+      if (Math.abs(e.clientY - drag.startY) < ST.dead) return;
+      drag.grab = e.clientY - y;
+      card.dataset.swiping = "";
+    }
+    const raw = e.clientY - drag.grab;
+    const next = raw >= 0 ? raw : rubberband(raw, ST.resist);
+    setY(next);
+    drag.moved = true;
+    drag.hist.push([performance.now(), next]);
+    if (drag.hist.length > 4) drag.hist.shift();
+  });
+  const onUp = (e) => {
+    const d = drag;
+    if (!d || d.id !== e.pointerId) return;
+    drag = null;
+    delete card.dataset.swiping;
+    try { card.releasePointerCapture(e.pointerId); } catch { /* не страшно */ }
+    flags.interacting = false;
+    const dy = y, v = velocityOf(d.hist);
+    if (dy > 0 && (v > ST.flick || (dy >= ST.swipe && v >= 0))) { swipeOut(dy, v); return; }
+    if (d.moved) {
+      stopSpring = reduce ? runSpring(dy, 0, 0.2, 0, 0, setY)
+        : runSpring(dy, 0, 0.5, ST.bounce, v * 1000, setY);
+    }
+    const queued = pendingClose;
+    pendingClose = null;
+    if (queued) close(queued); else syncFuse();
+  };
+  card.addEventListener("pointerup", onUp);
+  card.addEventListener("pointercancel", onUp);
+  card.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { flags.hover = true; syncFuse(); } });
+  card.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { flags.hover = false; syncFuse(); } });
+  card.addEventListener("focusin", () => { flags.focus = true; syncFuse(); });
+  card.addEventListener("focusout", (e) => {
+    if (!card.contains(e.relatedTarget)) { flags.focus = false; syncFuse(); }
+  });
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") lastInput = "keyboard";
+    if (e.key === "Escape") { e.stopPropagation(); close("escape"); }
+  });
+
+  startFuse();
+  const api = { close, destroy: () => { cleanup(); } };
+  toast = api;
 }
 
 // ---------- нижняя панель: Учить / Повтор / Закладки / Инвентарь / Прогресс ----------
