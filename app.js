@@ -1,9 +1,9 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=7";
-import * as Store from "./storage.js?v=7";
+import * as Core from "./core.js?v=8";
+import * as Store from "./storage.js?v=8";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.7";
+const APP_VERSION = "2026-11-22.8";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -118,6 +118,17 @@ const recent = () => progress.data.recent;
 const settings = () => progress.data.settings || (progress.data.settings = {});
 const askSec = () => Number(params.get("ask")) || settings().ask || ASK_DEFAULT;
 
+/** Текст с подсказками: часть в скобках («Снимать (жильё)») выводится мелко и бледно рядом со словом. */
+function setHinted(node, text) {
+  node.replaceChildren(...text.split(/(\([^)]*\))/).filter(Boolean).map((part) => {
+    if (!/^\(.*\)$/.test(part)) return document.createTextNode(part);
+    const s = document.createElement("span");
+    s.className = "hint";
+    s.textContent = part;
+    return s;
+  }));
+}
+
 function showActions(...shown) {
   for (const b of actionBtns) b.hidden = !shown.includes(b);
 }
@@ -229,7 +240,7 @@ function show(key, dir, isRevealed) {
   if (state === "learning") pills.push(["↻", "rep"]);
   el.tag.replaceChildren(...pills.map(([text, cls]) => make("span", "pill " + cls, text)));
   el.tag.title = state === "learning" ? "повторение" : "";
-  el.prompt.textContent = dir === "en2ru" ? p.en : p.ru[0];
+  setHinted(el.prompt, dir === "en2ru" ? p.en : p.ru[0]);
   el.entry.readOnly = false;
   el.entry.value = "";
   el.entry.className = "";
@@ -261,7 +272,7 @@ function submit() {
   const p = progress.phrases.get(cur);
   // в RU→EN засчитывается главный вариант и синонимы
   const ok = direction === "en2ru"
-    ? Core.checkAnswer(text, p.ru, false)
+    ? Core.checkAnswer(text, [...p.ru, ...(p.ru_alt || [])], false) // ru_alt — доп. допустимые ответы (синонимы, формы слова)
     : Core.checkAnswer(text, [p.en, ...p.en_alt], true);
   play(ok ? "correct" : "error");
   reveal(ok);
@@ -279,9 +290,9 @@ function reveal(ok) {
   revealed = true;
   schedule(ok === false ? WRONG_SEC : REVEAL_SEC, "next");
   if (direction === "en2ru") {
-    el.answer.textContent = p.ru.slice(0, 3).join(" / ");
+    setHinted(el.answer, p.ru.slice(0, 3).join(" / "));
   } else {
-    el.answer.textContent = p.en + (p.en_alt.length ? `  (также: ${p.en_alt.slice(0, 2).join(", ")})` : "");
+    setHinted(el.answer, p.en + (p.en_alt.length ? `  (также: ${p.en_alt.slice(0, 2).join(", ")})` : ""));
   }
   el.example.textContent = `${p.example_en}\n${p.example_ru}`;
   el.entry.readOnly = true; // не disabled: так на телефоне не закрывается клавиатура

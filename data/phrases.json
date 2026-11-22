@@ -380,7 +380,9 @@
  {
   "en": "Give me a break",
   "en_alt": [
-   "give me a break"
+   "give me a break",
+   "cut it out",
+   "enough"
   ],
   "ru": [
    "Хватит",
@@ -589,7 +591,12 @@
   "example_en": "I'm just gonna chill at home tonight.",
   "example_ru": "Я просто побуду дома и отдохну.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "расслабиться",
+   "отдохнуть",
+   "остыть"
+  ]
  },
  {
   "en": "Awesome",
@@ -607,7 +614,14 @@
   "example_en": "That's awesome! Congratulations!",
   "example_ru": "Это круто! Поздравляю!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "здорово",
+   "отлично",
+   "великолепно",
+   "супер",
+   "обалденно"
+  ]
  },
  {
   "en": "Dude",
@@ -623,7 +637,13 @@
   "example_en": "Dude, that was crazy!",
   "example_ru": "Чувак, это было сумасшествие!",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "чел",
+   "парень",
+   "друг",
+   "бро"
+  ]
  },
  {
   "en": "Legit",
@@ -639,7 +659,13 @@
   "example_en": "Is this website legit?",
   "example_ru": "Этот сайт надёжный?",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "легальный",
+   "честный",
+   "надёжный",
+   "реальный"
+  ]
  },
  {
   "en": "Sketchy",
@@ -656,7 +682,12 @@
   "example_en": "That guy looks kind of sketchy.",
   "example_ru": "Тот парень выглядит подозрительно.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сомнительный",
+   "ненадёжный",
+   "мутный тип"
+  ]
  },
  {
   "en": "Cringe",
@@ -671,7 +702,13 @@
   "example_en": "That video was so cringe.",
   "example_ru": "То видео было сплошной кринж.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "стыд",
+   "неловкость",
+   "стыдоба",
+   "кринжовый"
+  ]
  },
  {
   "en": "Binge-watch",
@@ -702,13 +739,20 @@
   "example_en": "I'm low-key excited about the trip.",
   "example_ru": "Я втайне рад этой поездке.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "тайно",
+   "скрытно",
+   "немного",
+   "потихоньку"
+  ]
  },
  {
   "en": "Vibe",
   "en_alt": [
    "good vibes",
-   "the mood"
+   "the mood",
+   "atmosphere"
   ],
   "ru": [
    "Атмосфера",
@@ -717,7 +761,12 @@
   "example_en": "I love the vibe of this place.",
   "example_ru": "Мне нравится атмосфера этого места.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "вайб",
+   "ощущение",
+   "энергетика"
+  ]
  },
  {
   "en": "Flex",
@@ -733,7 +782,13 @@
   "example_en": "He always flexes his new car.",
   "example_ru": "Он вечно хвастается новой машиной.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "хвастовство",
+   "похвастаться",
+   "понтоваться",
+   "красоваться"
+  ]
  },
  {
   "en": "Salty",
@@ -749,7 +804,13 @@
   "example_en": "He's salty because he lost.",
   "example_ru": "Он злится, потому что проиграл.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "обидчивый",
+   "раздражён",
+   "бесится",
+   "надутый"
+  ]
  },
  {
   "en": "Y'all",
@@ -764,7 +825,12 @@
   "example_en": "Are y'all coming tonight?",
   "example_ru": "Вы все придёте сегодня вечером?",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "всем вам",
+   "ребята",
+   "народ"
+  ]
  },
  {
   "en": "Buddy",
@@ -780,7 +846,13 @@
   "example_en": "Hey buddy, how are you?",
   "example_ru": "Привет, дружище, как ты?",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "друг",
+   "дружок",
+   "товарищ",
+   "кореш"
+  ]
  },
  {
   "en": "Cool",
@@ -798,7 +870,13 @@
   "example_en": "Your new phone is cool.",
   "example_ru": "Твой новый телефон классный.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "классный",
+   "прикольный",
+   "отличный",
+   "клёвый"
+  ]
  },
  {
   "en": "A piece of cake",
@@ -1082,7 +1160,8 @@
   "en": "Cut it out",
   "en_alt": [
    "stop it",
-   "knock it off"
+   "knock it off",
+   "enough"
   ],
   "ru": [
    "Прекрати",
@@ -1351,7 +1430,8 @@
   "en": "Find out",
   "en_alt": [
    "discover",
-   "learn"
+   "learn",
+   "figure out"
   ],
   "ru": [
    "Выяснить",
@@ -1369,7 +1449,7 @@
    "understand"
   ],
   "ru": [
-   "Разобраться",
+   "Разобраться (понять)",
    "Выяснить",
    "Сообразить"
   ],
@@ -1612,7 +1692,7 @@
    "recover from"
   ],
   "ru": [
-   "Пережить",
+   "Пережить (оправиться)",
    "Оправиться от"
   ],
   "example_en": "It took me a year to get over it.",
@@ -1743,7 +1823,8 @@
   "en": "Check out",
   "en_alt": [
    "have a look at",
-   "leave"
+   "leave",
+   "take a look"
   ],
   "ru": [
    "Взглянуть",
@@ -2084,7 +2165,7 @@
    "stop paying attention"
   ],
   "ru": [
-   "Отключиться",
+   "Отключиться (задуматься)",
    "Задуматься и перестать слушать"
   ],
   "example_en": "Sorry, I zoned out for a second.",
@@ -2104,7 +2185,12 @@
   "example_en": "Let's splurge on a nice dinner.",
   "example_ru": "Давай потратимся на хороший ужин.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "потратить на роскошь",
+   "раскошелиться",
+   "транжирить"
+  ]
  },
  {
   "en": "Stuff",
@@ -2118,7 +2204,14 @@
   "example_en": "I have a lot of stuff to do.",
   "example_ru": "У меня много дел.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вещь",
+   "барахло",
+   "штуки",
+   "всякая всячина",
+   "добро"
+  ]
  },
  {
   "en": "Guy",
@@ -2132,7 +2225,13 @@
   "example_en": "That guy is my neighbor.",
   "example_ru": "Этот парень — мой сосед.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "человек",
+   "чувак",
+   "мужчина",
+   "тип"
+  ]
  },
  {
   "en": "Kids",
@@ -2146,12 +2245,20 @@
   "example_en": "The kids are playing outside.",
   "example_ru": "Дети играют на улице.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ребята",
+   "детки",
+   "малыши",
+   "ребёнок",
+   "детвора"
+  ]
  },
  {
   "en": "Gross",
   "en_alt": [
-   "disgusting"
+   "disgusting",
+   "nasty"
   ],
   "ru": [
    "Противно",
@@ -2162,7 +2269,12 @@
   "example_en": "Ew, that's gross!",
   "example_ru": "Фу, какая гадость!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отвратительно",
+   "гадкий",
+   "гадко"
+  ]
  },
  {
   "en": "Weird",
@@ -2176,7 +2288,13 @@
   "example_en": "That's a weird noise.",
   "example_ru": "Это странный звук.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "странно",
+   "чудной",
+   "необычный",
+   "странноватый"
+  ]
  },
  {
   "en": "Nerd",
@@ -2190,7 +2308,13 @@
   "example_en": "He's a total nerd, but a nice one.",
   "example_ru": "Он настоящий ботан, но хороший.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ботан",
+   "заучка",
+   "умник",
+   "гик"
+  ]
  },
  {
   "en": "Cash",
@@ -2203,7 +2327,12 @@
   "example_en": "Do you have cash?",
   "example_ru": "У тебя есть наличные?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "деньги",
+   "наличка",
+   "наличность"
+  ]
  },
  {
   "en": "Bucks",
@@ -2217,7 +2346,12 @@
   "example_en": "It costs ten bucks.",
   "example_ru": "Это стоит десять баксов.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "доллар",
+   "долларов",
+   "деньги"
+  ]
  },
  {
   "en": "Broke",
@@ -2232,7 +2366,13 @@
   "example_en": "I'm broke until Friday.",
   "example_ru": "Я на мели до пятницы.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "без гроша",
+   "нищий",
+   "банкрот",
+   "ни копейки"
+  ]
  },
  {
   "en": "Lame",
@@ -2248,7 +2388,13 @@
   "example_en": "The party was kind of lame.",
   "example_ru": "Вечеринка была довольно скучной.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скучно",
+   "нудный",
+   "жалкий",
+   "никчёмный"
+  ]
  },
  {
   "en": "Wicked",
@@ -2265,7 +2411,11 @@
   "example_en": "That's a wicked cool jacket.",
   "example_ru": "Это офигенно крутая куртка.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "злой",
+   "жуть какой"
+  ]
  },
  {
   "en": "Totally",
@@ -2282,7 +2432,13 @@
   "example_en": "I totally forgot about it.",
   "example_ru": "Я совершенно забыл об этом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "полностью",
+   "целиком",
+   "совсем",
+   "на все сто"
+  ]
  },
  {
   "en": "Seriously",
@@ -2297,7 +2453,12 @@
   "example_en": "Seriously, you have to try this.",
   "example_ru": "Серьёзно, тебе нужно это попробовать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "всерьёз",
+   "по-серьёзному",
+   "правда"
+  ]
  },
  {
   "en": "Basically",
@@ -2313,7 +2474,13 @@
   "example_en": "Basically, we need more time.",
   "example_ru": "По сути, нам нужно больше времени.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "в сущности",
+   "в принципе",
+   "по существу",
+   "фактически"
+  ]
  },
  {
   "en": "Honestly",
@@ -2327,7 +2494,13 @@
   "example_en": "Honestly, I don't care.",
   "example_ru": "Честно говоря, мне всё равно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "честно",
+   "откровенно",
+   "по правде",
+   "если честно"
+  ]
  },
  {
   "en": "Whatever",
@@ -2342,7 +2515,13 @@
   "example_en": "Pizza, tacos, whatever.",
   "example_ru": "Пицца, тако, что угодно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "неважно",
+   "пофиг",
+   "как хочешь",
+   "любой"
+  ]
  },
  {
   "en": "Obviously",
@@ -2356,7 +2535,13 @@
   "example_en": "Obviously, I said yes.",
   "example_ru": "Конечно, я сказал да.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "явно",
+   "разумеется",
+   "естественно",
+   "понятное дело"
+  ]
  },
  {
   "en": "Not my cup of tea",
@@ -2702,7 +2887,13 @@
   "example_en": "Ten dollars for water? What a rip-off!",
   "example_ru": "Десять долларов за воду? Вот грабёж!",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "развод",
+   "обдирание",
+   "надувательство",
+   "обман"
+  ]
  },
  {
   "en": "Pay off",
@@ -2778,7 +2969,7 @@
    "finally become"
   ],
   "ru": [
-   "Оказаться",
+   "Оказаться (в итоге где-то)",
    "В итоге попасть"
   ],
   "example_en": "We ended up at a small cafe.",
@@ -2969,7 +3160,7 @@
    "prove to be"
   ],
   "ru": [
-   "Оказаться",
+   "Оказаться (выяснилось)",
    "Получиться"
   ],
   "example_en": "It turned out to be a great day.",
@@ -3070,7 +3261,13 @@
   "example_en": "Can I borrow your pen?",
   "example_ru": "Можно взять твою ручку?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "занять",
+   "одолжить",
+   "взять в долг",
+   "занимать"
+  ]
  },
  {
   "en": "Lend",
@@ -3084,7 +3281,13 @@
   "example_en": "Could you lend me ten dollars?",
   "example_ru": "Не мог бы ты одолжить мне десять долларов?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "одолжить",
+   "дать в долг",
+   "дать взаймы",
+   "ссудить"
+  ]
  },
  {
   "en": "Afford",
@@ -3097,7 +3300,12 @@
   "example_en": "I can't afford a new car.",
   "example_ru": "Я не могу позволить себе новую машину.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "позволить",
+   "потянуть",
+   "позволять себе"
+  ]
  },
  {
   "en": "Improve",
@@ -3111,7 +3319,13 @@
   "example_en": "I want to improve my English.",
   "example_ru": "Я хочу улучшить свой английский.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "улучшить",
+   "улучшаться",
+   "усовершенствовать",
+   "повысить"
+  ]
  },
  {
   "en": "Avoid",
@@ -3124,7 +3338,13 @@
   "example_en": "Try to avoid sugar.",
   "example_ru": "Старайся избегать сахара.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "избежать",
+   "уклоняться",
+   "сторониться",
+   "обходить"
+  ]
  },
  {
   "en": "Suggest",
@@ -3138,7 +3358,12 @@
   "example_en": "I suggest we leave early.",
   "example_ru": "Я предлагаю выйти пораньше.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "предложить",
+   "посоветовать",
+   "подсказать"
+  ]
  },
  {
   "en": "Manage",
@@ -3154,7 +3379,13 @@
   "example_en": "Can you manage on your own?",
   "example_ru": "Ты справишься сам?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "справиться",
+   "суметь",
+   "удаться",
+   "руководить"
+  ]
  },
  {
   "en": "Complain",
@@ -3168,12 +3399,18 @@
   "example_en": "He always complains about work.",
   "example_ru": "Он всегда жалуется на работу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пожаловаться",
+   "ныть",
+   "роптать"
+  ]
  },
  {
   "en": "Recommend",
   "en_alt": [
-   "suggest"
+   "suggest",
+   "advise"
   ],
   "ru": [
    "Рекомендовать",
@@ -3182,7 +3419,12 @@
   "example_en": "Can you recommend a good restaurant?",
   "example_ru": "Можешь посоветовать хороший ресторан?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "порекомендовать",
+   "посоветовать",
+   "рекомендую"
+  ]
  },
  {
   "en": "Apologize",
@@ -3195,7 +3437,12 @@
   "example_en": "I need to apologize to her.",
   "example_ru": "Мне нужно извиниться перед ней.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "извиниться",
+   "просить прощения",
+   "попросить прощения"
+  ]
  },
  {
   "en": "Notice",
@@ -3209,7 +3456,13 @@
   "example_en": "Did you notice his new haircut?",
   "example_ru": "Ты заметил его новую стрижку?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "заметить",
+   "обратить внимание",
+   "увидеть",
+   "замечание"
+  ]
  },
  {
   "en": "Realize",
@@ -3224,7 +3477,13 @@
   "example_en": "I just realized I forgot my keys.",
   "example_ru": "Я только что понял, что забыл ключи.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "осознать",
+   "понять",
+   "сообразить",
+   "догадаться"
+  ]
  },
  {
   "en": "Expect",
@@ -3238,7 +3497,13 @@
   "example_en": "I didn't expect to see you here.",
   "example_ru": "Я не ожидал увидеть тебя здесь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ждать",
+   "предполагать",
+   "надеяться",
+   "ожидание"
+  ]
  },
  {
   "en": "Refuse",
@@ -3252,7 +3517,13 @@
   "example_en": "He refused to help us.",
   "example_ru": "Он отказался нам помогать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отказаться",
+   "отказывать",
+   "отвергать",
+   "отклонить"
+  ]
  },
  {
   "en": "Accept",
@@ -3266,7 +3537,11 @@
   "example_en": "She accepted the job offer.",
   "example_ru": "Она приняла предложение о работе.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "принять",
+   "согласиться"
+  ]
  },
  {
   "en": "Argue",
@@ -3281,7 +3556,13 @@
   "example_en": "They argue about money all the time.",
   "example_ru": "Они постоянно спорят о деньгах.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поспорить",
+   "ругаться",
+   "препираться",
+   "спор"
+  ]
  },
  {
   "en": "Bother",
@@ -3296,7 +3577,13 @@
   "example_en": "Sorry to bother you.",
   "example_ru": "Извините, что беспокою.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "побеспокоить",
+   "мешать",
+   "надоедать",
+   "донимать"
+  ]
  },
  {
   "en": "Blame",
@@ -3310,7 +3597,13 @@
   "example_en": "Don't blame me for this.",
   "example_ru": "Не вини меня в этом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вина",
+   "обвинить",
+   "возлагать вину",
+   "свалить вину"
+  ]
  },
  {
   "en": "Cancel",
@@ -3323,7 +3616,12 @@
   "example_en": "They canceled the flight.",
   "example_ru": "Они отменили рейс.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отменить",
+   "аннулировать",
+   "отмена"
+  ]
  },
  {
   "en": "Celebrate",
@@ -3337,7 +3635,12 @@
   "example_en": "We celebrated her birthday.",
   "example_ru": "Мы отметили её день рождения.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отпраздновать",
+   "отметить",
+   "ликовать"
+  ]
  },
  {
   "en": "Compare",
@@ -3350,7 +3653,12 @@
   "example_en": "Don't compare yourself to others.",
   "example_ru": "Не сравнивай себя с другими.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сравнить",
+   "сопоставить",
+   "сопоставлять"
+  ]
  },
  {
   "en": "Consider",
@@ -3364,7 +3672,13 @@
   "example_en": "I'm considering a new job.",
   "example_ru": "Я рассматриваю новую работу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "рассмотреть",
+   "обдумать",
+   "считать",
+   "принимать во внимание"
+  ]
  },
  {
   "en": "Convince",
@@ -3377,7 +3691,12 @@
   "example_en": "She convinced me to come.",
   "example_ru": "Она убедила меня прийти.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "убедить",
+   "уговорить",
+   "уговаривать"
+  ]
  },
  {
   "en": "Damage",
@@ -3392,7 +3711,13 @@
   "example_en": "The storm damaged our roof.",
   "example_ru": "Буря повредила нашу крышу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вред",
+   "повредить",
+   "испортить",
+   "урон"
+  ]
  },
  {
   "en": "Deliver",
@@ -3405,7 +3730,13 @@
   "example_en": "They deliver pizza in 20 minutes.",
   "example_ru": "Они доставляют пиццу за 20 минут.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "доставить",
+   "привезти",
+   "доставка",
+   "вручить"
+  ]
  },
  {
   "en": "Deserve",
@@ -3418,7 +3749,12 @@
   "example_en": "You deserve a break.",
   "example_ru": "Ты заслуживаешь отдыха.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "заслужить",
+   "быть достойным",
+   "достоин"
+  ]
  },
  {
   "en": "Disappear",
@@ -3431,7 +3767,13 @@
   "example_en": "My keys just disappeared.",
   "example_ru": "Мои ключи просто исчезли.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "исчезнуть",
+   "пропасть",
+   "пропадать",
+   "испариться"
+  ]
  },
  {
   "en": "Discover",
@@ -3445,7 +3787,13 @@
   "example_en": "I discovered a great little cafe.",
   "example_ru": "Я открыл для себя отличное маленькое кафе.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "обнаружить",
+   "открыть",
+   "найти",
+   "открытие"
+  ]
  },
  {
   "en": "Doubt",
@@ -3453,12 +3801,17 @@
    "not be sure"
   ],
   "ru": [
-   "Сомневаться"
+   "Сомневаться (не верить)"
   ],
   "example_en": "I doubt he'll come.",
   "example_ru": "Я сомневаюсь, что он придёт.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сомнение",
+   "засомневаться",
+   "не верить"
+  ]
  },
  {
   "en": "Encourage",
@@ -3472,7 +3825,13 @@
   "example_en": "My parents always encouraged me.",
   "example_ru": "Родители всегда меня подбадривали.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поощрить",
+   "подбодрить",
+   "воодушевлять",
+   "вдохновлять"
+  ]
  },
  {
   "en": "Escape",
@@ -3486,7 +3845,13 @@
   "example_en": "The dog escaped from the yard.",
   "example_ru": "Собака сбежала со двора.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сбежать",
+   "побег",
+   "убежать",
+   "ускользнуть"
+  ]
  },
  {
   "en": "Forgive",
@@ -3499,7 +3864,12 @@
   "example_en": "I forgive you.",
   "example_ru": "Я тебя прощаю.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "простить",
+   "извинить",
+   "прощение"
+  ]
  },
  {
   "en": "Gather",
@@ -3508,13 +3878,19 @@
    "come together"
   ],
   "ru": [
-   "Собирать",
+   "Собирать (вместе)",
    "Собираться"
   ],
   "example_en": "Everyone gathered in the kitchen.",
   "example_ru": "Все собрались на кухне.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "собрать",
+   "собраться",
+   "скопить",
+   "созывать"
+  ]
  },
  {
   "en": "Guess",
@@ -3528,7 +3904,13 @@
   "example_en": "Guess what happened!",
   "example_ru": "Угадай, что случилось!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "догадка",
+   "угадать",
+   "предположить",
+   "предположение"
+  ]
  },
  {
   "en": "Handle",
@@ -3542,7 +3924,13 @@
   "example_en": "I can handle it.",
   "example_ru": "Я справлюсь с этим.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "справиться",
+   "обращаться",
+   "управляться",
+   "ручка"
+  ]
  },
  {
   "en": "Hesitate",
@@ -3556,7 +3944,13 @@
   "example_en": "Don't hesitate to call me.",
   "example_ru": "Не стесняйся мне позвонить.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "колебание",
+   "замешкаться",
+   "медлить",
+   "поколебаться"
+  ]
  },
  {
   "en": "Imagine",
@@ -3570,7 +3964,12 @@
   "example_en": "Imagine living on a boat.",
   "example_ru": "Представь, что живёшь на лодке.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "представить",
+   "вообразить",
+   "представлять"
+  ]
  },
  {
   "en": "Insist",
@@ -3583,7 +3982,12 @@
   "example_en": "She insisted on paying.",
   "example_ru": "Она настояла на том, чтобы заплатить.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "настоять",
+   "настаивать на",
+   "требовать"
+  ]
  },
  {
   "en": "Invite",
@@ -3596,7 +4000,13 @@
   "example_en": "Let's invite them over.",
   "example_ru": "Давай пригласим их в гости.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пригласить",
+   "приглашение",
+   "позвать",
+   "звать"
+  ]
  },
  {
   "en": "Judge",
@@ -3610,7 +4020,13 @@
   "example_en": "Don't judge people so quickly.",
   "example_ru": "Не суди людей так быстро.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "судья",
+   "осудить",
+   "оценить",
+   "суд"
+  ]
  },
  {
   "en": "Mention",
@@ -3623,7 +4039,13 @@
   "example_en": "He never mentioned it.",
   "example_ru": "Он никогда этого не упоминал.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "упомянуть",
+   "упоминание",
+   "сказать про",
+   "затронуть"
+  ]
  },
  {
   "en": "Miss",
@@ -3637,7 +4059,13 @@
   "example_en": "I miss my family.",
   "example_ru": "Я скучаю по семье.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скучаю",
+   "упустить",
+   "промахнуться",
+   "не успеть"
+  ]
  },
  {
   "en": "Pretend",
@@ -3650,7 +4078,13 @@
   "example_en": "Stop pretending you don't care.",
   "example_ru": "Хватит притворяться, что тебе всё равно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сделать вид",
+   "притвориться",
+   "делать вид",
+   "изображать"
+  ]
  },
  {
   "en": "Promise",
@@ -3664,7 +4098,11 @@
   "example_en": "I promise I'll call you.",
   "example_ru": "Обещаю, что позвоню тебе.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пообещать",
+   "клясться"
+  ]
  },
  {
   "en": "Protect",
@@ -3677,7 +4115,13 @@
   "example_en": "Wear a helmet to protect your head.",
   "example_ru": "Носи шлем, чтобы защитить голову.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "защитить",
+   "оберегать",
+   "охранять",
+   "защита"
+  ]
  },
  {
   "en": "Prove",
@@ -3690,7 +4134,12 @@
   "example_en": "Prove it!",
   "example_ru": "Докажи это!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "доказать",
+   "доказательство",
+   "подтвердить"
+  ]
  },
  {
   "en": "Provide",
@@ -3704,7 +4153,13 @@
   "example_en": "The hotel provides free breakfast.",
   "example_ru": "Отель предоставляет бесплатный завтрак.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "предоставить",
+   "обеспечить",
+   "снабжать",
+   "давать"
+  ]
  },
  {
   "en": "Regret",
@@ -3718,7 +4173,12 @@
   "example_en": "I regret not studying more.",
   "example_ru": "Я жалею, что мало учился.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сожаление",
+   "пожалеть",
+   "раскаиваться"
+  ]
  },
  {
   "en": "Remind",
@@ -3731,7 +4191,12 @@
   "example_en": "Please remind me to call Mom.",
   "example_ru": "Пожалуйста, напомни мне позвонить маме.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "напомнить",
+   "напоминание",
+   "напомни"
+  ]
  },
  {
   "en": "Rent",
@@ -3739,13 +4204,19 @@
    "lease"
   ],
   "ru": [
-   "Снимать",
+   "Снимать (жильё)",
    "Арендовать"
   ],
   "example_en": "We rent an apartment downtown.",
   "example_ru": "Мы снимаем квартиру в центре.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "аренда",
+   "снять",
+   "сдавать",
+   "взять в аренду"
+  ]
  },
  {
   "en": "Repair",
@@ -3758,7 +4229,14 @@
   "example_en": "I need to repair my bike.",
   "example_ru": "Мне нужно починить велосипед.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "починить",
+   "ремонт",
+   "чинить",
+   "исправить",
+   "отремонтировать"
+  ]
  },
  {
   "en": "Replace",
@@ -3771,7 +4249,13 @@
   "example_en": "We need to replace the battery.",
   "example_ru": "Нам нужно заменить батарейку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "заменить",
+   "поменять",
+   "замена",
+   "сменить"
+  ]
  },
  {
   "en": "Rescue",
@@ -3784,7 +4268,12 @@
   "example_en": "Firefighters rescued the cat.",
   "example_ru": "Пожарные спасли кошку.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "спасти",
+   "спасение",
+   "выручить"
+  ]
  },
  {
   "en": "Require",
@@ -3798,7 +4287,13 @@
   "example_en": "This job requires patience.",
   "example_ru": "Эта работа требует терпения.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "потребовать",
+   "нуждаться",
+   "необходимо",
+   "нужно"
+  ]
  },
  {
   "en": "Risk",
@@ -3812,7 +4307,11 @@
   "example_en": "Don't risk your health.",
   "example_ru": "Не рискуй здоровьем.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "рискнуть",
+   "подвергать опасности"
+  ]
  },
  {
   "en": "Share",
@@ -3825,7 +4324,13 @@
   "example_en": "Can I share your umbrella?",
   "example_ru": "Можно мне пойти под твоим зонтом?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поделиться",
+   "делить",
+   "разделить",
+   "доля"
+  ]
  },
  {
   "en": "Shout",
@@ -3838,7 +4343,13 @@
   "example_en": "Don't shout at me!",
   "example_ru": "Не кричи на меня!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "крикнуть",
+   "крик",
+   "орать",
+   "вопить"
+  ]
  },
  {
   "en": "Solve",
@@ -3851,7 +4362,13 @@
   "example_en": "We need to solve this problem.",
   "example_ru": "Нам нужно решить эту проблему.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "решить",
+   "разгадать",
+   "найти решение",
+   "разрешить"
+  ]
  },
  {
   "en": "Spread",
@@ -3865,7 +4382,13 @@
   "example_en": "Rumors spread fast here.",
   "example_ru": "Слухи здесь распространяются быстро.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "распространить",
+   "мазать",
+   "намазать",
+   "разнести"
+  ]
  },
  {
   "en": "Stare",
@@ -3879,7 +4402,13 @@
   "example_en": "It's rude to stare.",
   "example_ru": "Пялиться невежливо.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "пялиться на",
+   "таращиться",
+   "глазеть",
+   "смотреть пристально"
+  ]
  },
  {
   "en": "Steal",
@@ -3892,7 +4421,13 @@
   "example_en": "Someone stole my bike.",
   "example_ru": "Кто-то украл мой велосипед.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "украсть",
+   "воровать",
+   "стащить",
+   "кража"
+  ]
  },
  {
   "en": "Struggle",
@@ -3900,13 +4435,19 @@
    "have a hard time"
   ],
   "ru": [
-   "Бороться",
+   "Бороться (с трудностями)",
    "С трудом справляться"
   ],
   "example_en": "I struggle with math.",
   "example_ru": "Мне тяжело даётся математика.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "борьба",
+   "бороться с",
+   "мучиться",
+   "биться"
+  ]
  },
  {
   "en": "Succeed",
@@ -3920,7 +4461,13 @@
   "example_en": "She worked hard and succeeded.",
   "example_ru": "Она много работала и добилась успеха.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "преуспеть",
+   "добиться",
+   "получиться",
+   "удаться"
+  ]
  },
  {
   "en": "Suppose",
@@ -3935,7 +4482,13 @@
   "example_en": "I suppose you're right.",
   "example_ru": "Полагаю, ты прав.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "предположить",
+   "допустим",
+   "полагаю",
+   "считать"
+  ]
  },
  {
   "en": "Surprise",
@@ -3949,7 +4502,13 @@
   "example_en": "The news surprised everyone.",
   "example_ru": "Новость удивила всех.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "удивить",
+   "удивление",
+   "изумить",
+   "неожиданность"
+  ]
  },
  {
   "en": "Tend to",
@@ -3963,7 +4522,12 @@
   "example_en": "I tend to wake up early.",
   "example_ru": "Я обычно просыпаюсь рано.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "склонен",
+   "иметь тенденцию",
+   "как правило"
+  ]
  },
  {
   "en": "Trust",
@@ -3977,7 +4541,13 @@
   "example_en": "I trust my brother completely.",
   "example_ru": "Я полностью доверяю брату.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "довериться",
+   "верить",
+   "положиться",
+   "доверять кому-то"
+  ]
  },
  {
   "en": "Wonder",
@@ -3991,7 +4561,13 @@
   "example_en": "I wonder what time it is.",
   "example_ru": "Интересно, который час.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "задаваться вопросом",
+   "удивляться",
+   "чудо",
+   "интересно"
+  ]
  },
  {
   "en": "Worry",
@@ -4005,7 +4581,13 @@
   "example_en": "Don't worry about it.",
   "example_ru": "Не волнуйся об этом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "переживать",
+   "беспокойство",
+   "тревога",
+   "тревожиться"
+  ]
  },
  {
   "en": "Awkward",
@@ -4019,7 +4601,13 @@
   "example_en": "It was an awkward silence.",
   "example_ru": "Это было неловкое молчание.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "неловко",
+   "неуклюжий",
+   "неудобно",
+   "смущающий"
+  ]
  },
  {
   "en": "Nervous",
@@ -4033,7 +4621,13 @@
   "example_en": "I'm nervous about the interview.",
   "example_ru": "Я волнуюсь из-за собеседования.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "нервный",
+   "нервничать",
+   "тревожный",
+   "волнуюсь"
+  ]
  },
  {
   "en": "Jealous",
@@ -4047,7 +4641,13 @@
   "example_en": "She was jealous of her sister.",
   "example_ru": "Она завидовала сестре.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ревновать",
+   "завидовать",
+   "зависть",
+   "ревнует"
+  ]
  },
  {
   "en": "Generous",
@@ -4060,7 +4660,12 @@
   "example_en": "He's very generous with his time.",
   "example_ru": "Он очень щедр на своё время.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "великодушный",
+   "благородный",
+   "щедро"
+  ]
  },
  {
   "en": "Grumpy",
@@ -4074,7 +4679,14 @@
   "example_en": "He's grumpy in the morning.",
   "example_ru": "Он с утра не в духе.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "ворчун",
+   "раздражительный",
+   "угрюмый",
+   "сварливый",
+   "не в настроении"
+  ]
  },
  {
   "en": "Stubborn",
@@ -4087,7 +4699,13 @@
   "example_en": "My dad is so stubborn.",
   "example_ru": "Мой отец такой упрямый.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "упёртый",
+   "несгибаемый",
+   "твёрдолобый",
+   "упорный"
+  ]
  },
  {
   "en": "Shy",
@@ -4100,7 +4718,13 @@
   "example_en": "She's shy around new people.",
   "example_ru": "Она стесняется новых людей.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "стеснительный",
+   "робкий",
+   "скромный",
+   "стесняться"
+  ]
  },
  {
   "en": "Rude",
@@ -4108,12 +4732,18 @@
    "impolite"
   ],
   "ru": [
-   "Грубый"
+   "Грубый (невежливый)"
   ],
   "example_en": "That was rude of him.",
   "example_ru": "Это было грубо с его стороны.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "невежливый",
+   "хамский",
+   "грубиян",
+   "нахальный"
+  ]
  },
  {
   "en": "Polite",
@@ -4126,7 +4756,13 @@
   "example_en": "Be polite to the waiter.",
   "example_ru": "Будь вежлив с официантом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вежливо",
+   "учтивый",
+   "воспитанный",
+   "любезный"
+  ]
  },
  {
   "en": "Lazy",
@@ -4139,7 +4775,13 @@
   "example_en": "I felt lazy all weekend.",
   "example_ru": "Я весь уикенд чувствовал лень.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "лень",
+   "ленивец",
+   "лентяй",
+   "лениться"
+  ]
  },
  {
   "en": "Patient",
@@ -4152,7 +4794,13 @@
   "example_en": "Please be patient with me.",
   "example_ru": "Пожалуйста, будь терпелив со мной.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "терпелив",
+   "пациент",
+   "больной",
+   "терпеливо"
+  ]
  },
  {
   "en": "Curious",
@@ -4166,7 +4814,12 @@
   "example_en": "I'm curious about your plan.",
   "example_ru": "Мне интересен твой план.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "любознательный",
+   "любопытствующий",
+   "любопытно"
+  ]
  },
  {
   "en": "Confident",
@@ -4179,7 +4832,13 @@
   "example_en": "She feels confident today.",
   "example_ru": "Сегодня она чувствует себя уверенно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "уверенный",
+   "самоуверенный",
+   "уверенно",
+   "убеждённый"
+  ]
  },
  {
   "en": "Embarrassed",
@@ -4193,7 +4852,13 @@
   "example_en": "I was so embarrassed.",
   "example_ru": "Мне было так неловко.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "смущён",
+   "стыдно",
+   "неловко",
+   "пристыженный"
+  ]
  },
  {
   "en": "Exhausted",
@@ -4207,7 +4872,14 @@
   "example_en": "I'm exhausted after the flight.",
   "example_ru": "Я измотан после перелёта.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "измотан",
+   "без сил",
+   "вымотанный",
+   "усталый",
+   "обессиленный"
+  ]
  },
  {
   "en": "Furious",
@@ -4221,7 +4893,14 @@
   "example_en": "She was furious at him.",
   "example_ru": "Она была в ярости на него.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "в бешенстве",
+   "разъярённый",
+   "яростный",
+   "взбешён",
+   "злой"
+  ]
  },
  {
   "en": "Anxious",
@@ -4235,7 +4914,13 @@
   "example_en": "He felt anxious before the test.",
   "example_ru": "Он тревожился перед тестом.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "тревожиться",
+   "встревоженный",
+   "беспокойный",
+   "волнующийся"
+  ]
  },
  {
   "en": "Cheap",
@@ -4248,7 +4933,12 @@
   "example_en": "This hotel is pretty cheap.",
   "example_ru": "Этот отель довольно дешёвый.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "недорогой",
+   "дёшево",
+   "бюджетный"
+  ]
  },
  {
   "en": "Fancy",
@@ -4263,7 +4953,13 @@
   "example_en": "It's a fancy restaurant.",
   "example_ru": "Это шикарный ресторан.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "модный",
+   "изысканный",
+   "роскошный",
+   "причудливый"
+  ]
  },
  {
   "en": "Gentle",
@@ -4277,7 +4973,13 @@
   "example_en": "Be gentle with the baby.",
   "example_ru": "Будь нежен с малышом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ласковый",
+   "деликатный",
+   "бережный",
+   "кроткий"
+  ]
  },
  {
   "en": "Huge",
@@ -4290,7 +4992,14 @@
   "example_en": "They have a huge house.",
   "example_ru": "У них огромный дом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "громадный",
+   "гигантский",
+   "колоссальный",
+   "здоровенный",
+   "большой"
+  ]
  },
  {
   "en": "Tiny",
@@ -4303,13 +5012,20 @@
   "example_en": "The apartment is tiny.",
   "example_ru": "Квартира крошечная.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "крохотный",
+   "маленький",
+   "малюсенький",
+   "мелкий"
+  ]
  },
  {
   "en": "Tough",
   "en_alt": [
    "hard",
-   "strong"
+   "strong",
+   "difficult"
   ],
   "ru": [
    "Трудный",
@@ -4319,7 +5035,14 @@
   "example_en": "It's been a tough week.",
   "example_ru": "Это была тяжёлая неделя.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сложный",
+   "тяжёлый",
+   "суровый",
+   "крепкий",
+   "непростой"
+  ]
  },
  {
   "en": "Valuable",
@@ -4332,7 +5055,13 @@
   "example_en": "Your time is valuable.",
   "example_ru": "Твоё время ценно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ценность",
+   "дорогой",
+   "драгоценный",
+   "важный"
+  ]
  },
  {
   "en": "Reliable",
@@ -4345,7 +5074,13 @@
   "example_en": "He's a reliable friend.",
   "example_ru": "Он надёжный друг.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "надёжно",
+   "проверенный",
+   "ответственный",
+   "стабильный"
+  ]
  },
  {
   "en": "Ridiculous",
@@ -4359,7 +5094,13 @@
   "example_en": "That price is ridiculous.",
   "example_ru": "Эта цена просто нелепа.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "абсурдный",
+   "нелепость",
+   "глупый",
+   "смехотворно"
+  ]
  },
  {
   "en": "Annoying",
@@ -4372,7 +5113,14 @@
   "example_en": "That noise is so annoying.",
   "example_ru": "Этот шум так раздражает.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "раздражает",
+   "надоедливый",
+   "назойливый",
+   "бесит",
+   "досадный"
+  ]
  },
  {
   "en": "Familiar",
@@ -4386,7 +5134,13 @@
   "example_en": "This song sounds familiar.",
   "example_ru": "Эта песня звучит знакомо.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "знакомо",
+   "привычно",
+   "известный",
+   "знаком"
+  ]
  },
  {
   "en": "Fresh",
@@ -4400,7 +5154,13 @@
   "example_en": "I need some fresh air.",
   "example_ru": "Мне нужен свежий воздух.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "свежо",
+   "новый",
+   "прохладный",
+   "только что"
+  ]
  },
  {
   "en": "Loud",
@@ -4413,7 +5173,13 @@
   "example_en": "The music is too loud.",
   "example_ru": "Музыка слишком громкая.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "громко",
+   "шумный",
+   "оглушительный",
+   "крикливый"
+  ]
  },
  {
   "en": "Messy",
@@ -4427,7 +5193,13 @@
   "example_en": "Your room is so messy.",
   "example_ru": "В твоей комнате такой беспорядок.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "неаккуратный",
+   "беспорядочный",
+   "неопрятный",
+   "запущенный"
+  ]
  },
  {
   "en": "Popular",
@@ -4440,7 +5212,13 @@
   "example_en": "This game is really popular.",
   "example_ru": "Эта игра очень популярна.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "популярно",
+   "известный",
+   "востребованный",
+   "любимый"
+  ]
  },
  {
   "en": "Rough",
@@ -4449,14 +5227,20 @@
    "uneven"
   ],
   "ru": [
-   "Грубый",
+   "Грубый (шершавый)",
    "Тяжёлый",
    "Шероховатый"
   ],
   "example_en": "I had a rough day.",
   "example_ru": "У меня был тяжёлый день.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "шершавый",
+   "неровный",
+   "тяжело",
+   "нелёгкий"
+  ]
  },
  {
   "en": "Silly",
@@ -4470,7 +5254,13 @@
   "example_en": "Don't be silly.",
   "example_ru": "Не глупи.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "дурацкий",
+   "глупо",
+   "нелепый",
+   "ребяческий"
+  ]
  },
  {
   "en": "Sore",
@@ -4484,7 +5274,13 @@
   "example_en": "My legs are sore from running.",
   "example_ru": "У меня ноют ноги после бега.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "болит",
+   "ноет",
+   "воспалённый",
+   "натёртый"
+  ]
  },
  {
   "en": "Thirsty",
@@ -4499,7 +5295,12 @@
   "example_en": "I'm so thirsty.",
   "example_ru": "Я так хочу пить.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "хочу пить",
+   "жажда",
+   "пить хочется"
+  ]
  },
  {
   "en": "Ugly",
@@ -4513,7 +5314,13 @@
   "example_en": "That's an ugly sweater.",
   "example_ru": "Это уродливый свитер.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безобразный",
+   "страшный",
+   "некрасиво",
+   "непривлекательный"
+  ]
  },
  {
   "en": "Useful",
@@ -4526,7 +5333,13 @@
   "example_en": "This app is really useful.",
   "example_ru": "Это приложение очень полезное.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "нужный",
+   "полезно",
+   "пригодный",
+   "практичный"
+  ]
  },
  {
   "en": "Willing",
@@ -4540,7 +5353,13 @@
   "example_en": "Are you willing to help?",
   "example_ru": "Ты готов помочь?",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "желающий",
+   "готов",
+   "согласен",
+   "охотно"
+  ]
  },
  {
   "en": "Wild",
@@ -4554,7 +5373,13 @@
   "example_en": "We saw wild horses.",
   "example_ru": "Мы видели диких лошадей.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "необузданный",
+   "буйный",
+   "природный",
+   "дико"
+  ]
  },
  {
   "en": "Upset",
@@ -4569,7 +5394,14 @@
   "example_en": "She was upset about the news.",
   "example_ru": "Она расстроилась из-за новости.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "огорчён",
+   "расстроился",
+   "огорчённый",
+   "обиженный",
+   "расстроить"
+  ]
  },
  {
   "en": "Deadline",
@@ -4583,7 +5415,12 @@
   "example_en": "The deadline is Friday.",
   "example_ru": "Крайний срок — пятница.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "срок",
+   "предельный срок",
+   "крайний срок сдачи"
+  ]
  },
  {
   "en": "Neighbor",
@@ -4596,7 +5433,12 @@
   "example_en": "My neighbor plays loud music.",
   "example_ru": "Мой сосед включает громкую музыку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "соседка",
+   "соседи",
+   "сосед по дому"
+  ]
  },
  {
   "en": "Schedule",
@@ -4610,7 +5452,12 @@
   "example_en": "My schedule is packed today.",
   "example_ru": "Мой график сегодня забит.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "планировать",
+   "составить расписание",
+   "распорядок"
+  ]
  },
  {
   "en": "Habit",
@@ -4623,7 +5470,12 @@
   "example_en": "Biting nails is a bad habit.",
   "example_ru": "Грызть ногти — плохая привычка.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "привычки",
+   "обыкновение",
+   "пристрастие"
+  ]
  },
  {
   "en": "Mood",
@@ -4636,7 +5488,12 @@
   "example_en": "I'm in a bad mood today.",
   "example_ru": "Я сегодня в плохом настроении.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "настрой",
+   "расположение духа",
+   "состояние"
+  ]
  },
  {
   "en": "Manners",
@@ -4650,7 +5507,13 @@
   "example_en": "Where are your manners?",
   "example_ru": "Где твои манеры?",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "этикет",
+   "вежливость",
+   "поведение",
+   "правила приличия"
+  ]
  },
  {
   "en": "Advice",
@@ -4663,7 +5526,13 @@
   "example_en": "Thanks for the advice.",
   "example_ru": "Спасибо за совет.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "советы",
+   "рекомендация",
+   "консультация",
+   "наставление"
+  ]
  },
  {
   "en": "Argument",
@@ -4677,7 +5546,14 @@
   "example_en": "We had an argument yesterday.",
   "example_ru": "Вчера у нас была ссора.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "аргумент",
+   "спор",
+   "скандал",
+   "перепалка",
+   "разногласие"
+  ]
  },
  {
   "en": "Bargain",
@@ -4691,7 +5567,13 @@
   "example_en": "These shoes were a bargain.",
   "example_ru": "Эти туфли были выгодной покупкой.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сделка",
+   "торг",
+   "удачная покупка",
+   "выгодная сделка"
+  ]
  },
  {
   "en": "Benefit",
@@ -4705,7 +5587,13 @@
   "example_en": "There are many health benefits.",
   "example_ru": "Есть много пользы для здоровья.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "преимущество",
+   "пособие",
+   "приносить пользу",
+   "плюс"
+  ]
  },
  {
   "en": "Chance",
@@ -4720,7 +5608,13 @@
   "example_en": "Give me a chance to explain.",
   "example_ru": "Дай мне шанс объяснить.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "случай",
+   "вероятность",
+   "случайность",
+   "перспектива"
+  ]
  },
  {
   "en": "Choice",
@@ -4733,7 +5627,13 @@
   "example_en": "You have no choice.",
   "example_ru": "У тебя нет выбора.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "выбирать",
+   "вариант",
+   "альтернатива",
+   "отбор"
+  ]
  },
  {
   "en": "Comfort",
@@ -4747,7 +5647,14 @@
   "example_en": "I like the comfort of home.",
   "example_ru": "Мне нравится домашний комфорт.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "удобство",
+   "уют",
+   "утешать",
+   "комфортно",
+   "успокоить"
+  ]
  },
  {
   "en": "Effort",
@@ -4761,7 +5668,13 @@
   "example_en": "It takes a lot of effort.",
   "example_ru": "Это требует больших усилий.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "усилия",
+   "труд",
+   "напряжение",
+   "попытка"
+  ]
  },
  {
   "en": "Excuse",
@@ -4776,7 +5689,14 @@
   "example_en": "That's just an excuse.",
   "example_ru": "Это просто отговорка.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "оправдывать",
+   "извинять",
+   "отмазка",
+   "повод",
+   "предлог"
+  ]
  },
  {
   "en": "Fee",
@@ -4790,7 +5710,13 @@
   "example_en": "There is a small fee.",
   "example_ru": "Взимается небольшая плата.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "оплата",
+   "гонорар",
+   "сбор",
+   "тариф"
+  ]
  },
  {
   "en": "Gossip",
@@ -4804,7 +5730,14 @@
   "example_en": "I don't like office gossip.",
   "example_ru": "Я не люблю офисные сплетни.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сплетня",
+   "болтать",
+   "слухи",
+   "трепаться",
+   "сплетник"
+  ]
  },
  {
   "en": "Guilt",
@@ -4817,7 +5750,12 @@
   "example_en": "I felt guilt after lying.",
   "example_ru": "Я чувствовал вину после лжи.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "вина",
+   "виновность",
+   "угрызения совести"
+  ]
  },
  {
   "en": "Hint",
@@ -4831,7 +5769,14 @@
   "example_en": "Can you give me a hint?",
   "example_ru": "Можешь дать мне подсказку?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "подсказать",
+   "намекать",
+   "намекнуть",
+   "ключ",
+   "подсказки"
+  ]
  },
  {
   "en": "Lack",
@@ -4845,7 +5790,13 @@
   "example_en": "There's a lack of time.",
   "example_ru": "Не хватает времени.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "не хватать",
+   "дефицит",
+   "отсутствие",
+   "недоставать"
+  ]
  },
  {
   "en": "Luck",
@@ -4859,7 +5810,12 @@
   "example_en": "Good luck on your exam!",
   "example_ru": "Удачи на экзамене!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "счастье",
+   "фортуна",
+   "повезло"
+  ]
  },
  {
   "en": "Mess",
@@ -4873,7 +5829,14 @@
   "example_en": "What a mess!",
   "example_ru": "Какой бардак!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "неразбериха",
+   "развал",
+   "грязь",
+   "путаница",
+   "хаос"
+  ]
  },
  {
   "en": "Mistake",
@@ -4882,12 +5845,18 @@
    "Error"
   ],
   "ru": [
-   "Ошибка"
+   "Ошибка (оплошность)"
   ],
   "example_en": "I made a mistake.",
   "example_ru": "Я сделал ошибку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ошибиться",
+   "промах",
+   "оплошность",
+   "недочёт"
+  ]
  },
  {
   "en": "Opportunity",
@@ -4901,7 +5870,12 @@
   "example_en": "It's a great opportunity.",
   "example_ru": "Это отличная возможность.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "случай",
+   "перспектива",
+   "удобный случай"
+  ]
  },
  {
   "en": "Rumor",
@@ -4914,7 +5888,13 @@
   "example_en": "There's a rumor about layoffs.",
   "example_ru": "Ходит слух о сокращениях.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "слухи",
+   "молва",
+   "сплетня",
+   "толки"
+  ]
  },
  {
   "en": "Secret",
@@ -4928,7 +5908,13 @@
   "example_en": "Can you keep a secret?",
   "example_ru": "Ты умеешь хранить секреты?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "тайный",
+   "секретный",
+   "скрытый",
+   "секреты"
+  ]
  },
  {
   "en": "Trouble",
@@ -4942,7 +5928,15 @@
   "example_en": "I'm in big trouble.",
   "example_ru": "У меня большие неприятности.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "беда",
+   "проблема",
+   "хлопоты",
+   "затруднение",
+   "неприятность",
+   "трудности"
+  ]
  },
  {
   "en": "Weakness",
@@ -4956,12 +5950,18 @@
   "example_en": "Chocolate is my weakness.",
   "example_ru": "Шоколад — моя слабость.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "недостаток",
+   "уязвимость",
+   "слабинка"
+  ]
  },
  {
   "en": "Wage",
   "en_alt": [
-   "pay"
+   "pay",
+   "salary"
   ],
   "ru": [
    "Заработная плата (почасовая)",
@@ -4971,7 +5971,13 @@
   "example_en": "The minimum wage went up.",
   "example_ru": "Минимальная оплата труда выросла.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "оплата",
+   "заработок",
+   "ставка",
+   "жалование"
+  ]
  },
  {
   "en": "Apparently",
@@ -4985,7 +5991,14 @@
   "example_en": "Apparently, he quit.",
   "example_ru": "Судя по всему, он уволился.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "очевидно",
+   "по-видимому",
+   "видимо",
+   "как оказалось",
+   "вроде как"
+  ]
  },
  {
   "en": "Actually",
@@ -4999,7 +6012,15 @@
   "example_en": "Actually, I don't like coffee.",
   "example_ru": "На самом деле, я не люблю кофе.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "фактически",
+   "вообще-то",
+   "в действительности",
+   "по правде говоря",
+   "в самом деле",
+   "по факту"
+  ]
  },
  {
   "en": "Eventually",
@@ -5012,7 +6033,14 @@
   "example_en": "Eventually, he found a job.",
   "example_ru": "В конце концов он нашёл работу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "в итоге",
+   "со временем",
+   "наконец",
+   "в конечном итоге",
+   "рано или поздно"
+  ]
  },
  {
   "en": "Hardly",
@@ -5026,7 +6054,13 @@
   "example_en": "I can hardly hear you.",
   "example_ru": "Я едва тебя слышу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "почти не",
+   "с трудом",
+   "едва ли",
+   "насилу"
+  ]
  },
  {
   "en": "Barely",
@@ -5040,7 +6074,15 @@
   "example_en": "I barely made it on time.",
   "example_ru": "Я еле успел вовремя.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "еле-еле",
+   "насилу",
+   "с трудом",
+   "едва",
+   "чуть-чуть",
+   "почти не"
+  ]
  },
  {
   "en": "Nearly",
@@ -5054,7 +6096,14 @@
   "example_en": "I nearly forgot my keys.",
   "example_ru": "Я чуть не забыл ключи.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "чуть не",
+   "едва не",
+   "практически",
+   "около",
+   "приблизительно"
+  ]
  },
  {
   "en": "Mostly",
@@ -5070,7 +6119,13 @@
   "example_en": "I mostly read at night.",
   "example_ru": "Я в основном читаю ночью.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "больше всего",
+   "преимущественно",
+   "по большей части",
+   "как правило"
+  ]
  },
  {
   "en": "Recently",
@@ -5084,7 +6139,11 @@
   "example_en": "I've been tired recently.",
   "example_ru": "В последнее время я устаю.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "на днях",
+   "не так давно"
+  ]
  },
  {
   "en": "Definitely",
@@ -5099,7 +6158,14 @@
   "example_en": "I'll definitely be there.",
   "example_ru": "Я точно там буду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безусловно",
+   "обязательно",
+   "наверняка",
+   "без сомнений",
+   "однозначно"
+  ]
  },
  {
   "en": "Literally",
@@ -5110,7 +6176,13 @@
   "example_en": "It was literally a nightmare.",
   "example_ru": "Это был буквально кошмар.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "в буквальном смысле",
+   "дословно",
+   "прямо",
+   "натурально"
+  ]
  },
  {
   "en": "Exactly",
@@ -5124,7 +6196,14 @@
   "example_en": "That's exactly what I mean.",
   "example_ru": "Именно это я и имею в виду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "именно так",
+   "ровно",
+   "в точности",
+   "совершенно верно",
+   "точь-в-точь"
+  ]
  },
  {
   "en": "Fortunately",
@@ -5137,7 +6216,12 @@
   "example_en": "Fortunately, nobody was hurt.",
   "example_ru": "К счастью, никто не пострадал.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "повезло",
+   "по счастью",
+   "слава богу"
+  ]
  },
  {
   "en": "Unfortunately",
@@ -5150,7 +6234,13 @@
   "example_en": "Unfortunately, we missed the train.",
   "example_ru": "К сожалению, мы опоздали на поезд.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "увы",
+   "как назло",
+   "к несчастью",
+   "жаль"
+  ]
  },
  {
   "en": "Otherwise",
@@ -5164,7 +6254,13 @@
   "example_en": "Hurry up, otherwise we'll be late.",
   "example_ru": "Поторопись, иначе мы опоздаем.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "а то",
+   "или же",
+   "в остальном",
+   "по-другому"
+  ]
  },
  {
   "en": "Instead",
@@ -5179,7 +6275,12 @@
   "example_en": "Let's walk instead.",
   "example_ru": "Давай лучше пойдём пешком.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "взамен",
+   "а не",
+   "наоборот"
+  ]
  },
  {
   "en": "Meanwhile",
@@ -5192,7 +6293,13 @@
   "example_en": "Meanwhile, I'll make dinner.",
   "example_ru": "Тем временем я приготовлю ужин.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "между тем",
+   "пока",
+   "а пока",
+   "в то же время"
+  ]
  },
  {
   "en": "Somehow",
@@ -5206,7 +6313,13 @@
   "example_en": "Somehow, we made it.",
   "example_ru": "Как-то мы справились.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "как-нибудь",
+   "кое-как",
+   "почему-то",
+   "так или иначе"
+  ]
  },
  {
   "en": "Nowadays",
@@ -5220,7 +6333,13 @@
   "example_en": "Nowadays, everyone has a phone.",
   "example_ru": "Сейчас у всех есть телефон.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сегодня",
+   "ныне",
+   "в настоящее время",
+   "теперь"
+  ]
  },
  {
   "en": "Whenever",
@@ -5234,7 +6353,13 @@
   "example_en": "Call me whenever you want.",
   "example_ru": "Звони, когда захочешь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "всякий раз как",
+   "каждый раз",
+   "когда только",
+   "как только"
+  ]
  },
  {
   "en": "Although",
@@ -5247,7 +6372,14 @@
   "example_en": "Although it was late, we kept talking.",
   "example_ru": "Хотя было поздно, мы продолжали говорить.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "несмотря на то что",
+   "хоть",
+   "даже если",
+   "пускай",
+   "хотя и"
+  ]
  },
  {
   "en": "However",
@@ -5260,7 +6392,14 @@
   "example_en": "However, I disagree.",
   "example_ru": "Однако я не согласен.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "тем не менее",
+   "но",
+   "однако же",
+   "впрочем",
+   "как бы то ни было"
+  ]
  },
  {
   "en": "Besides",
@@ -5274,7 +6413,13 @@
   "example_en": "Besides, it's too expensive.",
   "example_ru": "К тому же это слишком дорого.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "помимо",
+   "помимо этого",
+   "вдобавок",
+   "кроме"
+  ]
  },
  {
   "en": "Rather",
@@ -5292,7 +6437,14 @@
   "example_en": "I'd rather stay home.",
   "example_ru": "Я бы лучше остался дома.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "лучше бы",
+   "довольно-таки",
+   "предпочёл бы",
+   "весьма",
+   "скорее всего"
+  ]
  },
  {
   "en": "Anymore",
@@ -5305,7 +6457,12 @@
   "example_en": "I don't live there anymore.",
   "example_ru": "Я там больше не живу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "больше не",
+   "уже не",
+   "более"
+  ]
  },
  {
   "en": "Receipt",
@@ -5319,7 +6476,11 @@
   "example_en": "Keep the receipt.",
   "example_ru": "Сохрани чек.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "расписка",
+   "товарный чек"
+  ]
  },
  {
   "en": "Landlord",
@@ -5333,7 +6494,13 @@
   "example_en": "My landlord raised the rent.",
   "example_ru": "Мой арендодатель поднял арендную плату.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "хозяин квартиры",
+   "владелец жилья",
+   "хозяин",
+   "квартирный хозяин"
+  ]
  },
  {
   "en": "Roommate",
@@ -5346,7 +6513,12 @@
   "example_en": "My roommate is never home.",
   "example_ru": "Моего соседа по комнате никогда нет дома.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сосед по квартире",
+   "сожитель",
+   "соседка по комнате"
+  ]
  },
  {
   "en": "Coworker",
@@ -5360,7 +6532,13 @@
   "example_en": "My coworker is on vacation.",
   "example_ru": "Мой коллега в отпуске.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "коллега по работе",
+   "сослуживец",
+   "напарник",
+   "коллеги"
+  ]
  },
  {
   "en": "Boss",
@@ -5374,7 +6552,13 @@
   "example_en": "My boss is really nice.",
   "example_ru": "Мой начальник очень приятный.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "шеф",
+   "руководитель",
+   "хозяин",
+   "главный"
+  ]
  },
  {
   "en": "Raise",
@@ -5388,7 +6572,15 @@
   "example_en": "I asked my boss for a raise.",
   "example_ru": "Я попросил у начальника прибавку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "прибавка",
+   "поднять",
+   "повысить",
+   "вырастить",
+   "увеличить",
+   "воспитывать"
+  ]
  },
  {
   "en": "Quit",
@@ -5402,7 +6594,14 @@
   "example_en": "I quit my job last month.",
   "example_ru": "Я уволился в прошлом месяце.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "уйти",
+   "увольняться",
+   "прекратить",
+   "завязать",
+   "выйти"
+  ]
  },
  {
   "en": "Interview",
@@ -5416,7 +6615,12 @@
   "example_en": "I have an interview tomorrow.",
   "example_ru": "У меня завтра собеседование.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "беседа",
+   "опрос",
+   "провести интервью"
+  ]
  },
  {
   "en": "Tip",
@@ -5430,7 +6634,14 @@
   "example_en": "Don't forget to leave a tip.",
   "example_ru": "Не забудь оставить чаевые.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "совет",
+   "наконечник",
+   "намёк",
+   "кончик",
+   "советы"
+  ]
  },
  {
   "en": "Refund",
@@ -5443,7 +6654,14 @@
   "example_en": "I want a refund.",
   "example_ru": "Я хочу вернуть деньги.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вернуть деньги",
+   "возместить",
+   "возмещение",
+   "возврат средств",
+   "компенсация"
+  ]
  },
  {
   "en": "Sidewalk",
@@ -5456,7 +6674,12 @@
   "example_en": "Don't park on the sidewalk.",
   "example_ru": "Не паркуйся на тротуаре.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пешеходная дорожка",
+   "тротуары",
+   "пешеходная часть"
+  ]
  },
  {
   "en": "Elevator",
@@ -5469,7 +6692,11 @@
   "example_en": "The elevator is broken.",
   "example_ru": "Лифт сломан.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "подъёмник",
+   "лифты"
+  ]
  },
  {
   "en": "Apartment",
@@ -5482,7 +6709,13 @@
   "example_en": "We found a nice apartment.",
   "example_ru": "Мы нашли хорошую квартиру.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "квартиры",
+   "апартаменты",
+   "жильё",
+   "жилплощадь"
+  ]
  },
  {
   "en": "Gas",
@@ -5495,7 +6728,13 @@
   "example_en": "We need to buy gas.",
   "example_ru": "Нам нужно купить бензин.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "топливо",
+   "газ",
+   "горючее",
+   "заправка"
+  ]
  },
  {
   "en": "Leftovers",
@@ -5508,7 +6747,13 @@
   "example_en": "We had leftovers for lunch.",
   "example_ru": "На обед у нас были остатки.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "объедки",
+   "остатки",
+   "остатки пищи",
+   "то что осталось"
+  ]
  },
  {
   "en": "Nap",
@@ -5522,7 +6767,15 @@
   "example_en": "I took a nap after lunch.",
   "example_ru": "Я вздремнул после обеда.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сон",
+   "дремота",
+   "подремать",
+   "поспать",
+   "сиеста",
+   "прилечь"
+  ]
  },
  {
   "en": "Headache",
@@ -5535,7 +6788,13 @@
   "example_en": "I have a bad headache.",
   "example_ru": "У меня сильно болит голова.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "боль в голове",
+   "голова болит",
+   "мигрень",
+   "проблема"
+  ]
  },
  {
   "en": "Vibes",
@@ -5550,7 +6809,12 @@
   "example_en": "This place has good vibes.",
   "example_ru": "У этого места хорошая атмосфера.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "вайб",
+   "настроения",
+   "энергетика"
+  ]
  },
  {
   "en": "Epic",
@@ -5564,7 +6828,14 @@
   "example_en": "The concert was epic.",
   "example_ru": "Концерт был эпичным.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "грандиозный",
+   "эпический",
+   "легендарный",
+   "масштабный",
+   "невероятный"
+  ]
  },
  {
   "en": "Sick",
@@ -5578,12 +6849,22 @@
   "example_en": "That trick was sick!",
   "example_ru": "Этот трюк был огонь!",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "больной",
+   "классный",
+   "отпад",
+   "огонь",
+   "заболел"
+  ]
  },
  {
   "en": "Hyped",
   "en_alt": [
-   "excited"
+   "excited",
+   "psyched",
+   "stoked",
+   "pumped"
   ],
   "ru": [
    "Взбудораженный",
@@ -5592,7 +6873,14 @@
   "example_en": "I'm so hyped for the game.",
   "example_ru": "Я так жду эту игру.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "взбудоражен",
+   "в восторге",
+   "взвинчен",
+   "предвкушаю",
+   "воодушевлён"
+  ]
  },
  {
   "en": "Sus",
@@ -5608,7 +6896,13 @@
   "example_en": "That guy is kind of sus.",
   "example_ru": "Этот тип какой-то мутный.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "подозрительно",
+   "сомнительный",
+   "странный",
+   "палевный"
+  ]
  },
  {
   "en": "Hungry",
@@ -5621,7 +6915,14 @@
   "example_en": "I'm hungry. Let's eat.",
   "example_ru": "Я голоден. Давай поедим.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "голод",
+   "хочет есть",
+   "проголодавшийся",
+   "голоден",
+   "хочу есть"
+  ]
  },
  {
   "en": "Clueless",
@@ -5635,7 +6936,14 @@
   "example_en": "I'm clueless about cars.",
   "example_ru": "Я вообще не разбираюсь в машинах.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "ничего не понимающий",
+   "не в курсе",
+   "ничего не знающий",
+   "неосведомлённый",
+   "растерянный"
+  ]
  },
  {
   "en": "Bummed",
@@ -5650,12 +6958,22 @@
   "example_en": "I'm bummed about the weather.",
   "example_ru": "Я расстроен из-за погоды.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "грустный",
+   "огорчённый",
+   "унылый",
+   "подавлен",
+   "расстроен"
+  ]
  },
  {
   "en": "Stoked",
   "en_alt": [
-   "very excited"
+   "very excited",
+   "hyped",
+   "psyched",
+   "pumped"
   ],
   "ru": [
    "Очень рад",
@@ -5664,12 +6982,21 @@
   "example_en": "I'm stoked about the trip!",
   "example_ru": "Я в восторге от поездки!",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "рад",
+   "счастлив",
+   "воодушевлён",
+   "жду не дождусь"
+  ]
  },
  {
   "en": "Pumped",
   "en_alt": [
-   "excited"
+   "excited",
+   "hyped",
+   "psyched",
+   "stoked"
   ],
   "ru": [
    "Заведённый",
@@ -5678,7 +7005,15 @@
   "example_en": "I'm pumped for the game.",
   "example_ru": "Я полон энергии перед игрой.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "заведён",
+   "полный сил",
+   "энергичный",
+   "взбодрённый",
+   "возбуждённый",
+   "мотивирован"
+  ]
  },
  {
   "en": "Messed up",
@@ -5694,7 +7029,14 @@
   "example_en": "That's messed up.",
   "example_ru": "Это какой-то ужас.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "жуткий",
+   "сломанный",
+   "неправильный",
+   "ненормальный",
+   "испорчен"
+  ]
  },
  {
   "en": "I'm not sure about that",
@@ -6099,7 +7441,7 @@
    "not sure"
   ],
   "ru": [
-   "Сомневаться",
+   "Сомневаться (колеблюсь)",
    "Не определился"
   ],
   "example_en": "I'm still on the fence about moving.",
@@ -6153,7 +7495,8 @@
   "en": "Throw in the towel",
   "en_alt": [
    "give up",
-   "quit"
+   "quit",
+   "give in"
   ],
   "ru": [
    "Сдаться",
@@ -6294,7 +7637,8 @@
   "en": "Don't mention it",
   "en_alt": [
    "dont mention it",
-   "you're welcome"
+   "you're welcome",
+   "you bet"
   ],
   "ru": [
    "Не за что",
@@ -6561,7 +7905,8 @@
  {
   "en": "All of a sudden",
   "en_alt": [
-   "suddenly"
+   "suddenly",
+   "out of the blue"
   ],
   "ru": [
    "Внезапно",
@@ -6703,7 +8048,8 @@
  {
   "en": "Take a look",
   "en_alt": [
-   "have a look"
+   "have a look",
+   "check out"
   ],
   "ru": [
    "Взглянуть",
@@ -7468,7 +8814,7 @@
    "Fill out"
   ],
   "ru": [
-   "Заполнить",
+   "Заполнить (пропуски)",
    "Подменить"
   ],
   "example_en": "Fill in the blanks.",
@@ -7596,7 +8942,7 @@
    "finish"
   ],
   "ru": [
-   "Пережить",
+   "Пережить (выдержать)",
    "Справиться"
   ],
   "example_en": "We'll get through this.",
@@ -7663,7 +9009,8 @@
  {
   "en": "Go ahead",
   "en_alt": [
-   "proceed"
+   "proceed",
+   "go for it"
   ],
   "ru": [
    "Вперёд",
@@ -7819,7 +9166,7 @@
    "omit"
   ],
   "ru": [
-   "Пропустить",
+   "Пропустить (не включить)",
    "Не включить"
   ],
   "example_en": "Don't leave me out.",
@@ -8296,7 +9643,7 @@
    "take a seat"
   ],
   "ru": [
-   "Сесть"
+   "Сесть (на место)"
   ],
   "example_en": "Please sit down.",
   "example_ru": "Пожалуйста, садитесь.",
@@ -8548,7 +9895,14 @@
   "example_en": "She achieved her goal.",
   "example_ru": "Она достигла своей цели.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "достигнуть",
+   "добиваться",
+   "достижение",
+   "достичь цели",
+   "выполнить"
+  ]
  },
  {
   "en": "Admit",
@@ -8562,7 +9916,13 @@
   "example_en": "He admitted his mistake.",
   "example_ru": "Он признал свою ошибку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "признать",
+   "допускать",
+   "признание",
+   "согласиться"
+  ]
  },
  {
   "en": "Adopt",
@@ -8576,7 +9936,14 @@
   "example_en": "They adopted a puppy.",
   "example_ru": "Они взяли щенка.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "усыновление",
+   "удочерить",
+   "взять",
+   "перенять",
+   "внедрить"
+  ]
  },
  {
   "en": "Advise",
@@ -8590,7 +9957,13 @@
   "example_en": "I advise you to wait.",
   "example_ru": "Советую тебе подождать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "посоветовать",
+   "консультировать",
+   "советую",
+   "уведомить"
+  ]
  },
  {
   "en": "Allow",
@@ -8604,7 +9977,13 @@
   "example_en": "They don't allow dogs here.",
   "example_ru": "Здесь не разрешают собак.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "позволить",
+   "разрешить",
+   "допускать",
+   "дозволять"
+  ]
  },
  {
   "en": "Announce",
@@ -8617,7 +9996,14 @@
   "example_en": "They announced the winner.",
   "example_ru": "Они объявили победителя.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "объявить",
+   "сообщить",
+   "огласить",
+   "заявить",
+   "оповестить"
+  ]
  },
  {
   "en": "Appreciate",
@@ -8631,7 +10017,13 @@
   "example_en": "I appreciate your help.",
   "example_ru": "Я ценю твою помощь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "оценить",
+   "ценю",
+   "благодарен",
+   "признателен"
+  ]
  },
  {
   "en": "Approve",
@@ -8644,12 +10036,19 @@
   "example_en": "The boss approved the plan.",
   "example_ru": "Начальник одобрил план.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "одобрять",
+   "утвердить",
+   "согласовать",
+   "одобрение"
+  ]
  },
  {
   "en": "Arrange",
   "en_alt": [
-   "organize"
+   "organize",
+   "set up"
   ],
   "ru": [
    "Организовать",
@@ -8658,7 +10057,14 @@
   "example_en": "I arranged a meeting.",
   "example_ru": "Я организовал встречу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "устроить",
+   "расположить",
+   "договариваться",
+   "упорядочить",
+   "наладить"
+  ]
  },
  {
   "en": "Attempt",
@@ -8672,7 +10078,12 @@
   "example_en": "He attempted to escape.",
   "example_ru": "Он пытался сбежать.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "попытаться",
+   "пробовать",
+   "пытаться сделать"
+  ]
  },
  {
   "en": "Behave",
@@ -8685,7 +10096,13 @@
   "example_en": "Behave yourself!",
   "example_ru": "Веди себя хорошо!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вести себя прилично",
+   "поступать",
+   "себя вести",
+   "поступить"
+  ]
  },
  {
   "en": "Belong",
@@ -8699,7 +10116,13 @@
   "example_en": "This book belongs to me.",
   "example_ru": "Эта книга принадлежит мне.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "принадлежит",
+   "относиться",
+   "быть частью",
+   "входить"
+  ]
  },
  {
   "en": "Bet",
@@ -8713,7 +10136,15 @@
   "example_en": "I bet you can't do it.",
   "example_ru": "Спорим, у тебя не получится.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пари",
+   "ставка",
+   "поспорить",
+   "спорить",
+   "поставить",
+   "ставить"
+  ]
  },
  {
   "en": "Boil",
@@ -8727,7 +10158,14 @@
   "example_en": "Boil the water first.",
   "example_ru": "Сначала вскипяти воду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вскипятить",
+   "кипятить",
+   "закипать",
+   "сварить",
+   "кипение"
+  ]
  },
  {
   "en": "Calculate",
@@ -8741,7 +10179,14 @@
   "example_en": "Calculate the total cost.",
   "example_ru": "Подсчитай общую стоимость.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "вычислить",
+   "посчитать",
+   "рассчитать",
+   "высчитывать",
+   "вычислять"
+  ]
  },
  {
   "en": "Capture",
@@ -8755,7 +10200,14 @@
   "example_en": "The photo captured the moment.",
   "example_ru": "Фото запечатлело момент.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "поймать",
+   "захват",
+   "взять в плен",
+   "сфотографировать",
+   "схватить"
+  ]
  },
  {
   "en": "Cause",
@@ -8769,7 +10221,14 @@
   "example_en": "Smoking causes cancer.",
   "example_ru": "Курение вызывает рак.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вызвать",
+   "стать причиной",
+   "повод",
+   "виновник",
+   "привести к"
+  ]
  },
  {
   "en": "Chase",
@@ -8783,7 +10242,14 @@
   "example_en": "The dog chased the cat.",
   "example_ru": "Собака гналась за кошкой.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "погоня",
+   "догонять",
+   "преследование",
+   "гоняться",
+   "погнаться"
+  ]
  },
  {
   "en": "Cheat",
@@ -8797,7 +10263,14 @@
   "example_en": "He cheated on the exam.",
   "example_ru": "Он списал на экзамене.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "обмануть",
+   "мошенничать",
+   "списывать",
+   "жульничество",
+   "изменять"
+  ]
  },
  {
   "en": "Claim",
@@ -8812,7 +10285,14 @@
   "example_en": "He claims he is innocent.",
   "example_ru": "Он утверждает, что невиновен.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "заявить",
+   "утверждение",
+   "требование",
+   "претендовать",
+   "заявление"
+  ]
  },
  {
   "en": "Climb",
@@ -8826,7 +10306,15 @@
   "example_en": "We climbed the hill.",
   "example_ru": "Мы забрались на холм.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "лезть",
+   "подниматься",
+   "влезть",
+   "карабкаться",
+   "подъём",
+   "залезть"
+  ]
  },
  {
   "en": "Collect",
@@ -8839,7 +10327,14 @@
   "example_en": "She collects stamps.",
   "example_ru": "Она коллекционирует марки.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "коллекционировать",
+   "собрать",
+   "копить",
+   "коллекция",
+   "накапливать"
+  ]
  },
  {
   "en": "Combine",
@@ -8853,7 +10348,14 @@
   "example_en": "Combine the ingredients.",
   "example_ru": "Смешайте ингредиенты.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сочетать",
+   "объединить",
+   "соединять",
+   "комбинировать",
+   "совместить"
+  ]
  },
  {
   "en": "Compete",
@@ -8867,7 +10369,13 @@
   "example_en": "They compete for the title.",
   "example_ru": "Они борются за титул.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "состязаться",
+   "конкуренция",
+   "соревнование",
+   "соперничать"
+  ]
  },
  {
   "en": "Concentrate",
@@ -8880,7 +10388,13 @@
   "example_en": "I can't concentrate today.",
   "example_ru": "Я сегодня не могу сосредоточиться.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сконцентрироваться",
+   "сосредоточить",
+   "концентрироваться",
+   "сфокусироваться"
+  ]
  },
  {
   "en": "Confess",
@@ -8894,7 +10408,13 @@
   "example_en": "He confessed to the crime.",
   "example_ru": "Он сознался в преступлении.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "признание",
+   "признавать вину",
+   "покаяться",
+   "исповедоваться"
+  ]
  },
  {
   "en": "Confirm",
@@ -8907,7 +10427,13 @@
   "example_en": "Please confirm your order.",
   "example_ru": "Пожалуйста, подтвердите заказ.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "подтвердить",
+   "удостоверить",
+   "подтверждение",
+   "утвердить"
+  ]
  },
  {
   "en": "Connect",
@@ -8921,7 +10447,14 @@
   "example_en": "Connect to Wi-Fi.",
   "example_ru": "Подключись к Wi-Fi.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "подключить",
+   "связать",
+   "соединить",
+   "подсоединить",
+   "связывать"
+  ]
  },
  {
   "en": "Contain",
@@ -8934,12 +10467,20 @@
   "example_en": "This juice contains sugar.",
   "example_ru": "Этот сок содержит сахар.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "вмещать",
+   "содержит",
+   "иметь внутри",
+   "сдерживать",
+   "содержание"
+  ]
  },
  {
   "en": "Continue",
   "en_alt": [
-   "keep going"
+   "keep going",
+   "carry on"
   ],
   "ru": [
    "Продолжать",
@@ -8948,7 +10489,14 @@
   "example_en": "Please continue.",
   "example_ru": "Пожалуйста, продолжайте.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "продолжить",
+   "длиться",
+   "не останавливаться",
+   "идти дальше",
+   "возобновить"
+  ]
  },
  {
   "en": "Control",
@@ -8962,7 +10510,13 @@
   "example_en": "I can't control him.",
   "example_ru": "Я не могу его контролировать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "управление",
+   "контроль",
+   "руководить",
+   "регулировать"
+  ]
  },
  {
   "en": "Cooperate",
@@ -8975,7 +10529,12 @@
   "example_en": "They cooperate closely.",
   "example_ru": "Они тесно сотрудничают.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сотрудничество",
+   "работать вместе",
+   "взаимодействовать"
+  ]
  },
  {
   "en": "Count",
@@ -8988,7 +10547,15 @@
   "example_en": "Count to ten.",
   "example_ru": "Сосчитай до десяти.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "посчитать",
+   "сосчитать",
+   "считаться",
+   "пересчитывать",
+   "подсчёт",
+   "иметь значение"
+  ]
  },
  {
   "en": "Cover",
@@ -9002,7 +10569,16 @@
   "example_en": "Cover the food.",
   "example_ru": "Накрой еду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "покрыть",
+   "накрыть",
+   "обложка",
+   "крышка",
+   "прикрыть",
+   "закрывать",
+   "укрыть"
+  ]
  },
  {
   "en": "Create",
@@ -9015,7 +10591,14 @@
   "example_en": "She creates beautiful art.",
   "example_ru": "Она создаёт красивые картины.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "создать",
+   "творить",
+   "сотворить",
+   "порождать",
+   "придумать"
+  ]
  },
  {
   "en": "Cure",
@@ -9029,7 +10612,14 @@
   "example_en": "They found a cure.",
   "example_ru": "Они нашли лекарство.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "лечение",
+   "излечить",
+   "лекарство",
+   "исцелить",
+   "средство"
+  ]
  },
  {
   "en": "Dare",
@@ -9043,7 +10633,14 @@
   "example_en": "I dare you to jump.",
   "example_ru": "Спорим, ты не прыгнешь.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "посметь",
+   "решиться",
+   "дерзнуть",
+   "вызов",
+   "отважиться"
+  ]
  },
  {
   "en": "Decide",
@@ -9051,13 +10648,20 @@
    "choose"
   ],
   "ru": [
-   "Решать",
+   "Решать (выбирать)",
    "Принять решение"
   ],
   "example_en": "I can't decide.",
   "example_ru": "Я не могу решить.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "решить",
+   "определиться",
+   "выбрать",
+   "постановить",
+   "решаться"
+  ]
  },
  {
   "en": "Decrease",
@@ -9071,7 +10675,15 @@
   "example_en": "Prices decreased.",
   "example_ru": "Цены снизились.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "уменьшить",
+   "снижение",
+   "убывать",
+   "сокращать",
+   "спад",
+   "снизить"
+  ]
  },
  {
   "en": "Describe",
@@ -9084,7 +10696,13 @@
   "example_en": "Describe your day.",
   "example_ru": "Опиши свой день.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "описать",
+   "охарактеризовать",
+   "рассказать о",
+   "обрисовать"
+  ]
  },
  {
   "en": "Design",
@@ -9099,7 +10717,14 @@
   "example_en": "She designs clothes.",
   "example_ru": "Она проектирует одежду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "проект",
+   "спроектировать",
+   "разработать",
+   "замысел",
+   "конструировать"
+  ]
  },
  {
   "en": "Destroy",
@@ -9113,7 +10738,15 @@
   "example_en": "The fire destroyed the house.",
   "example_ru": "Пожар уничтожил дом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "уничтожить",
+   "разрушить",
+   "разорить",
+   "снести",
+   "сломать",
+   "погубить"
+  ]
  },
  {
   "en": "Develop",
@@ -9127,7 +10760,13 @@
   "example_en": "They develop software.",
   "example_ru": "Они разрабатывают программы.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "развить",
+   "разработать",
+   "развиваться",
+   "проявить"
+  ]
  },
  {
   "en": "Disagree",
@@ -9140,7 +10779,13 @@
   "example_en": "I disagree with you.",
   "example_ru": "Я с тобой не согласен.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "не согласен",
+   "расходиться",
+   "возражать",
+   "не совпадать"
+  ]
  },
  {
   "en": "Discuss",
@@ -9153,7 +10798,14 @@
   "example_en": "Let's discuss the plan.",
   "example_ru": "Давай обсудим план.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "обсудить",
+   "обсуждение",
+   "поговорить о",
+   "дискутировать",
+   "говорить о"
+  ]
  },
  {
   "en": "Distract",
@@ -9166,7 +10818,14 @@
   "example_en": "Don't distract me.",
   "example_ru": "Не отвлекай меня.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "отвлечь",
+   "рассеять",
+   "сбивать",
+   "отвлекаться",
+   "отвлекающий"
+  ]
  },
  {
   "en": "Dream",
@@ -9181,7 +10840,14 @@
   "example_en": "I dream of traveling.",
   "example_ru": "Я мечтаю путешествовать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сон",
+   "мечтать о",
+   "грезить",
+   "сниться",
+   "видеть во сне"
+  ]
  },
  {
   "en": "Earn",
@@ -9194,7 +10860,14 @@
   "example_en": "He earns a lot.",
   "example_ru": "Он много зарабатывает.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "заработать",
+   "получать",
+   "заслужить",
+   "зарабатывать деньги",
+   "заработок"
+  ]
  },
  {
   "en": "Enable",
@@ -9208,7 +10881,14 @@
   "example_en": "This app enables sharing.",
   "example_ru": "Это приложение позволяет делиться.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "разрешить",
+   "дать возможность",
+   "активировать",
+   "позволить",
+   "сделать возможным"
+  ]
  },
  {
   "en": "Enter",
@@ -9222,7 +10902,16 @@
   "example_en": "Enter your name.",
   "example_ru": "Введите своё имя.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "войти",
+   "вход",
+   "ввести",
+   "зайти",
+   "въехать",
+   "вступить",
+   "попасть"
+  ]
  },
  {
   "en": "Examine",
@@ -9236,7 +10925,14 @@
   "example_en": "The doctor examined him.",
   "example_ru": "Врач его осмотрел.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "осмотреть",
+   "изучить",
+   "проверить",
+   "обследовать",
+   "проанализировать"
+  ]
  },
  {
   "en": "Exchange",
@@ -9250,7 +10946,14 @@
   "example_en": "Can I exchange this shirt?",
   "example_ru": "Можно обменять эту рубашку?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поменять",
+   "обменять",
+   "менять",
+   "обменяться",
+   "обмениваться"
+  ]
  },
  {
   "en": "Exist",
@@ -9263,7 +10966,14 @@
   "example_en": "Ghosts don't exist.",
   "example_ru": "Привидений не существует.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "быть",
+   "жить",
+   "иметься",
+   "находиться",
+   "присутствовать"
+  ]
  },
  {
   "en": "Explore",
@@ -9277,7 +10987,13 @@
   "example_en": "We explored the city.",
   "example_ru": "Мы исследовали город.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "изучить",
+   "исследование",
+   "обследовать",
+   "разведать"
+  ]
  },
  {
   "en": "Express",
@@ -9290,7 +11006,14 @@
   "example_en": "Express your feelings.",
   "example_ru": "Выражай свои чувства.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "выразить",
+   "выражение",
+   "высказать",
+   "передать",
+   "выражаться"
+  ]
  },
  {
   "en": "Fail",
@@ -9304,7 +11027,15 @@
   "example_en": "He failed the test.",
   "example_ru": "Он провалил тест.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "провал",
+   "потерпеть неудачу",
+   "не получиться",
+   "не удаться",
+   "завалить",
+   "подвести"
+  ]
  },
  {
   "en": "Fight",
@@ -9320,7 +11051,15 @@
   "example_en": "They fight all the time.",
   "example_ru": "Они постоянно дерутся.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "бой",
+   "сражаться",
+   "подраться",
+   "воевать",
+   "битва",
+   "сражение"
+  ]
  },
  {
   "en": "Fit",
@@ -9334,7 +11073,15 @@
   "example_en": "These shoes don't fit.",
   "example_ru": "Эти туфли не подходят по размеру.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сидеть по фигуре",
+   "быть впору",
+   "влезать",
+   "вписываться",
+   "соответствовать",
+   "годиться"
+  ]
  },
  {
   "en": "Focus",
@@ -9348,7 +11095,14 @@
   "example_en": "Focus on your work.",
   "example_ru": "Сосредоточься на работе.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сосредоточиться",
+   "центр",
+   "сфокусироваться",
+   "концентрироваться",
+   "внимание"
+  ]
  },
  {
   "en": "Force",
@@ -9362,7 +11116,15 @@
   "example_en": "Nobody forced you.",
   "example_ru": "Никто тебя не заставлял.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "заставить",
+   "принудить",
+   "вынуждать",
+   "насилие",
+   "принуждать",
+   "мощь"
+  ]
  },
  {
   "en": "Freeze",
@@ -9376,7 +11138,15 @@
   "example_en": "The lake froze.",
   "example_ru": "Озеро замёрзло.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "заморозить",
+   "замёрзнуть",
+   "мёрзнуть",
+   "заморозка",
+   "застыть",
+   "зависнуть"
+  ]
  },
  {
   "en": "Gain",
@@ -9390,7 +11160,16 @@
   "example_en": "He gained weight.",
   "example_ru": "Он набрал вес.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "получить",
+   "выгода",
+   "набрать",
+   "приобрести",
+   "прирост",
+   "достичь",
+   "прибавить"
+  ]
  },
  {
   "en": "Hate",
@@ -9403,7 +11182,14 @@
   "example_en": "I hate waiting.",
   "example_ru": "Я ненавижу ждать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ненависть",
+   "не любить",
+   "терпеть не могу",
+   "ненавижу",
+   "презирать"
+  ]
  },
  {
   "en": "Heal",
@@ -9417,7 +11203,15 @@
   "example_en": "The cut healed fast.",
   "example_ru": "Порез быстро зажил.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "исцелить",
+   "зажить",
+   "вылечить",
+   "лечить",
+   "заживление",
+   "выздоравливать"
+  ]
  },
  {
   "en": "Hide",
@@ -9430,7 +11224,15 @@
   "example_en": "The kids hid under the bed.",
   "example_ru": "Дети спрятались под кроватью.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "спрятать",
+   "скрыть",
+   "спрятаться",
+   "скрываться",
+   "прятаться",
+   "утаить"
+  ]
  },
  {
   "en": "Hurt",
@@ -9444,7 +11246,16 @@
   "example_en": "My back hurts.",
   "example_ru": "У меня болит спина.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ранить",
+   "больно",
+   "обидеть",
+   "ушибить",
+   "пострадать",
+   "боль",
+   "навредить"
+  ]
  },
  {
   "en": "Ignore",
@@ -9457,7 +11268,14 @@
   "example_en": "Just ignore him.",
   "example_ru": "Просто игнорируй его.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "игнорирование",
+   "не замечать",
+   "пропускать мимо ушей",
+   "не обращать внимания",
+   "пренебрегать"
+  ]
  },
  {
   "en": "Impress",
@@ -9470,7 +11288,14 @@
   "example_en": "You impressed me.",
   "example_ru": "Ты произвёл на меня впечатление.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "впечатлить",
+   "поразить",
+   "произвести впечатление",
+   "поражать",
+   "впечатление"
+  ]
  },
  {
   "en": "Include",
@@ -9483,7 +11308,14 @@
   "example_en": "The price includes tax.",
   "example_ru": "Цена включает налог.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "включить",
+   "содержать",
+   "вмещать",
+   "учитывать",
+   "входить в"
+  ]
  },
  {
   "en": "Increase",
@@ -9497,7 +11329,16 @@
   "example_en": "Prices increased.",
   "example_ru": "Цены выросли.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "повысить",
+   "рост",
+   "увеличить",
+   "возрастать",
+   "прирост",
+   "повышение",
+   "расти"
+  ]
  },
  {
   "en": "Inform",
@@ -9511,7 +11352,15 @@
   "example_en": "Please inform me.",
   "example_ru": "Пожалуйста, сообщите мне.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сообщить",
+   "уведомить",
+   "известить",
+   "проинформировать",
+   "информация",
+   "дать знать"
+  ]
  },
  {
   "en": "Injure",
@@ -9524,7 +11373,16 @@
   "example_en": "He injured his knee.",
   "example_ru": "Он повредил колено.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "ранить",
+   "повредить",
+   "поранить",
+   "пострадать",
+   "ушибить",
+   "травма",
+   "покалечить"
+  ]
  },
  {
   "en": "Intend",
@@ -9537,7 +11395,14 @@
   "example_en": "I intend to quit.",
   "example_ru": "Я намерен уволиться.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "собираться",
+   "намерен",
+   "планировать",
+   "иметь в виду",
+   "намереваться сделать"
+  ]
  },
  {
   "en": "Interrupt",
@@ -9551,7 +11416,14 @@
   "example_en": "Don't interrupt me.",
   "example_ru": "Не перебивай меня.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "прервать",
+   "перебить",
+   "помешать",
+   "вмешаться",
+   "прерывание"
+  ]
  },
  {
   "en": "Introduce",
@@ -9565,7 +11437,15 @@
   "example_en": "Let me introduce my friend.",
   "example_ru": "Позволь представить моего друга.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "представить",
+   "познакомить",
+   "ввести",
+   "внедрить",
+   "презентовать",
+   "знакомить"
+  ]
  },
  {
   "en": "Invent",
@@ -9578,7 +11458,15 @@
   "example_en": "Who invented the phone?",
   "example_ru": "Кто изобрёл телефон?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "изобрести",
+   "придумать",
+   "выдумать",
+   "создать",
+   "изобретение",
+   "сочинить"
+  ]
  },
  {
   "en": "Involve",
@@ -9592,7 +11480,15 @@
   "example_en": "The job involves travel.",
   "example_ru": "Работа связана с поездками.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "включать",
+   "вовлечь",
+   "затрагивать",
+   "предполагать",
+   "привлекать",
+   "подразумевать"
+  ]
  },
  {
   "en": "Jump",
@@ -9605,7 +11501,15 @@
   "example_en": "He jumped over the fence.",
   "example_ru": "Он перепрыгнул через забор.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "прыжок",
+   "прыгнуть",
+   "скакать",
+   "перепрыгнуть",
+   "подпрыгнуть",
+   "скачок"
+  ]
  },
  {
   "en": "Laugh",
@@ -9618,7 +11522,14 @@
   "example_en": "We laughed all night.",
   "example_ru": "Мы смеялись всю ночь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "смех",
+   "посмеяться",
+   "хохотать",
+   "засмеяться",
+   "ржать"
+  ]
  },
  {
   "en": "Lead",
@@ -9632,7 +11543,15 @@
   "example_en": "She leads the team.",
   "example_ru": "Она руководит командой.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вести за собой",
+   "возглавлять",
+   "лидировать",
+   "привести",
+   "свинец",
+   "лидер"
+  ]
  },
  {
   "en": "Afraid",
@@ -9646,7 +11565,16 @@
   "example_en": "I'm afraid of heights.",
   "example_ru": "Я боюсь высоты.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "бояться",
+   "боюсь",
+   "испугавшийся",
+   "напуганный",
+   "испуган",
+   "опасаться",
+   "страшиться"
+  ]
  },
  {
   "en": "Ashamed",
@@ -9660,7 +11588,14 @@
   "example_en": "I'm ashamed of what I said.",
   "example_ru": "Мне стыдно за то, что я сказал.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "стыдиться",
+   "стыжусь",
+   "мне стыдно",
+   "устыдившийся",
+   "совестно"
+  ]
  },
  {
   "en": "Aware",
@@ -9674,7 +11609,14 @@
   "example_en": "Are you aware of the risk?",
   "example_ru": "Ты осознаёшь риск?",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "осознавать",
+   "в курсе",
+   "сознающий",
+   "знать",
+   "быть в курсе"
+  ]
  },
  {
   "en": "Bored",
@@ -9687,7 +11629,13 @@
   "example_en": "I'm bored.",
   "example_ru": "Мне скучно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скучать",
+   "мне скучно",
+   "скучно",
+   "заскучавший"
+  ]
  },
  {
   "en": "Brave",
@@ -9700,7 +11648,13 @@
   "example_en": "He was very brave.",
   "example_ru": "Он был очень храбрым.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "смелый",
+   "отважный",
+   "мужественный",
+   "бесстрашный"
+  ]
  },
  {
   "en": "Careful",
@@ -9714,7 +11668,14 @@
   "example_en": "Be careful!",
   "example_ru": "Будь осторожен!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "осторожно",
+   "аккуратный",
+   "тщательный",
+   "осмотрительный",
+   "будь осторожен"
+  ]
  },
  {
   "en": "Cheerful",
@@ -9728,7 +11689,13 @@
   "example_en": "She's always cheerful.",
   "example_ru": "Она всегда жизнерадостна.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "радостный",
+   "бодрый",
+   "оптимистичный",
+   "весело"
+  ]
  },
  {
   "en": "Clever",
@@ -9736,13 +11703,20 @@
    "smart"
   ],
   "ru": [
-   "Умный",
+   "Умный (сообразительный)",
    "Сообразительный"
   ],
   "example_en": "That was a clever idea.",
   "example_ru": "Это была умная идея.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "умно",
+   "смышлёный",
+   "ловкий",
+   "толковый",
+   "остроумный"
+  ]
  },
  {
   "en": "Comfortable",
@@ -9756,7 +11730,13 @@
   "example_en": "This chair is comfortable.",
   "example_ru": "Этот стул удобный.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "удобно",
+   "уютно",
+   "комфортный",
+   "комфортно"
+  ]
  },
  {
   "en": "Crazy",
@@ -9770,7 +11750,15 @@
   "example_en": "That's a crazy idea.",
   "example_ru": "Это безумная идея.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безумно",
+   "псих",
+   "шальной",
+   "ненормальный",
+   "помешанный",
+   "чокнутый"
+  ]
  },
  {
   "en": "Dangerous",
@@ -9783,7 +11771,13 @@
   "example_en": "It's dangerous here.",
   "example_ru": "Здесь опасно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "опасно",
+   "рискованный",
+   "небезопасный",
+   "опасность"
+  ]
  },
  {
   "en": "Delicious",
@@ -9796,12 +11790,19 @@
   "example_en": "This pizza is delicious.",
   "example_ru": "Эта пицца очень вкусная.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вкусно",
+   "очень вкусный",
+   "восхитительный",
+   "аппетитный"
+  ]
  },
  {
   "en": "Difficult",
   "en_alt": [
-   "hard"
+   "hard",
+   "tough"
   ],
   "ru": [
    "Трудный",
@@ -9810,7 +11811,14 @@
   "example_en": "The test was difficult.",
   "example_ru": "Тест был сложным.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "тяжёлый",
+   "трудно",
+   "сложно",
+   "непростой",
+   "нелёгкий"
+  ]
  },
  {
   "en": "Dirty",
@@ -9823,7 +11831,14 @@
   "example_en": "Your shoes are dirty.",
   "example_ru": "Твои туфли грязные.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "грязно",
+   "нечистый",
+   "испачканный",
+   "неопрятный",
+   "пачкать"
+  ]
  },
  {
   "en": "Eager",
@@ -9831,13 +11846,20 @@
    "keen"
   ],
   "ru": [
-   "Нетерпеливый",
+   "Нетерпеливый (не терпится начать)",
    "Жаждущий"
   ],
   "example_en": "He's eager to start.",
   "example_ru": "Ему не терпится начать.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "рвущийся",
+   "горячий",
+   "страстный",
+   "стремящийся",
+   "увлечённый"
+  ]
  },
  {
   "en": "Empty",
@@ -9850,7 +11872,13 @@
   "example_en": "The fridge is empty.",
   "example_ru": "Холодильник пуст.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "пусто",
+   "порожний",
+   "опустошить",
+   "свободный"
+  ]
  },
  {
   "en": "Excited",
@@ -9864,7 +11892,14 @@
   "example_en": "I'm excited about the trip.",
   "example_ru": "Я в предвкушении поездки.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "взволнован",
+   "в восторге",
+   "в предвкушении",
+   "возбуждённый",
+   "рад"
+  ]
  },
  {
   "en": "Famous",
@@ -9877,7 +11912,13 @@
   "example_en": "She's a famous singer.",
   "example_ru": "Она знаменитая певица.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "популярный",
+   "знаменитость",
+   "прославленный",
+   "знаменит"
+  ]
  },
  {
   "en": "Flexible",
@@ -9890,7 +11931,13 @@
   "example_en": "My schedule is flexible.",
   "example_ru": "Мой график гибкий.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "гибко",
+   "податливый",
+   "пластичный",
+   "адаптивный"
+  ]
  },
  {
   "en": "Friendly",
@@ -9903,7 +11950,13 @@
   "example_en": "The staff is friendly.",
   "example_ru": "Персонал дружелюбный.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "приветливый",
+   "дружески",
+   "дружественный",
+   "доброжелательный"
+  ]
  },
  {
   "en": "Funny",
@@ -9916,7 +11969,14 @@
   "example_en": "That joke was funny.",
   "example_ru": "Эта шутка была смешной.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "забавный",
+   "смешно",
+   "прикольный",
+   "комичный",
+   "потешный"
+  ]
  },
  {
   "en": "Glad",
@@ -9930,7 +11990,13 @@
   "example_en": "I'm glad you came.",
   "example_ru": "Рад, что ты пришёл.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "рада",
+   "счастлив",
+   "довольный",
+   "приятно"
+  ]
  },
  {
   "en": "Guilty",
@@ -9943,7 +12009,13 @@
   "example_en": "I feel guilty.",
   "example_ru": "Я чувствую себя виноватым.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "виновен",
+   "виновный",
+   "виноват",
+   "повинный"
+  ]
  },
  {
   "en": "Honest",
@@ -9956,7 +12028,14 @@
   "example_en": "Be honest with me.",
   "example_ru": "Будь со мной честен.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "искренний",
+   "правдивый",
+   "порядочный",
+   "откровенный",
+   "честно"
+  ]
  },
  {
   "en": "Impatient",
@@ -9964,12 +12043,17 @@
    "restless"
   ],
   "ru": [
-   "Нетерпеливый"
+   "Нетерпеливый (раздражённо)"
   ],
   "example_en": "He's impatient.",
   "example_ru": "Он нетерпелив.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "не терпится",
+   "нетерпеливо",
+   "раздражительный"
+  ]
  },
  {
   "en": "Independent",
@@ -9983,7 +12067,13 @@
   "example_en": "She's very independent.",
   "example_ru": "Она очень самостоятельная.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "независимо",
+   "самостоятельно",
+   "автономный",
+   "самодостаточный"
+  ]
  },
  {
   "en": "Intelligent",
@@ -9997,7 +12087,14 @@
   "example_en": "He's very intelligent.",
   "example_ru": "Он очень умён.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "умно",
+   "смышлёный",
+   "интеллектуальный",
+   "толковый",
+   "умница"
+  ]
  },
  {
   "en": "Kind",
@@ -10010,7 +12107,14 @@
   "example_en": "She's very kind.",
   "example_ru": "Она очень добрая.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "добро",
+   "милый",
+   "любезный",
+   "добросердечный",
+   "доброжелательный"
+  ]
  },
  {
   "en": "Lonely",
@@ -10023,7 +12127,13 @@
   "example_en": "I feel lonely here.",
   "example_ru": "Мне здесь одиноко.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "одиноко",
+   "одинокая",
+   "в одиночестве",
+   "одинок"
+  ]
  },
  {
   "en": "Lucky",
@@ -10037,7 +12147,14 @@
   "example_en": "You're so lucky!",
   "example_ru": "Тебе так повезло!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "везёт",
+   "счастливчик",
+   "удачный",
+   "повезло",
+   "везунчик"
+  ]
  },
  {
   "en": "Mad",
@@ -10051,7 +12168,14 @@
   "example_en": "He's mad at me.",
   "example_ru": "Он злится на меня.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сумасшедший",
+   "сердитый",
+   "в ярости",
+   "бешеный",
+   "рассерженный"
+  ]
  },
  {
   "en": "Mean",
@@ -10059,14 +12183,20 @@
    "unkind"
   ],
   "ru": [
-   "Злой",
+   "Злой (подлый)",
    "Подлый",
    "Жадный"
   ],
   "example_en": "Don't be mean to him.",
   "example_ru": "Не будь с ним злым.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скупой",
+   "значить",
+   "иметь в виду",
+   "подразумевать"
+  ]
  },
  {
   "en": "Modern",
@@ -10079,12 +12209,19 @@
   "example_en": "It's a modern building.",
   "example_ru": "Это современное здание.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "современно",
+   "новейший",
+   "актуальный",
+   "нынешний"
+  ]
  },
  {
   "en": "Nasty",
   "en_alt": [
-   "unpleasant"
+   "unpleasant",
+   "gross"
   ],
   "ru": [
    "Противный",
@@ -10093,7 +12230,14 @@
   "example_en": "What a nasty smell!",
   "example_ru": "Какой противный запах!",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "гадкий",
+   "мерзко",
+   "неприятный",
+   "отвратный",
+   "мерзопакостный"
+  ]
  },
  {
   "en": "Obvious",
@@ -10106,7 +12250,14 @@
   "example_en": "The answer is obvious.",
   "example_ru": "Ответ очевиден.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "очевидно",
+   "понятный",
+   "явный",
+   "ясный",
+   "бросающийся в глаза"
+  ]
  },
  {
   "en": "Odd",
@@ -10121,7 +12272,14 @@
   "example_en": "That's odd.",
   "example_ru": "Это странно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "чудной",
+   "странноватый",
+   "необычный",
+   "непарный",
+   "диковинный"
+  ]
  },
  {
   "en": "Official",
@@ -10134,7 +12292,14 @@
   "example_en": "It's an official document.",
   "example_ru": "Это официальный документ.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "официально",
+   "должностное лицо",
+   "формальный",
+   "служебный",
+   "чиновник"
+  ]
  },
  {
   "en": "Ordinary",
@@ -10148,7 +12313,14 @@
   "example_en": "It was an ordinary day.",
   "example_ru": "Это был обычный день.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "простой",
+   "рядовой",
+   "нормальный",
+   "будничный",
+   "средний"
+  ]
  },
  {
   "en": "Perfect",
@@ -10161,7 +12333,14 @@
   "example_en": "It's perfect!",
   "example_ru": "Это идеально!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безупречный",
+   "совершенный",
+   "прекрасный",
+   "идеально",
+   "превосходный"
+  ]
  },
  {
   "en": "Pleasant",
@@ -10174,7 +12353,14 @@
   "example_en": "We had a pleasant evening.",
   "example_ru": "Мы приятно провели вечер.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "приятно",
+   "симпатичный",
+   "милый",
+   "любезный",
+   "славный"
+  ]
  },
  {
   "en": "Private",
@@ -10188,7 +12374,14 @@
   "example_en": "This is a private matter.",
   "example_ru": "Это личное дело.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "личная",
+   "частная",
+   "закрытый",
+   "конфиденциальный",
+   "рядовой"
+  ]
  },
  {
   "en": "Proud",
@@ -10201,7 +12394,14 @@
   "example_en": "I'm proud of you.",
   "example_ru": "Я горжусь тобой.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "гордиться",
+   "горжусь",
+   "гордость",
+   "гордо",
+   "горделивый"
+  ]
  },
  {
   "en": "Quiet",
@@ -10214,7 +12414,15 @@
   "example_en": "The street is quiet.",
   "example_ru": "На улице тихо.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "тишина",
+   "спокойный",
+   "тихо",
+   "спокойно",
+   "молчаливый",
+   "бесшумный"
+  ]
  },
  {
   "en": "Rare",
@@ -10227,7 +12435,13 @@
   "example_en": "It's a rare bird.",
   "example_ru": "Это редкая птица.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "нечасто",
+   "редкостный",
+   "уникальный",
+   "редко"
+  ]
  },
  {
   "en": "Relaxed",
@@ -10240,7 +12454,14 @@
   "example_en": "I feel relaxed.",
   "example_ru": "Я чувствую себя расслабленно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "расслабленно",
+   "спокойный",
+   "непринуждённый",
+   "расслабился",
+   "невозмутимый"
+  ]
  },
  {
   "en": "Responsible",
@@ -10253,7 +12474,13 @@
   "example_en": "He's a responsible person.",
   "example_ru": "Он ответственный человек.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отвечающий",
+   "ответственно",
+   "надёжный",
+   "виноват"
+  ]
  },
  {
   "en": "Selfish",
@@ -10266,7 +12493,13 @@
   "example_en": "Don't be so selfish.",
   "example_ru": "Не будь таким эгоистом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "эгоист",
+   "себялюбивый",
+   "эгоистично",
+   "корыстный"
+  ]
  },
  {
   "en": "Sensible",
@@ -10280,7 +12513,15 @@
   "example_en": "That's a sensible choice.",
   "example_ru": "Это разумный выбор.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "разумно",
+   "здравый",
+   "толковый",
+   "практичный",
+   "рассудительный",
+   "благоразумный"
+  ]
  },
  {
   "en": "Serious",
@@ -10293,7 +12534,14 @@
   "example_en": "Are you serious?",
   "example_ru": "Ты серьёзно?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "серьёзно",
+   "всерьёз",
+   "тяжёлый",
+   "суровый",
+   "важный"
+  ]
  },
  {
   "en": "Sharp",
@@ -10307,7 +12555,14 @@
   "example_en": "The knife is sharp.",
   "example_ru": "Нож острый.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "резко",
+   "заострённый",
+   "проницательный",
+   "чёткий",
+   "остро"
+  ]
  },
  {
   "en": "Sincere",
@@ -10320,7 +12575,14 @@
   "example_en": "He gave a sincere apology.",
   "example_ru": "Он искренне извинился.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "искренно",
+   "чистосердечный",
+   "откровенный",
+   "неподдельный",
+   "искренне"
+  ]
  },
  {
   "en": "Strict",
@@ -10333,7 +12595,13 @@
   "example_en": "My teacher is strict.",
   "example_ru": "Мой учитель строгий.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "жёсткий",
+   "суровый",
+   "строго",
+   "требовательный"
+  ]
  },
  {
   "en": "Suitable",
@@ -10346,7 +12614,14 @@
   "example_en": "This job is suitable for you.",
   "example_ru": "Эта работа тебе подходит.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "годный",
+   "пригодный",
+   "подобающий",
+   "соответствующий",
+   "уместный"
+  ]
  },
  {
   "en": "Sweet",
@@ -10360,7 +12635,14 @@
   "example_en": "That's so sweet of you.",
   "example_ru": "Это так мило с твоей стороны.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сладость",
+   "конфета",
+   "приятный",
+   "сладко",
+   "мило"
+  ]
  },
  {
   "en": "Tight",
@@ -10375,7 +12657,15 @@
   "example_en": "These jeans are tight.",
   "example_ru": "Эти джинсы тесные.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "плотный",
+   "узкий",
+   "тесно",
+   "обтягивающий",
+   "натянутый",
+   "плотно"
+  ]
  },
  {
   "en": "Tricky",
@@ -10389,7 +12679,14 @@
   "example_en": "It's a tricky question.",
   "example_ru": "Это каверзный вопрос.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сложный",
+   "непростой",
+   "коварный",
+   "трудный",
+   "щекотливый"
+  ]
  },
  {
   "en": "Unusual",
@@ -10402,7 +12699,14 @@
   "example_en": "That's an unusual name.",
   "example_ru": "Это необычное имя.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "необычно",
+   "странный",
+   "нестандартный",
+   "необыкновенный",
+   "нетипичный"
+  ]
  },
  {
   "en": "Ability",
@@ -10416,7 +12720,16 @@
   "example_en": "She has the ability to learn fast.",
   "example_ru": "У неё есть способность быстро учиться.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "способности",
+   "возможность",
+   "мастерство",
+   "дар",
+   "талант",
+   "навык",
+   "потенциал"
+  ]
  },
  {
   "en": "Accident",
@@ -10430,7 +12743,16 @@
   "example_en": "He had an accident.",
   "example_ru": "Он попал в аварию.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "происшествие",
+   "случай",
+   "катастрофа",
+   "инцидент",
+   "случайность",
+   "дтп",
+   "крушение"
+  ]
  },
  {
   "en": "Advantage",
@@ -10443,7 +12765,15 @@
   "example_en": "Experience is an advantage.",
   "example_ru": "Опыт — это преимущество.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "преимущества",
+   "плюс",
+   "выгода",
+   "польза",
+   "превосходство",
+   "достоинство"
+  ]
  },
  {
   "en": "Agreement",
@@ -10457,7 +12787,15 @@
   "example_en": "We reached an agreement.",
   "example_ru": "Мы достигли соглашения.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "договор",
+   "согласие",
+   "сделка",
+   "договорённости",
+   "контракт",
+   "консенсус"
+  ]
  },
  {
   "en": "Ambition",
@@ -10471,7 +12809,14 @@
   "example_en": "She has big ambitions.",
   "example_ru": "У неё большие амбиции.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "честолюбие",
+   "амбиции",
+   "стремления",
+   "желание",
+   "устремление"
+  ]
  },
  {
   "en": "Anger",
@@ -10485,7 +12830,13 @@
   "example_en": "He couldn't hide his anger.",
   "example_ru": "Он не мог скрыть свой гнев.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ярость",
+   "раздражение",
+   "бешенство",
+   "негодование"
+  ]
  },
  {
   "en": "Appointment",
@@ -10499,12 +12850,21 @@
   "example_en": "I have a doctor's appointment.",
   "example_ru": "У меня запись к врачу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "встреча",
+   "запись",
+   "приём у врача",
+   "назначение",
+   "свидание",
+   "запись на приём"
+  ]
  },
  {
   "en": "Atmosphere",
   "en_alt": [
-   "mood of a place"
+   "mood of a place",
+   "vibe"
   ],
   "ru": [
    "Атмосфера"
@@ -10512,7 +12872,14 @@
   "example_en": "The restaurant has a great atmosphere.",
   "example_ru": "У ресторана отличная атмосфера.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "обстановка",
+   "настроение",
+   "ощущение",
+   "вайб",
+   "окружение"
+  ]
  },
  {
   "en": "Attitude",
@@ -10526,7 +12893,14 @@
   "example_en": "I like his positive attitude.",
   "example_ru": "Мне нравится его позитивный настрой.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "отношение к",
+   "позиция",
+   "взгляд",
+   "подход",
+   "манера держаться"
+  ]
  },
  {
   "en": "Behavior",
@@ -10539,7 +12913,14 @@
   "example_en": "His behavior was strange.",
   "example_ru": "Его поведение было странным.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "повадки",
+   "манеры",
+   "образ действий",
+   "себя ведёт",
+   "поступки"
+  ]
  },
  {
   "en": "Belief",
@@ -10553,7 +12934,14 @@
   "example_en": "It's my personal belief.",
   "example_ru": "Это моё личное убеждение.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "убеждения",
+   "верование",
+   "мнение",
+   "убеждённость",
+   "религия"
+  ]
  },
  {
   "en": "Bill",
@@ -10566,7 +12954,16 @@
   "example_en": "Can I have the bill, please?",
   "example_ru": "Можно счёт, пожалуйста?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "счёт за",
+   "купюра",
+   "банкнота",
+   "законопроект",
+   "оплата",
+   "чек",
+   "счета"
+  ]
  },
  {
   "en": "Budget",
@@ -10579,7 +12976,14 @@
   "example_en": "We're on a tight budget.",
   "example_ru": "Мы ограничены в бюджете.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "бюджетный",
+   "финансы",
+   "смета",
+   "расходы",
+   "планировать расходы"
+  ]
  },
  {
   "en": "Career",
@@ -10592,7 +12996,15 @@
   "example_en": "She has a great career.",
   "example_ru": "У неё отличная карьера.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "профессия",
+   "карьерный рост",
+   "работа",
+   "служба",
+   "призвание",
+   "трудовая деятельность"
+  ]
  },
  {
   "en": "Challenge",
@@ -10606,7 +13018,15 @@
   "example_en": "It's a big challenge.",
   "example_ru": "Это серьёзный вызов.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "проблема",
+   "оспорить",
+   "задача",
+   "трудность",
+   "бросить вызов",
+   "оспаривать"
+  ]
  },
  {
   "en": "Community",
@@ -10620,7 +13040,15 @@
   "example_en": "Our community is friendly.",
   "example_ru": "Наше сообщество дружелюбное.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "общество",
+   "коммуна",
+   "группа",
+   "жители",
+   "объединение",
+   "общественность"
+  ]
  },
  {
   "en": "Competition",
@@ -10634,7 +13062,15 @@
   "example_en": "There's a lot of competition.",
   "example_ru": "Там большая конкуренция.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "конкурс",
+   "состязание",
+   "конкуренты",
+   "соревнования",
+   "турнир",
+   "борьба"
+  ]
  },
  {
   "en": "Confidence",
@@ -10647,7 +13083,14 @@
   "example_en": "He lacks confidence.",
   "example_ru": "Ему не хватает уверенности.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "самоуверенность",
+   "доверие",
+   "вера в себя",
+   "уверенность в себе",
+   "убеждённость"
+  ]
  },
  {
   "en": "Consequence",
@@ -10660,7 +13103,14 @@
   "example_en": "You'll face the consequences.",
   "example_ru": "Ты столкнёшься с последствиями.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "результат",
+   "последствия",
+   "итог",
+   "исход",
+   "следствие"
+  ]
  },
  {
   "en": "Contract",
@@ -10673,7 +13123,14 @@
   "example_en": "I signed a contract.",
   "example_ru": "Я подписал контракт.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "договор",
+   "соглашение",
+   "сделка",
+   "подряд",
+   "контрактный"
+  ]
  },
  {
   "en": "Courage",
@@ -10687,7 +13144,14 @@
   "example_en": "It takes courage.",
   "example_ru": "Для этого нужна смелость.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "храбрость",
+   "отвага",
+   "бесстрашие",
+   "доблесть",
+   "дух"
+  ]
  },
  {
   "en": "Crowd",
@@ -10700,7 +13164,16 @@
   "example_en": "There was a big crowd.",
   "example_ru": "Там была большая толпа.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "масса",
+   "народ",
+   "скопление",
+   "людская масса",
+   "группа людей",
+   "давка",
+   "публика"
+  ]
  },
  {
   "en": "Custom",
@@ -10713,7 +13186,16 @@
   "example_en": "It's a local custom.",
   "example_ru": "Это местный обычай.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "традиция",
+   "привычка",
+   "обычаи",
+   "таможня",
+   "пошлина",
+   "индивидуальный",
+   "на заказ"
+  ]
  },
  {
   "en": "Debt",
@@ -10726,7 +13208,16 @@
   "example_en": "I'm in debt.",
   "example_ru": "Я в долгах.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "долги",
+   "задолженность",
+   "обязательство",
+   "долговой",
+   "должен",
+   "кредит",
+   "должок"
+  ]
  },
  {
   "en": "Decision",
@@ -10734,12 +13225,20 @@
    "choice"
   ],
   "ru": [
-   "Решение"
+   "Решение (выбор)"
   ],
   "example_en": "That was a tough decision.",
   "example_ru": "Это было тяжёлое решение.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "выбор",
+   "вердикт",
+   "заключение",
+   "решения",
+   "определение",
+   "резолюция"
+  ]
  },
  {
   "en": "Demand",
@@ -10754,7 +13253,15 @@
   "example_en": "There's high demand for this.",
   "example_ru": "На это высокий спрос.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "потребность",
+   "требовать",
+   "запрос",
+   "спрос на",
+   "настаивать",
+   "востребованность"
+  ]
  },
  {
   "en": "Destination",
@@ -10767,7 +13274,14 @@
   "example_en": "We reached our destination.",
   "example_ru": "Мы добрались до места назначения.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "назначение",
+   "конечная точка",
+   "цель поездки",
+   "пункт прибытия",
+   "место назначения"
+  ]
  },
  {
   "en": "Detail",
@@ -10781,7 +13295,14 @@
   "example_en": "Tell me every detail.",
   "example_ru": "Расскажи мне каждую деталь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "подробности",
+   "детали",
+   "мелочь",
+   "нюанс",
+   "элемент"
+  ]
  },
  {
   "en": "Direction",
@@ -10794,7 +13315,17 @@
   "example_en": "Which direction is it?",
   "example_ru": "В каком это направлении?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "курс",
+   "направления",
+   "сторона",
+   "указание",
+   "руководство",
+   "инструкция",
+   "путь",
+   "управление"
+  ]
  },
  {
   "en": "Discount",
@@ -10807,7 +13338,15 @@
   "example_en": "I got a 20% discount.",
   "example_ru": "Мне дали скидку 20%.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скидки",
+   "уценка",
+   "распродажа",
+   "снижение цены",
+   "дисконт",
+   "уценить"
+  ]
  },
  {
   "en": "Distance",
@@ -10820,7 +13359,15 @@
   "example_en": "The distance is short.",
   "example_ru": "Расстояние небольшое.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "дистанция",
+   "даль",
+   "отдалённость",
+   "промежуток",
+   "расстояния",
+   "удалённость"
+  ]
  },
  {
   "en": "Emergency",
@@ -10834,7 +13381,16 @@
   "example_en": "Call 911 in an emergency.",
   "example_ru": "В экстренном случае звоните 911.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "авария",
+   "чрезвычайное",
+   "экстренный",
+   "аварийный",
+   "критическая ситуация",
+   "чп",
+   "неотложный"
+  ]
  },
  {
   "en": "Energy",
@@ -10848,7 +13404,16 @@
   "example_en": "I have no energy today.",
   "example_ru": "У меня сегодня нет сил.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сила",
+   "бодрость",
+   "мощность",
+   "энергетика",
+   "запал",
+   "активность",
+   "электричество"
+  ]
  },
  {
   "en": "Environment",
@@ -10861,7 +13426,15 @@
   "example_en": "We must protect the environment.",
   "example_ru": "Мы должны защищать окружающую среду.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "среда",
+   "окружение",
+   "обстановка",
+   "экология",
+   "условия",
+   "природа"
+  ]
  },
  {
   "en": "Error",
@@ -10875,7 +13448,15 @@
   "example_en": "The program shows an error.",
   "example_ru": "Программа показывает ошибку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "сбой",
+   "баг",
+   "погрешность",
+   "ошибка в программе",
+   "неисправность",
+   "неверное значение"
+  ]
  },
  {
   "en": "Event",
@@ -10889,7 +13470,14 @@
   "example_en": "It's a big event.",
   "example_ru": "Это крупное мероприятие.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "случай",
+   "происшествие",
+   "соревнование",
+   "вечеринка",
+   "праздник"
+  ]
  },
  {
   "en": "Evidence",
@@ -10903,7 +13491,15 @@
   "example_en": "There's no evidence.",
   "example_ru": "Доказательств нет.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "свидетельство",
+   "доказательства",
+   "улика",
+   "подтверждение",
+   "факты",
+   "показания"
+  ]
  },
  {
   "en": "Experience",
@@ -10916,7 +13512,16 @@
   "example_en": "I have experience in sales.",
   "example_ru": "У меня есть опыт в продажах.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "стаж",
+   "опыт работы",
+   "пережить",
+   "переживание",
+   "впечатление",
+   "опытность",
+   "испытать"
+  ]
  },
  {
   "en": "Fault",
@@ -10930,7 +13535,16 @@
   "example_en": "It's not my fault.",
   "example_ru": "Это не моя вина.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "промах",
+   "неисправность",
+   "дефект",
+   "виноват",
+   "недочёт",
+   "изъян",
+   "слабость"
+  ]
  },
  {
   "en": "Favor",
@@ -10944,7 +13558,14 @@
   "example_en": "Can you do me a favor?",
   "example_ru": "Можешь оказать мне услугу?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "милость",
+   "поддержка",
+   "предпочтение",
+   "благосклонность",
+   "помощь"
+  ]
  },
  {
   "en": "Fear",
@@ -10957,7 +13578,18 @@
   "example_en": "He has a fear of dogs.",
   "example_ru": "Он боится собак.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "бояться",
+   "ужас",
+   "боязнь",
+   "опасение",
+   "испуг",
+   "трепет",
+   "страшиться",
+   "паника",
+   "фобия"
+  ]
  },
  {
   "en": "Feeling",
@@ -10970,7 +13602,16 @@
   "example_en": "I have a bad feeling about this.",
   "example_ru": "У меня плохое предчувствие.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ощущение",
+   "эмоция",
+   "чувства",
+   "предчувствие",
+   "настроение",
+   "переживание",
+   "ощущения"
+  ]
  },
  {
   "en": "Flavor",
@@ -10983,7 +13624,15 @@
   "example_en": "What flavor do you want?",
   "example_ru": "Какой вкус ты хочешь?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вкусовой оттенок",
+   "запах",
+   "привкус",
+   "аромат",
+   "колорит",
+   "вкусы"
+  ]
  },
  {
   "en": "Freedom",
@@ -10996,7 +13645,14 @@
   "example_en": "Freedom is important.",
   "example_ru": "Свобода важна.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "воля",
+   "независимость",
+   "вольность",
+   "свободы",
+   "право"
+  ]
  },
  {
   "en": "Friendship",
@@ -11009,7 +13665,14 @@
   "example_en": "Our friendship is strong.",
   "example_ru": "Наша дружба крепкая.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "дружеские отношения",
+   "приятельство",
+   "товарищество",
+   "подружиться",
+   "дружеская связь"
+  ]
  },
  {
   "en": "Goal",
@@ -11017,12 +13680,21 @@
    "aim"
   ],
   "ru": [
-   "Цель"
+   "Цель (к чему стремишься)"
   ],
   "example_en": "My goal is to be fluent.",
   "example_ru": "Моя цель — свободно говорить.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "задача",
+   "ворота",
+   "гол",
+   "цели",
+   "мечта",
+   "стремление",
+   "намерение"
+  ]
  },
  {
   "en": "Guest",
@@ -11035,7 +13707,15 @@
   "example_en": "We have guests tonight.",
   "example_ru": "У нас сегодня гости.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "посетитель",
+   "гости",
+   "приглашённый",
+   "постоялец",
+   "визитёр",
+   "гостья"
+  ]
  },
  {
   "en": "Harm",
@@ -11048,7 +13728,17 @@
   "example_en": "It won't do any harm.",
   "example_ru": "Это не причинит вреда.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "навредить",
+   "ущерб",
+   "повредить",
+   "обижать",
+   "зло",
+   "урон",
+   "наносить вред",
+   "вредить"
+  ]
  },
  {
   "en": "Imagination",
@@ -11061,7 +13751,14 @@
   "example_en": "Use your imagination.",
   "example_ru": "Используй воображение.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "фантазия",
+   "вымысел",
+   "представление",
+   "мечтательность",
+   "выдумка"
+  ]
  },
  {
   "en": "Income",
@@ -11074,7 +13771,16 @@
   "example_en": "Her income is high.",
   "example_ru": "Её доход высокий.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "заработок",
+   "прибыль",
+   "доходы",
+   "поступления",
+   "зарплата",
+   "выручка",
+   "достаток"
+  ]
  },
  {
   "en": "Insurance",
@@ -11087,7 +13793,15 @@
   "example_en": "Do you have health insurance?",
   "example_ru": "У тебя есть медицинская страховка?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "страхование",
+   "гарантия",
+   "страховой полис",
+   "страховой",
+   "защита",
+   "застраховать"
+  ]
  },
  {
   "en": "Joke",
@@ -11100,7 +13814,16 @@
   "example_en": "He told a good joke.",
   "example_ru": "Он рассказал хорошую шутку.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "анекдот",
+   "шутить",
+   "прикол",
+   "розыгрыш",
+   "пошутить",
+   "хохма",
+   "подшутить"
+  ]
  },
  {
   "en": "Journey",
@@ -11114,7 +13837,15 @@
   "example_en": "It was a long journey.",
   "example_ru": "Это была долгая поездка.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поход",
+   "путь",
+   "путешествовать",
+   "странствие",
+   "дорога",
+   "рейс"
+  ]
  },
  {
   "en": "Knowledge",
@@ -11127,7 +13858,14 @@
   "example_en": "Knowledge is power.",
   "example_ru": "Знания — сила.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "знание",
+   "осведомлённость",
+   "эрудиция",
+   "сведения",
+   "познания"
+  ]
  },
  {
   "en": "Laundry",
@@ -11141,7 +13879,15 @@
   "example_en": "I have to do the laundry.",
   "example_ru": "Мне надо постирать.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "стирать",
+   "прачечная",
+   "грязное бельё",
+   "бельё в стирку",
+   "постирушки",
+   "одежда на стирку"
+  ]
  },
  {
   "en": "Loan",
@@ -11155,7 +13901,16 @@
   "example_en": "He took out a loan.",
   "example_ru": "Он взял кредит.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "займ",
+   "ссуда",
+   "ипотека",
+   "дать в долг",
+   "кредитование",
+   "одолжить",
+   "долг"
+  ]
  },
  {
   "en": "Loss",
@@ -11169,7 +13924,16 @@
   "example_en": "It's a big loss.",
   "example_ru": "Это большая потеря.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "потери",
+   "проигрыш",
+   "убыток",
+   "ущерб",
+   "гибель",
+   "поражение",
+   "пропажа"
+  ]
  },
  {
   "en": "Luggage",
@@ -11182,7 +13946,16 @@
   "example_en": "Where's my luggage?",
   "example_ru": "Где мой багаж?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "чемоданы",
+   "вещи",
+   "поклажа",
+   "сумки",
+   "рюкзаки",
+   "ручная кладь",
+   "баулы"
+  ]
  },
  {
   "en": "Mystery",
@@ -11190,13 +13963,20 @@
    "puzzle"
   ],
   "ru": [
-   "Тайна",
+   "Тайна (загадка)",
    "Загадка"
   ],
   "example_en": "It's still a mystery.",
   "example_ru": "Это всё ещё тайна.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "секрет",
+   "непонятность",
+   "детектив",
+   "загадочность",
+   "головоломка"
+  ]
  },
  {
   "en": "Nightmare",
@@ -11209,7 +13989,14 @@
   "example_en": "I had a nightmare.",
   "example_ru": "Мне приснился кошмар.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "кошмарный сон",
+   "ужас",
+   "кошмары",
+   "страшный сон",
+   "пытка"
+  ]
  },
  {
   "en": "Noise",
@@ -11222,7 +14009,17 @@
   "example_en": "Stop making noise.",
   "example_ru": "Перестань шуметь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "гул",
+   "звук",
+   "грохот",
+   "помехи",
+   "шумы",
+   "гомон",
+   "галдёж",
+   "звуки"
+  ]
  },
  {
   "en": "Offer",
@@ -11235,7 +14032,15 @@
   "example_en": "That's a great offer.",
   "example_ru": "Это отличное предложение.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "предложить",
+   "предлагать",
+   "предоставить",
+   "оферта",
+   "приглашение",
+   "сделать предложение"
+  ]
  },
  {
   "en": "Opinion",
@@ -11248,7 +14053,16 @@
   "example_en": "In my opinion, it's good.",
   "example_ru": "По-моему, это хорошо.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "взгляд",
+   "точка зрения",
+   "мнения",
+   "суждение",
+   "позиция",
+   "по-моему",
+   "отзыв"
+  ]
  },
  {
   "en": "Patience",
@@ -11261,7 +14075,14 @@
   "example_en": "Have some patience.",
   "example_ru": "Прояви терпение.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "выдержка",
+   "терпеливость",
+   "выносливость",
+   "самообладание",
+   "невозмутимость"
+  ]
  },
  {
   "en": "Pleasure",
@@ -11274,7 +14095,15 @@
   "example_en": "It was a pleasure.",
   "example_ru": "Было приятно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "радость",
+   "наслаждение",
+   "удовольствия",
+   "счастье",
+   "развлечение",
+   "кайф"
+  ]
  },
  {
   "en": "Pressure",
@@ -11288,7 +14117,16 @@
   "example_en": "He works under pressure.",
   "example_ru": "Он работает под давлением.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "нажим",
+   "напряжение",
+   "давить",
+   "стресс",
+   "гнёт",
+   "давление на",
+   "сжатие"
+  ]
  },
  {
   "en": "Privacy",
@@ -11302,7 +14140,14 @@
   "example_en": "I need some privacy.",
   "example_ru": "Мне нужно личное пространство.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "уединение",
+   "личная жизнь",
+   "конфиденциальность",
+   "неприкосновенность",
+   "частная жизнь"
+  ]
  },
  {
   "en": "Purpose",
@@ -11310,13 +14155,21 @@
    "reason"
   ],
   "ru": [
-   "Цель",
+   "Цель (назначение)",
    "Назначение"
   ],
   "example_en": "What's the purpose of this?",
   "example_ru": "Какова цель этого?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "смысл",
+   "намерение",
+   "предназначение",
+   "функция",
+   "назначение предмета",
+   "замысел"
+  ]
  },
  {
   "en": "Reaction",
@@ -11329,7 +14182,15 @@
   "example_en": "I loved her reaction.",
   "example_ru": "Мне понравилась её реакция.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "отклик",
+   "ответ",
+   "реагирование",
+   "откликнуться",
+   "реагировать",
+   "ответная реакция"
+  ]
  },
  {
   "en": "Reason",
@@ -11342,7 +14203,16 @@
   "example_en": "What's the reason?",
   "example_ru": "В чём причина?",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "основание",
+   "повод",
+   "довод",
+   "мотив",
+   "рассудок",
+   "разум",
+   "объяснение"
+  ]
  },
  {
   "en": "Reputation",
@@ -11355,7 +14225,16 @@
   "example_en": "He has a good reputation.",
   "example_ru": "У него хорошая репутация.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "имя",
+   "слава",
+   "репутации",
+   "авторитет",
+   "популярность",
+   "честь",
+   "известность"
+  ]
  },
  {
   "en": "Respect",
@@ -11368,7 +14247,16 @@
   "example_en": "I have a lot of respect for him.",
   "example_ru": "Я очень его уважаю.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "уважать",
+   "почитание",
+   "почтение",
+   "уважение к",
+   "почёт",
+   "считаться с",
+   "соблюдать"
+  ]
  },
  {
   "en": "Responsibility",
@@ -11381,7 +14269,15 @@
   "example_en": "It's your responsibility.",
   "example_ru": "Это твоя ответственность.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "обязанность",
+   "долг",
+   "отвечать",
+   "ответственности",
+   "обязательство",
+   "подотчётность"
+  ]
  },
  {
   "en": "Reward",
@@ -11395,7 +14291,16 @@
   "example_en": "There's a reward for it.",
   "example_ru": "За это положена награда.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "поощрение",
+   "премия",
+   "приз",
+   "награждать",
+   "награда за",
+   "вознаградить",
+   "бонус"
+  ]
  },
  {
   "en": "Routine",
@@ -11409,7 +14314,16 @@
   "example_en": "I have a morning routine.",
   "example_ru": "У меня есть утренний распорядок.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "режим",
+   "рутинный",
+   "распорядок дня",
+   "привычка",
+   "обыденность",
+   "порядок",
+   "повседневность"
+  ]
  },
  {
   "en": "Rule",
@@ -11422,20 +14336,39 @@
   "example_en": "Follow the rules.",
   "example_ru": "Соблюдай правила.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "регламент",
+   "правила",
+   "управлять",
+   "закон",
+   "норма",
+   "принцип",
+   "правление"
+  ]
  },
  {
   "en": "Salary",
   "en_alt": [
-   "monthly pay"
+   "monthly pay",
+   "wage"
   ],
   "ru": [
-   "Зарплата"
+   "Зарплата (в месяц)"
   ],
   "example_en": "My salary is low.",
   "example_ru": "Моя зарплата низкая.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "оклад",
+   "жалованье",
+   "ставка",
+   "заработная плата",
+   "заработок",
+   "оплата труда",
+   "доход"
+  ]
  },
  {
   "en": "Scene",
@@ -11450,7 +14383,16 @@
   "example_en": "It was a funny scene.",
   "example_ru": "Это была смешная сцена.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "эпизод",
+   "сцена из фильма",
+   "картина",
+   "место действия",
+   "обстановка",
+   "пейзаж",
+   "скандал"
+  ]
  },
  {
   "en": "Shame",
@@ -11465,7 +14407,18 @@
   "example_en": "What a shame!",
   "example_ru": "Как жаль!",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "срам",
+   "жалко",
+   "позорить",
+   "жаль",
+   "неловкость",
+   "совесть",
+   "пристыдить",
+   "как жаль",
+   "досада"
+  ]
  },
  {
   "en": "Silence",
@@ -11479,7 +14432,15 @@
   "example_en": "There was a long silence.",
   "example_ru": "Повисла долгая тишина.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безмолвие",
+   "тихо",
+   "молча",
+   "помолчать",
+   "молчать",
+   "умолчание"
+  ]
  },
  {
   "en": "Skill",
@@ -11493,7 +14454,17 @@
   "example_en": "Cooking is a useful skill.",
   "example_ru": "Готовка — полезный навык.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "способность",
+   "мастерство",
+   "ловкость",
+   "искусство",
+   "квалификация",
+   "умелость",
+   "компетенция",
+   "навыки"
+  ]
  },
  {
   "en": "Solution",
@@ -11506,7 +14477,16 @@
   "example_en": "We found a solution.",
   "example_ru": "Мы нашли решение.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "ответ",
+   "разрешение",
+   "выход",
+   "способ решения",
+   "раствор",
+   "решение задачи",
+   "вариант решения"
+  ]
  },
  {
   "en": "Source",
@@ -11519,7 +14499,15 @@
   "example_en": "What's your source?",
   "example_ru": "Каков твой источник?",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "исток",
+   "корень",
+   "первоисточник",
+   "родник",
+   "ссылка",
+   "происхождение"
+  ]
  },
  {
   "en": "Stress",
@@ -11532,7 +14520,16 @@
   "example_en": "I'm under a lot of stress.",
   "example_ru": "Я под большим стрессом.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "напряжённость",
+   "психологическое давление",
+   "нагрузка",
+   "акцент",
+   "нервное напряжение",
+   "подчеркнуть",
+   "ударение"
+  ]
  },
  {
   "en": "Success",
@@ -11545,7 +14542,16 @@
   "example_en": "The party was a success.",
   "example_ru": "Вечеринка удалась.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "удача",
+   "победа",
+   "достижение",
+   "процветание",
+   "успешность",
+   "преуспевание",
+   "везение"
+  ]
  },
  {
   "en": "Talent",
@@ -11558,7 +14564,16 @@
   "example_en": "She has a lot of talent.",
   "example_ru": "У неё большой талант.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "дарование",
+   "способности",
+   "дар",
+   "одарённость",
+   "талантливый человек",
+   "гений",
+   "задатки"
+  ]
  },
  {
   "en": "Tradition",
@@ -11571,7 +14586,16 @@
   "example_en": "It's a family tradition.",
   "example_ru": "Это семейная традиция.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "обычай",
+   "предание",
+   "обряд",
+   "традиции",
+   "ритуал",
+   "наследие",
+   "обыкновение"
+  ]
  },
  {
   "en": "Trend",
@@ -11586,7 +14610,16 @@
   "example_en": "It's the latest trend.",
   "example_ru": "Это последний тренд.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "направление",
+   "модное",
+   "тенденция развития",
+   "мода",
+   "веяние",
+   "курс",
+   "динамика"
+  ]
  },
  {
   "en": "Victory",
@@ -11599,7 +14632,16 @@
   "example_en": "It was a great victory.",
   "example_ru": "Это была великая победа.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "триумф",
+   "успех",
+   "взять верх",
+   "победить",
+   "выигрыш",
+   "достижение",
+   "торжество"
+  ]
  },
  {
   "en": "View",
@@ -11614,7 +14656,17 @@
   "example_en": "The view is amazing.",
   "example_ru": "Вид потрясающий.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вид из окна",
+   "взгляд на",
+   "пейзаж",
+   "мнение",
+   "панорама",
+   "смотреть",
+   "точка зрения",
+   "обзор"
+  ]
  },
  {
   "en": "Warning",
@@ -11627,7 +14679,16 @@
   "example_en": "He ignored the warning.",
   "example_ru": "Он проигнорировал предупреждение.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "предостережение",
+   "предупредить",
+   "внимание",
+   "оповещение",
+   "тревога",
+   "сигнал",
+   "осторожно"
+  ]
  },
  {
   "en": "Wisdom",
@@ -11640,7 +14701,14 @@
   "example_en": "With age comes wisdom.",
   "example_ru": "С возрастом приходит мудрость.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "знание жизни",
+   "опыт",
+   "мудрое слово",
+   "разумность",
+   "ум"
+  ]
  },
  {
   "en": "Absolutely",
@@ -11655,7 +14723,18 @@
   "example_en": "You're absolutely right.",
   "example_ru": "Ты абсолютно прав.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "полностью",
+   "абсолютно верно",
+   "безусловно",
+   "целиком",
+   "разумеется",
+   "обязательно",
+   "точно",
+   "непременно",
+   "вполне"
+  ]
  },
  {
   "en": "Almost",
@@ -11669,7 +14748,15 @@
   "example_en": "I almost forgot.",
   "example_ru": "Я чуть не забыл.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "практически",
+   "чуть не",
+   "едва не",
+   "приблизительно",
+   "почти что",
+   "около"
+  ]
  },
  {
   "en": "Already",
@@ -11682,13 +14769,22 @@
   "example_en": "I've already eaten.",
   "example_ru": "Я уже поел.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "к этому времени",
+   "давно",
+   "уже сейчас",
+   "ранее",
+   "на данный момент"
+  ]
  },
  {
   "en": "Certainly",
   "en_alt": [
    "surely",
-   "Definitely"
+   "Definitely",
+   "of course",
+   "sure"
   ],
   "ru": [
    "Конечно",
@@ -11697,7 +14793,15 @@
   "example_en": "Certainly, I'll help.",
   "example_ru": "Конечно, я помогу.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "безусловно",
+   "разумеется",
+   "без сомнения",
+   "непременно",
+   "наверняка",
+   "конечно же"
+  ]
  },
  {
   "en": "Constantly",
@@ -11710,7 +14814,15 @@
   "example_en": "He constantly complains.",
   "example_ru": "Он постоянно жалуется.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "всё время",
+   "регулярно",
+   "всегда",
+   "неизменно",
+   "непрерывно",
+   "беспрерывно"
+  ]
  },
  {
   "en": "Currently",
@@ -11723,7 +14835,15 @@
   "example_en": "I'm currently studying.",
   "example_ru": "Сейчас я учусь.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "в данный момент",
+   "сейчас",
+   "на данный момент",
+   "на сегодняшний день",
+   "на текущий момент",
+   "ныне"
+  ]
  },
  {
   "en": "Especially",
@@ -11736,7 +14856,15 @@
   "example_en": "I love fruit, especially apples.",
   "example_ru": "Я люблю фрукты, особенно яблоки.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "в особенности",
+   "больше всего",
+   "прежде всего",
+   "специально",
+   "особо",
+   "в частности"
+  ]
  },
  {
   "en": "Fairly",
@@ -11750,7 +14878,17 @@
   "example_en": "It's fairly easy.",
   "example_ru": "Это довольно легко.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "довольно-таки",
+   "справедливо",
+   "достаточно хорошо",
+   "вполне",
+   "честно",
+   "прилично",
+   "весьма",
+   "сравнительно"
+  ]
  },
  {
   "en": "Finally",
@@ -11763,7 +14901,15 @@
   "example_en": "We finally made it.",
   "example_ru": "Мы наконец справились.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "в конце концов",
+   "под конец",
+   "окончательно",
+   "напоследок",
+   "в итоге",
+   "наконец-то"
+  ]
  },
  {
   "en": "Frequently",
@@ -11776,12 +14922,21 @@
   "example_en": "He frequently visits us.",
   "example_ru": "Он часто нас навещает.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "многократно",
+   "нередко",
+   "зачастую",
+   "то и дело",
+   "регулярно",
+   "неоднократно"
+  ]
  },
  {
   "en": "Generally",
   "en_alt": [
-   "usually"
+   "usually",
+   "normally"
   ],
   "ru": [
    "Обычно",
@@ -11790,7 +14945,15 @@
   "example_en": "Generally, I agree.",
   "example_ru": "В общем, я согласен.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "в целом",
+   "как правило",
+   "вообще",
+   "обыкновенно",
+   "в большинстве случаев",
+   "в основном"
+  ]
  },
  {
   "en": "Gradually",
@@ -11803,7 +14966,16 @@
   "example_en": "It gradually got better.",
   "example_ru": "Постепенно стало лучше.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "понемногу",
+   "шаг за шагом",
+   "мало-помалу",
+   "медленно",
+   "плавно",
+   "поэтапно",
+   "потихоньку"
+  ]
  },
  {
   "en": "Immediately",
@@ -11816,7 +14988,18 @@
   "example_en": "Call me immediately.",
   "example_ru": "Позвони мне немедленно.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "мгновенно",
+   "сразу же",
+   "тотчас",
+   "сейчас же",
+   "прямо сейчас",
+   "сию минуту",
+   "незамедлительно",
+   "срочно",
+   "сразу"
+  ]
  },
  {
   "en": "Indeed",
@@ -11830,7 +15013,16 @@
   "example_en": "It was indeed hard.",
   "example_ru": "Это действительно было трудно.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "на самом деле",
+   "действительно так",
+   "и правда",
+   "точно",
+   "правда",
+   "и в самом деле",
+   "воистину"
+  ]
  },
  {
   "en": "Lately",
@@ -11843,12 +15035,20 @@
   "example_en": "I've been busy lately.",
   "example_ru": "Я в последнее время занят.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "недавно",
+   "последнее время",
+   "на днях",
+   "за последнее время",
+   "в последние дни"
+  ]
  },
  {
   "en": "Normally",
   "en_alt": [
-   "usually"
+   "usually",
+   "generally"
   ],
   "ru": [
    "Обычно",
@@ -11857,7 +15057,15 @@
   "example_en": "Normally, I sleep early.",
   "example_ru": "Обычно я ложусь рано.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "нормально",
+   "как обычно",
+   "в обычных условиях",
+   "обыкновенно",
+   "в норме",
+   "по обыкновению"
+  ]
  },
  {
   "en": "Occasionally",
@@ -11870,7 +15078,16 @@
   "example_en": "We occasionally meet.",
   "example_ru": "Мы время от времени встречаемся.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "иногда",
+   "периодически",
+   "случайно",
+   "изредка",
+   "от случая к случаю",
+   "порой",
+   "нечасто"
+  ]
  },
  {
   "en": "Perhaps",
@@ -11884,7 +15101,15 @@
   "example_en": "Perhaps you're right.",
   "example_ru": "Возможно, ты прав.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "может быть",
+   "наверное",
+   "быть может",
+   "вероятно",
+   "видимо",
+   "авось"
+  ]
  },
  {
   "en": "Probably",
@@ -11897,7 +15122,16 @@
   "example_en": "He'll probably come.",
   "example_ru": "Он, вероятно, придёт.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "скорее всего",
+   "возможно",
+   "наверное",
+   "по всей вероятности",
+   "видимо",
+   "наверняка",
+   "вероятнее всего"
+  ]
  },
  {
   "en": "Rarely",
@@ -11910,7 +15144,14 @@
   "example_en": "I rarely eat meat.",
   "example_ru": "Я редко ем мясо.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "изредка",
+   "нечасто",
+   "почти никогда",
+   "очень редко",
+   "едва когда"
+  ]
  },
  {
   "en": "Slightly",
@@ -11924,7 +15165,15 @@
   "example_en": "It's slightly cold.",
   "example_ru": "Немного прохладно.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "чуть-чуть",
+   "чуть",
+   "малость",
+   "незначительно",
+   "самую малость",
+   "совсем немного"
+  ]
  },
  {
   "en": "Sometimes",
@@ -11937,12 +15186,23 @@
   "example_en": "Sometimes I walk to work.",
   "example_ru": "Иногда я хожу на работу пешком.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "порой",
+   "временами",
+   "бывает",
+   "время от времени",
+   "нередко",
+   "подчас",
+   "от случая к случаю"
+  ]
  },
  {
   "en": "Suddenly",
   "en_alt": [
-   "all at once"
+   "all at once",
+   "all of a sudden",
+   "out of the blue"
   ],
   "ru": [
    "Внезапно"
@@ -11950,7 +15210,15 @@
   "example_en": "Suddenly, it rained.",
   "example_ru": "Внезапно пошёл дождь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "вдруг",
+   "неожиданно",
+   "резко",
+   "в одно мгновение",
+   "мигом",
+   "враз"
+  ]
  },
  {
   "en": "Terribly",
@@ -11964,7 +15232,15 @@
   "example_en": "I'm terribly sorry.",
   "example_ru": "Мне ужасно жаль.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "жутко",
+   "страшно",
+   "ужасно сильно",
+   "чрезвычайно",
+   "кошмарно",
+   "безумно"
+  ]
  },
  {
   "en": "Truly",
@@ -11978,12 +15254,21 @@
   "example_en": "I'm truly grateful.",
   "example_ru": "Я искренне благодарен.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "воистину",
+   "действительно",
+   "искренне",
+   "истинно",
+   "правда",
+   "на самом деле"
+  ]
  },
  {
   "en": "Usually",
   "en_alt": [
-   "normally"
+   "normally",
+   "generally"
   ],
   "ru": [
    "Обычно"
@@ -11991,7 +15276,16 @@
   "example_en": "I usually wake up at seven.",
   "example_ru": "Обычно я просыпаюсь в семь.",
   "type": "word",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "как правило",
+   "обыкновенно",
+   "в большинстве случаев",
+   "чаще всего",
+   "как обычно",
+   "привычно",
+   "большей частью"
+  ]
  },
  {
   "en": "Bail",
@@ -12005,7 +15299,17 @@
   "example_en": "I had to bail early.",
   "example_ru": "Мне пришлось рано слинять.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "смыться",
+   "уйти",
+   "убраться",
+   "сбежать",
+   "дать дёру",
+   "смотаться",
+   "залог",
+   "поручительство"
+  ]
  },
  {
   "en": "Crash",
@@ -12019,7 +15323,17 @@
   "example_en": "Can I crash on your couch?",
   "example_ru": "Можно перекантоваться на твоём диване?",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "переночевать",
+   "остаться на ночь",
+   "отключиться",
+   "авария",
+   "врезаться",
+   "разбиться",
+   "грохот",
+   "рухнуть"
+  ]
  },
  {
   "en": "Gig",
@@ -12034,7 +15348,15 @@
   "example_en": "I got a new gig.",
   "example_ru": "Я нашёл новую подработку.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "выступление",
+   "работа",
+   "халтура",
+   "подработка на день",
+   "заказ",
+   "шабашка"
+  ]
  },
  {
   "en": "Grub",
@@ -12048,7 +15370,14 @@
   "example_en": "Let's get some grub.",
   "example_ru": "Давай что-нибудь поедим.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "хавчик",
+   "питание",
+   "личинка",
+   "пища",
+   "жрачка"
+  ]
  },
  {
   "en": "Pal",
@@ -12062,12 +15391,23 @@
   "example_en": "Thanks, pal.",
   "example_ru": "Спасибо, приятель.",
   "type": "slang",
-  "level": "B1"
+  "level": "B1",
+  "ru_alt": [
+   "друг",
+   "друган",
+   "кореш",
+   "дружок",
+   "товарищ",
+   "напарник"
+  ]
  },
  {
   "en": "Psyched",
   "en_alt": [
-   "excited"
+   "excited",
+   "hyped",
+   "stoked",
+   "pumped"
   ],
   "ru": [
    "В предвкушении",
@@ -12076,7 +15416,14 @@
   "example_en": "I'm so psyched for tonight.",
   "example_ru": "Я так жду сегодняшний вечер.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "воодушевлён",
+   "заведён",
+   "в восторге",
+   "взбудоражен",
+   "не терпится"
+  ]
  },
  {
   "en": "Rad",
@@ -12092,7 +15439,15 @@
   "example_en": "That's rad!",
   "example_ru": "Это круто!",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "отпад",
+   "офигенно",
+   "прикольно",
+   "супер",
+   "потрясающе",
+   "здорово"
+  ]
  },
  {
   "en": "Scam",
@@ -12106,7 +15461,14 @@
   "example_en": "It's a total scam.",
   "example_ru": "Это полный развод.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "афера",
+   "обман",
+   "лохотрон",
+   "мошенничать",
+   "надувательство"
+  ]
  },
  {
   "en": "Shady",
@@ -12122,7 +15484,15 @@
   "example_en": "That deal looks shady.",
   "example_ru": "Эта сделка выглядит подозрительно.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "сомнительный",
+   "мутный",
+   "теневой",
+   "тенистый",
+   "ненадёжный",
+   "нечистый"
+  ]
  },
  {
   "en": "Slay",
@@ -12136,7 +15506,16 @@
   "example_en": "You totally slayed that!",
   "example_ru": "Ты просто блеснул!",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "убить",
+   "разнести",
+   "порвать",
+   "зажечь",
+   "сразить",
+   "убивать",
+   "быть на высоте"
+  ]
  },
  {
   "en": "Squad",
@@ -12150,7 +15529,17 @@
   "example_en": "Me and my squad are going.",
   "example_ru": "Я с компанией иду.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "команда",
+   "отряд",
+   "бригада",
+   "друзья",
+   "банда",
+   "группа",
+   "кореша",
+   "компашка"
+  ]
  },
  {
   "en": "Bougie",
@@ -12164,7 +15553,16 @@
   "example_en": "That cafe is so bougie.",
   "example_ru": "То кафе такое пафосное.",
   "type": "slang",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "понтовый",
+   "буржуйский",
+   "выпендрёжный",
+   "шикарный",
+   "вычурный",
+   "богатенький",
+   "с претензией"
+  ]
  },
  {
   "en": "Hang tight",
@@ -12179,7 +15577,17 @@
   "example_en": "Hang tight, I'll be right there.",
   "example_ru": "Подожди, я сейчас буду.",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "подожди",
+   "потерпи",
+   "не уходи",
+   "секунду",
+   "минутку",
+   "ожидай",
+   "постой",
+   "подождите"
+  ]
  },
  {
   "en": "Nailed it",
@@ -12192,7 +15600,15 @@
   "example_en": "Nailed it!",
   "example_ru": "Идеально получилось!",
   "type": "word",
-  "level": "B2"
+  "level": "B2",
+  "ru_alt": [
+   "отлично справился",
+   "получилось",
+   "справился идеально",
+   "попал в точку",
+   "сделал это",
+   "в яблочко"
+  ]
  },
  {
   "en": "What's the matter?",

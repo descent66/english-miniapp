@@ -316,3 +316,7 @@ body.compact2 .nav #backBtn { width: 52px; }
 @keyframes chip-pop { 0% { transform: scale(1); } 22% { transform: scale(1.38); } 55% { transform: scale(.94); } 100% { transform: scale(1); } }
 @keyframes flame-glow { 0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 140, 30, .75)); } 25% { filter: drop-shadow(0 0 16px rgba(255, 190, 60, 1)); } }
 @media (prefers-reduced-motion: reduce) { .chip.pop, .chip.pop .flame { animation: none; } }
+
+/* подсказка в скобках рядом со словом: мелко и слабо заметно (непрозрачность 40%, то есть прозрачность 60%) */
+.hint { font-size: .5em; font-weight: 500; opacity: .4; margin-left: .45em; white-space: normal; letter-spacing: 0; }
+#answer .hint { font-size: .62em; }
