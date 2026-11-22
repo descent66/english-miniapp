@@ -2,9 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>English widget</title>
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -44,8 +44,8 @@
         </div>
         <button id="checkBtn" class="btn primary wide">Проверить</button>
 
-        <div id="status"></div>
-        <div id="answer"></div>
+        <div id="status" role="status"></div>
+        <div id="answer" aria-live="polite"></div>
         <div id="example" class="muted"></div>
 
         <div id="actions" class="row wrap">
@@ -104,10 +104,10 @@
     </section>
   </div>
 
-  <div id="sheet" class="sheet" hidden><div id="sheetBox" class="sheetbox"></div></div>
+  <div id="sheet" class="sheet" hidden><div id="sheetBox" class="sheetbox" role="dialog" aria-modal="true" tabindex="-1"></div></div>
 
   <nav id="bar">
-    <button class="tabbtn on" data-view="learn">
+    <button class="tabbtn on" data-view="learn" aria-current="page">
       <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 7C9.6 5.3 6.6 4.8 3 5.2V18.2c3.6-.4 6.6.1 9 1.8 2.4-1.7 5.4-2.2 9-1.8V5.2C17.4 4.8 14.4 5.3 12 7z"/><path d="M12 7v13"/></svg>
       <span>Учить</span>
     </button>
@@ -116,7 +116,7 @@
       <span>Повтор</span>
     </button>
     <button class="tabbtn" data-view="games">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M7.6 7h8.8a4.6 4.6 0 0 1 4.5 3.7l.9 4.6a2.7 2.7 0 0 1-4.6 2.3L15.4 15H8.6l-1.8 2.6a2.7 2.7 0 0 1-4.6-2.3l.9-4.6A4.6 4.6 0 0 1 7.600 7z"/><path d="M8 9.6v3.6M6.2 11.4h3.6"/><path d="M15.6 10.3h.02M17.6 12.3h.02" stroke-width="2.4"/></svg>
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M8 4H16A5.6 5.6 0 0 1 21.6 9.7L22.1 16A3.7 3.7 0 0 1 16 18.7L14.5 16.3H9.5L8 18.7A3.7 3.7 0 0 1 1.9 16L2.4 9.7A5.6 5.6 0 0 1 8 4Z"/><path d="M7.7 9v4.2M5.6 11.1h4.2"/><path d="M16 9.7h.02M18.4 12.3h.02" stroke-width="2.6"/></svg>
       <span>Игры</span>
     </button>
     <button class="tabbtn" data-view="inv">
@@ -129,6 +129,6 @@
     </button>
   </nav>
 
-  <script type="module" src="app.js?v=12"></script>
+  <script type="module" src="app.js?v=13"></script>
 </body>
 </html>

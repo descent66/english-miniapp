@@ -253,7 +253,7 @@ body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
   display: flex; align-items: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
 .item .txt { flex: 1; min-width: 0; }
 .item .en { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
-.item .ru { font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+.item .ru { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; margin-top: 2px; }
 .item .side { color: var(--muted); font-size: 14px; white-space: nowrap; }
 .item .rm { background: none; border: 0; color: var(--muted); cursor: pointer; padding: 8px; display: grid; place-items: center; }
 /* удаление из закладок: строка уезжает вправо и тает, затем плавно схлопывается, а соседние подтягиваются вверх */
@@ -262,8 +262,13 @@ body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
   transition: opacity .2s ease, transform .3s cubic-bezier(.4, 0, .2, 1),
     height .32s cubic-bezier(.4, 0, .2, 1) .08s, padding .32s cubic-bezier(.4, 0, .2, 1) .08s,
     margin .32s cubic-bezier(.4, 0, .2, 1) .08s, border-width .32s ease .08s; }
+/* списки Инвентаря: «выезд» строк (animlist.js — перенос AnimatedList); до начала анимации строки скрыты, при наведении/нажатии — яркость */
+#invBody[data-animated] .item:not([data-state]) { opacity: 0; }
+@media (hover: hover) { #invBody .item:hover { filter: brightness(1.12); } }
+#invBody .item:active { filter: brightness(.85); }
 .empty { animation: empty-in .35s ease both; }
 @keyframes empty-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .empty { animation: none; } }
 .empty { color: var(--muted); text-align: center; padding: 50px 10px; line-height: 1.7; white-space: pre-line; }
 .stats { background: var(--glass); border: 1px solid var(--line); border-radius: 22px; padding: 16px 18px;
   line-height: 1.95; font-size: 17px; white-space: pre-line; }
@@ -289,7 +294,7 @@ body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
   background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
   clip-path: circle(0% at 50% 50%); opacity: 0; transition: clip-path .4s cubic-bezier(.3, .7, .2, 1), opacity .3s ease; }
 .tabbtn > * { position: relative; z-index: 1; }
-.tabbtn svg { transition: transform .35s cubic-bezier(.3, 1.5, .5, 1); }
+.tabbtn svg { transition: transform .35s cubic-bezier(.2, 0, 0, 1); }
 .tabbtn.on { color: #0b0c12; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 22px rgba(255, 255, 255, .45); }
 .tabbtn.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
 .tabbtn.on svg { transform: translateY(-1px) scale(1.08); }
@@ -378,7 +383,7 @@ body.kbd .view { padding-bottom: 14px; }
 .sheetbox { transform: translateY(100%); transition: transform .3s cubic-bezier(.4, 0, 1, 1); }
 .sheet.show .sheetbox { transform: none; transition-duration: .5s; transition-timing-function: cubic-bezier(.23, 1, .32, 1); }
 @media (prefers-reduced-motion: reduce) { .sheet, .sheetbox, .sheet.show .sheetbox { transition: opacity .2s ease; transform: none; } }
-.sheetbox { width: 100%; max-width: 520px; max-height: 92dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+.sheetbox { width: 100%; max-width: 520px; max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; outline: none; display: flex; flex-direction: column; gap: 16px;
   padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0;
   background: var(--glass);                       /* такое же прозрачное стекло, как у карточек (.glass) */
   border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 -10px 40px rgba(0, 0, 0, .35); }
@@ -543,6 +548,14 @@ body.fs .view { padding-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-
 .nav #backBtn { width: 58px; padding-left: 0; padding-right: 0; }
 body.compact2 .nav .btn { height: 52px; }
 body.compact2 .nav #backBtn { width: 52px; }
+.nav #backBtn { flex: none; }
+/* очень узкие экраны (320 px): ряд кнопок и вкладки Инвентаря помещаются без выхода за край и обрезки */
+@media (max-width: 340px) {
+  .nav .btn, .nav #showBtn { font-size: 15px; }
+  .nav .btn { padding-left: 10px; padding-right: 10px; }
+  .nav #backBtn { width: 48px; padding-left: 0; padding-right: 0; }
+  #inv .segbtn { font-size: 13px; }
+}
 
 .sheetbox p.diag { font-size: 12px; opacity: .7; text-align: center; margin: -4px 0 0; overflow-wrap: anywhere; }
 
@@ -550,14 +563,15 @@ body.compact2 .nav #backBtn { width: 52px; }
 #views { position: relative; z-index: 1; }
 /* задний фон «Molten Metal» (molten.js): на весь экран позади всего, касания проходят насквозь */
 .molten-bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
-.view.entering { animation: view-in .32s cubic-bezier(.2, .7, .2, 1) both; }
-.view.from-r { --dx: 28px; }
-.view.from-l { --dx: -28px; }
+/* новый экран мягко выплывает со стороны нажатой вкладки (короткий путь, лёгкое увеличение); старый тает и чуть смещается */
+.view.entering { animation: view-in .34s cubic-bezier(.22, 1, .36, 1) both; }
+.view.from-r { --dx: 18px; }
+.view.from-l { --dx: -18px; }
 .view.leaving { position: fixed; top: 0; left: 0; right: 0; margin: 0 auto; width: 100%; max-width: 520px; height: 100dvh;
-  min-height: 0; overflow: hidden; pointer-events: none; z-index: 1; animation: view-out .22s ease-in both; }
-.view.to-r { --dx: -28px; }
-.view.to-l { --dx: 28px; }
-@keyframes view-in  { from { opacity: 0; transform: translateX(var(--dx)); } to { opacity: 1; transform: none; } }
+  min-height: 0; overflow: hidden; pointer-events: none; z-index: 1; animation: view-out .2s ease-out both; }
+.view.to-r { --dx: -10px; }
+.view.to-l { --dx: 10px; }
+@keyframes view-in  { from { opacity: 0; transform: translateX(var(--dx)) scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes view-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(var(--dx)); } }
 @media (prefers-reduced-motion: reduce) {
   .tabbtn::before, .tabbtn svg, .tabbtn { transition: none; }
@@ -571,6 +585,11 @@ body.compact2 .nav #backBtn { width: 52px; }
 @keyframes flame-glow { 0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 140, 30, .75)); } 25% { filter: drop-shadow(0 0 16px rgba(255, 190, 60, 1)); } }
 @media (prefers-reduced-motion: reduce) { .chip.pop, .chip.pop .flame { animation: none; } }
 
+/* цифры одной ширины там, где число меняется: шапка, серия, плитки «Прогресс», счёт игры */
+.goaltext b, .chip b, .tile > b, .gamescore { font-variant-numeric: tabular-nums; }
+/* заголовки и вопрос переносятся ровнее (без одного слова на последней строке) */
+#prompt, .view h1, .sheetbox h2, .gamecard h2 { text-wrap: balance; }
+
 /* подсказка в скобках рядом со словом: мелко и слабо заметно (непрозрачность 40%, то есть прозрачность 60%) */
-.hint { font-size: .5em; font-weight: 500; opacity: .4; margin-left: .45em; white-space: normal; letter-spacing: 0; }
+.hint { font-size: .5em; font-weight: 500; opacity: .6; margin-left: .45em; white-space: normal; letter-spacing: 0; }   /* было .4; .6 — контраст не ниже 4.5:1 */
 #answer .hint { font-size: .62em; }

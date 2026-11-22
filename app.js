@@ -1,10 +1,11 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=12";
-import * as Store from "./storage.js?v=12";
-import { startMolten } from "./molten.js?v=12";
+import * as Core from "./core.js?v=13";
+import * as Store from "./storage.js?v=13";
+import { startMolten } from "./molten.js?v=13";
+import { animateList } from "./animlist.js?v=13";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.12";
+const APP_VERSION = "2026-11-23.13";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -343,7 +344,9 @@ function onKnown() {
 
 function refreshFav(animate = false) {
   el.fav.classList.toggle("instant", !animate);   // анимация заливки — только при нажатии на звезду
-  el.fav.classList.toggle("on", !!(cur && progress.isFav(cur)));
+  const faved = !!(cur && progress.isFav(cur));
+  el.fav.classList.toggle("on", faved);
+  el.fav.setAttribute("aria-pressed", String(faved));
 }
 
 const TOAST_KIND = {
@@ -594,7 +597,11 @@ function showView(name) {
   const prev = view;
   finishSwap(); // если прошлый переход ещё идёт (быстрые нажатия) — сразу завершаем его
   view = name;
-  for (const b of document.querySelectorAll(".tabbtn")) b.classList.toggle("on", b.dataset.view === name);
+  for (const b of document.querySelectorAll(".tabbtn")) {
+    const on = b.dataset.view === name;
+    b.classList.toggle("on", on);
+    if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  }
   if (name === "rev") renderRev();
   if (name === "games") renderGames();
   if (name === "inv") renderInv();
@@ -647,11 +654,12 @@ function renderList(body, keys, kind, emptyText) {
         play("leaf");
         progress.toggleFav(key);
         refreshFav();
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderInv(); return; }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderInv(false); return; }
+        row.style.transition = ""; row.style.transitionDelay = "";   // переходы выезда списка не мешают схлопыванию (его переходы — в CSS)
         row.style.height = row.offsetHeight + "px";   // чтобы высота плавно уменьшалась до нуля
         void row.offsetHeight;
         row.classList.add("removing");
-        setTimeout(renderInv, 440);                    // после анимации — перерисовать список
+        setTimeout(() => renderInv(false), 440);       // после анимации — перерисовать список (без нового «выезда»)
       });
       row.append(rm);
     } else {
@@ -677,8 +685,12 @@ function invKeys(tab) {
   return progress.keysByState(tab);
 }
 
-function renderInv() {
-  for (const b of document.querySelectorAll(".segbtn")) b.classList.toggle("on", b.dataset.tab === invTab);
+/** animate = true — строки «выезжают» (при открытии вкладки и смене раздела); false — при поиске и после удаления закладки, без выезда. */
+function renderInv(animate = true) {
+  for (const b of document.querySelectorAll(".segbtn")) {
+    b.classList.toggle("on", b.dataset.tab === invTab);
+    b.setAttribute("aria-pressed", String(b.dataset.tab === invTab));
+  }
   const q = $("invSearch").value.trim().toLowerCase();
   let keys = invKeys(invTab);
   if (q) {
@@ -686,6 +698,7 @@ function renderInv() {
       || progress.phrases.get(k).ru.some((r) => r.toLowerCase().includes(q)));
   }
   renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
+  animateList(el.invBody, { entrance: animate, bottomEl: $("bar") });
 }
 
 // --- Игры ---
@@ -1045,17 +1058,28 @@ function celebrate() {
 const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
 // окно выезжает снизу и проявляется плавно (классы .show в style.css); если оно уже открыто — только обновляется
-let sheetTimer = 0, sheetAfterClose = null;
+let sheetTimer = 0, sheetAfterClose = null, sheetReturnFocus = null;
+const behindSheet = () => [$("views"), $("bar")];   // пока окно открыто, фон недоступен с клавиатуры и для чтения с экрана
 function sheetOpen(build, closable) {
   sheetAfterClose = null;
   sheetBox.style.transition = ""; sheetBox.style.transform = "";   // след прошлого свайпа вниз
+  // окно перестраивается при каждом нажатии внутри него — запоминаем, какая кнопка была в фокусе
+  const btns = () => [...sheetBox.querySelectorAll("button")];
+  const focusedIdx = btns().indexOf(document.activeElement);
   sheetBox.replaceChildren();
   build(sheetBox);
+  const title = sheetBox.querySelector("h2");
+  if (title) { title.id = "sheetTitle"; sheetBox.setAttribute("aria-labelledby", "sheetTitle"); }
   sheetEl.dataset.closable = closable ? "1" : "";
   clearTimeout(sheetTimer);
   if (sheetEl.hidden) {
+    sheetReturnFocus = document.activeElement;
     sheetEl.hidden = false;
+    for (const n of behindSheet()) n.inert = true;
+    sheetBox.focus({ preventScroll: true });
     void sheetEl.offsetHeight;                 // чтобы переход проигрался с начала
+  } else if (focusedIdx >= 0) {
+    btns()[focusedIdx]?.focus({ preventScroll: true });
   }
   // если окно прокручивается — касанием двигаем содержимое, иначе — тянем окно вниз (закрыть)
   sheetBox.style.touchAction = sheetBox.scrollHeight > sheetBox.clientHeight + 1 ? "pan-y" : "none";
@@ -1065,6 +1089,9 @@ const sheetClose = () => {
   sheetEl.classList.remove("show");
   clearTimeout(sheetTimer);
   sheetTimer = setTimeout(() => { sheetEl.hidden = true; }, 400);
+  for (const n of behindSheet()) n.inert = false;
+  if (sheetReturnFocus?.isConnected) sheetReturnFocus.focus({ preventScroll: true });
+  sheetReturnFocus = null;
   const after = sheetAfterClose;               // что сделать после закрытия (любым способом)
   sheetAfterClose = null;
   after?.();
@@ -1084,7 +1111,10 @@ function allowedTypes() {
   return set.size && set.size < KINDS.length ? set : null;
 }
 
-const refreshModeBtn = () => el.mode.classList.toggle("on", !!allowedTypes());
+const refreshModeBtn = () => {
+  el.mode.classList.toggle("on", !!allowedTypes());
+  el.mode.setAttribute("aria-pressed", String(!!allowedTypes()));
+};
 
 /** После закрытия окна выбора: если текущая карточка не подходит (или карточек не было) — взять новую. */
 function applyModes() {
@@ -1108,10 +1138,12 @@ function openModes() {
     box.append(make("p", "", "Выберите один или несколько видов. Новые карточки и повторения будут только из выбранных."));
     const grid = make("div", "kindgrid");
     const all = make("button", "btn all" + (sel.size === KINDS.length ? " on" : ""), "Все виды");
+    all.setAttribute("aria-pressed", String(sel.size === KINDS.length));
     all.addEventListener("click", () => save(everyone()));
     grid.append(all);
     for (const [value, label] of KINDS) {
       const b = make("button", "btn" + (sel.size < KINDS.length && sel.has(value) ? " on" : ""));
+      b.setAttribute("aria-pressed", String(sel.size < KINDS.length && sel.has(value)));
       b.append(label, make("small", "", String(counts[value] || 0)));
       b.addEventListener("click", () => {
         const next = new Set(sel.size === KINDS.length ? [] : sel);   // из «Все виды» выбор начинается с нуля
@@ -1142,6 +1174,7 @@ function segRow(options, current, onPick) {
   const seg = make("div", "seg");
   for (const [value, label] of options) {
     const b = make("button", "segbtn" + (value === current ? " on" : ""), label);
+    b.setAttribute("aria-pressed", String(value === current));
     b.addEventListener("click", () => onPick(value));
     seg.append(b);
   }
@@ -1150,6 +1183,8 @@ function segRow(options, current, onPick) {
 
 function setRow(label, control) {
   const r = make("div", "setrow");
+  control.setAttribute("role", "group");
+  control.setAttribute("aria-label", label);
   r.append(make("label", "", label), control);
   return r;
 }
@@ -1319,8 +1354,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=12").then((r) => r.json()),
-    fetch("data/aspect.json?v=12").then((r) => r.json()),
+    fetch("data/phrases.json?v=13").then((r) => r.json()),
+    fetch("data/aspect.json?v=13").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -1345,9 +1380,10 @@ async function boot() {
   for (const b of document.querySelectorAll(".segbtn")) {
     b.addEventListener("click", () => { invTab = b.dataset.tab; renderInv(); });
   }
-  $("invSearch").addEventListener("input", renderInv);
+  $("invSearch").addEventListener("input", () => renderInv(false));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && view === "learn") { e.preventDefault(); onEnter(); }
+    if (e.key === "Escape" && !sheetEl.hidden && sheetEl.dataset.closable) { sheetClose(); return; }
+    if (e.key === "Enter" && view === "learn" && sheetEl.hidden) { e.preventDefault(); onEnter(); }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) Store.flush();
