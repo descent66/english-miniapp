@@ -19,6 +19,7 @@ export function pack(data, ts = Date.now()) {
   const out = { v: 1, ts, cards, recent: data.recent || [], days };
   if (data.goal != null) out.goal = data.goal;
   if (data.settings) out.s = data.settings;
+  if (data.tenses) out.t = data.tenses;   // «Времена»: результаты тестов по каждому времени
   return JSON.stringify(out);
 }
 
@@ -36,6 +37,7 @@ export function unpack(text) {
   const data = { cards, recent: o.recent || [], days };
   if (o.goal != null) data.goal = o.goal;
   if (o.s) data.settings = o.s;
+  if (o.t) data.tenses = o.t;
   return { data, ts: o.ts || 0 };
 }
 

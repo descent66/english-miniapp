@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>English widget</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -18,9 +18,7 @@
           <div class="track"><i id="goalFill"></i></div>
         </div>
         <div id="streakChip" class="chip" title="Дней подряд"><span class="flame-slot"></span><b id="streakNum">0</b></div>
-        <button id="settingsBtn" class="icon small" aria-label="Настройки">
-          <svg viewBox="0 0 24 24" width="29" height="29"><path d="M10.37 5.19L10.72 2.49L13.28 2.49L13.63 5.19L15.66 6.03L17.82 4.37L19.63 6.18L17.97 8.34L18.81 10.37L21.51 10.72L21.51 13.28L18.81 13.63L17.97 15.66L19.63 17.82L17.82 19.63L15.66 17.97L13.63 18.81L13.28 21.51L10.72 21.51L10.37 18.81L8.34 17.97L6.18 19.63L4.37 17.82L6.03 15.66L5.19 13.63L2.49 13.28L2.49 10.72L5.19 10.37L6.03 8.34L4.37 6.18L6.18 4.37L8.34 6.03z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg>
-        </button>
+        <button id="chipMore" class="icon small chipmore" aria-label="Настройки серии" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3.2"/></svg></button>
       </header>
 
       <div class="timer">
@@ -71,15 +69,45 @@
       </div>
     </main>
 
+    <!-- Настройки -->
+    <section id="more" class="view" hidden>
+      <h1>Настройки</h1>
+      <div id="moreBody" class="list">
+        <button class="item menurow" data-go="general"><span class="mico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M10.37 5.19L10.72 2.49L13.28 2.49L13.63 5.19L15.66 6.03L17.82 4.37L19.63 6.18L17.97 8.34L18.81 10.37L21.51 10.72L21.51 13.28L18.81 13.63L17.97 15.66L19.63 17.82L17.82 19.63L15.66 17.97L13.63 18.81L13.28 21.51L10.72 21.51L10.37 18.81L8.34 17.97L6.18 19.63L4.37 17.82L6.03 15.66L5.19 13.63L2.49 13.28L2.49 10.72L5.19 10.37L6.03 8.34L4.37 6.18L6.18 4.37L8.34 6.03z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></span><span class="mtitle">Общие</span><svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="item menurow" data-go="tenses"><span class="mico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="mtitle">Времена</span><svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="item menurow" data-go="games"><span class="mico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 4H16A5.6 5.6 0 0 1 21.6 9.7L22.1 16A3.7 3.7 0 0 1 16 18.7L14.5 16.3H9.5L8 18.7A3.7 3.7 0 0 1 1.9 16L2.4 9.7A5.6 5.6 0 0 1 8 4Z"/><path d="M7.7 9v4.2M5.6 11.1h4.2"/><path d="M16 9.7h.02M18.4 12.3h.02" stroke-width="2.6"/></svg></span><span class="mtitle">Игры</span><svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="item menurow" data-go="prog"><span class="mico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3.4 2.8v18h18" stroke-width="1.5"/><path d="M7.4 12.6C10 11.8 12.9 9.9 15.3 7.6" stroke-width="1.9"/><path d="M18 4.6l-3.9.9 2.9 2.9z" fill="currentColor" stroke-width=".7"/><rect x="6.2" y="16.9" width="2.2" height="3.1" rx=".8" fill="currentColor" stroke="none"/><rect x="9.2" y="15.3" width="2.2" height="4.7" rx=".8" fill="currentColor" stroke="none"/><rect x="12.2" y="13.3" width="2.2" height="6.7" rx=".8" fill="currentColor" stroke="none"/><rect x="15.2" y="11.1" width="2.2" height="8.9" rx=".8" fill="currentColor" stroke="none"/><rect x="18.2" y="8.9" width="2.2" height="11.1" rx=".8" fill="currentColor" stroke="none"/></svg></span><span class="mtitle">Прогресс</span><svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="item menurow" data-go="rev"><span class="mico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/></svg></span><span class="mtitle">Повтор</span><svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </section>
+
+    <!-- Общие -->
+    <section id="general" class="view" hidden>
+      <div class="subhead"><button class="icon small" data-go="more" aria-label="Назад к настройкам"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Общие</h1></div>
+      <div id="generalBody" class="list"></div>
+      <div id="generalNote" class="gnote"></div>
+    </section>
+
+    <!-- Времена -->
+    <section id="tenses" class="view" hidden>
+      <div class="subhead"><button class="icon small" data-go="more" aria-label="Назад"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Времена</h1></div>
+      <div id="tensesBody" class="list"></div>
+    </section>
+
+    <section id="tlesson" class="view" hidden>
+      <div class="subhead"><button class="icon small" data-go="tenses" aria-label="Назад"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Урок</h1></div>
+      <div id="tlessonBody" class="list"></div>
+    </section>
+
     <!-- Повтор -->
     <section id="rev" class="view" hidden>
-      <h1>Повтор</h1>
+      <div class="subhead"><button class="icon small" data-go="more" aria-label="Назад к настройкам"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Повтор</h1></div>
       <div id="revBody" class="list"></div>
     </section>
 
     <!-- Игры -->
     <section id="games" class="view" hidden>
-      <h1>Игры</h1>
+      <div class="subhead"><button class="icon small" data-go="more" aria-label="Назад к настройкам"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Игры</h1></div>
       <div id="gamesBody" class="list"></div>
     </section>
 
@@ -99,10 +127,12 @@
 
     <!-- Прогресс -->
     <section id="prog" class="view" hidden>
-      <h1>Прогресс</h1>
+      <div class="subhead"><button class="icon small" data-go="more" aria-label="Назад к настройкам"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Прогресс</h1></div>
       <div id="progBody" class="list"></div>
     </section>
   </div>
+
+  <div id="spopWrap" class="spopwrap" hidden><div id="spop" class="spop" role="dialog" aria-label="Дневная серия" tabindex="-1"></div></div>
 
   <div id="sheet" class="sheet" hidden><div id="sheetBox" class="sheetbox" role="dialog" aria-modal="true" tabindex="-1"></div></div>
 
@@ -111,24 +141,16 @@
       <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 7C9.6 5.3 6.6 4.8 3 5.2V18.2c3.6-.4 6.6.1 9 1.8 2.4-1.7 5.4-2.2 9-1.8V5.2C17.4 4.8 14.4 5.3 12 7z"/><path d="M12 7v13"/></svg>
       <span>Учить</span>
     </button>
-    <button class="tabbtn" data-view="rev">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M20 11a8 8 0 0 0-14-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/></svg>
-      <span>Повтор</span>
-    </button>
-    <button class="tabbtn" data-view="games">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M8 4H16A5.6 5.6 0 0 1 21.6 9.7L22.1 16A3.7 3.7 0 0 1 16 18.7L14.5 16.3H9.5L8 18.7A3.7 3.7 0 0 1 1.9 16L2.4 9.7A5.6 5.6 0 0 1 8 4Z"/><path d="M7.7 9v4.2M5.6 11.1h4.2"/><path d="M16 9.7h.02M18.4 12.3h.02" stroke-width="2.6"/></svg>
-      <span>Игры</span>
-    </button>
     <button class="tabbtn" data-view="inv">
       <svg viewBox="0 0 24 24" width="30" height="30"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>
       <span>Инвентарь</span>
     </button>
-    <button class="tabbtn" data-view="prog">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M3.4 2.8v18h18" stroke-width="1.5"/><path d="M7.4 12.6C10 11.8 12.9 9.9 15.3 7.6" stroke-width="1.9"/><path d="M18 4.6l-3.9.9 2.9 2.9z" fill="currentColor" stroke-width=".7"/><rect x="6.2" y="16.9" width="2.2" height="3.1" rx=".8" fill="currentColor" stroke="none"/><rect x="9.2" y="15.3" width="2.2" height="4.7" rx=".8" fill="currentColor" stroke="none"/><rect x="12.2" y="13.3" width="2.2" height="6.7" rx=".8" fill="currentColor" stroke="none"/><rect x="15.2" y="11.1" width="2.2" height="8.9" rx=".8" fill="currentColor" stroke="none"/><rect x="18.2" y="8.9" width="2.2" height="11.1" rx=".8" fill="currentColor" stroke="none"/></svg>
-      <span>Прогресс</span>
+    <button class="tabbtn" data-view="more">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M10.37 5.19L10.72 2.49L13.28 2.49L13.63 5.19L15.66 6.03L17.82 4.37L19.63 6.18L17.97 8.34L18.81 10.37L21.51 10.72L21.51 13.28L18.81 13.63L17.97 15.66L19.63 17.82L17.82 19.63L15.66 17.97L13.63 18.81L13.28 21.51L10.72 21.51L10.37 18.81L8.34 17.97L6.18 19.63L4.37 17.82L6.03 15.66L5.19 13.63L2.49 13.28L2.49 10.72L5.19 10.37L6.03 8.34L4.37 6.18L6.18 4.37L8.34 6.03z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg>
+      <span>Настройки</span>
     </button>
   </nav>
 
-  <script type="module" src="app.js?v=13"></script>
+  <script type="module" src="app.js?v=14"></script>
 </body>
 </html>

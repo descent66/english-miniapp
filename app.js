@@ -1,11 +1,12 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=13";
-import * as Store from "./storage.js?v=13";
-import { startMolten } from "./molten.js?v=13";
-import { animateList } from "./animlist.js?v=13";
+import * as Core from "./core.js?v=14";
+import * as Store from "./storage.js?v=14";
+import { startMolten } from "./molten.js?v=14";
+import { animateList } from "./animlist.js?v=14";
+import { initTenses } from "./tenses.js?v=14";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.13";
+const APP_VERSION = "2026-11-23.14";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -74,9 +75,10 @@ function calendarSvg() {
 // fill — кнопка «назад», ping — добавление в закладки, unstar — повторное нажатие на звезду и «Отменить» в уведомлении,
 // leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
 // «correct» (верный ответ, в том числе в играх) теперь играет файл petal.wav (файл пользователя)
-const SOUND_FILE = { correct: "petal" };
+// 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
+const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound" };
 const sounds = {};
-for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak"]) {
+for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set"]) {
   const a = new Audio(`sounds/${SOUND_FILE[n] || n}.wav`);
   a.preload = "auto";
   sounds[n] = a;
@@ -575,7 +577,12 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
 }
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
-const VIEWS = ["learn", "rev", "games", "inv", "prog"];
+// порядок = «кто справа от кого» для анимации; общие, игры, повтор и прогресс — внутри «Настроек» (на панели у них своей кнопки нет)
+const VIEWS = ["learn", "inv", "more", "general", "tenses", "tlesson", "games", "rev", "prog"];
+const TABS = ["learn", "inv", "more"];
+const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more" };
+const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Настройки»)
+const tabOf = (v) => TAB_OF[v] || v;
 let view = "learn";
 let invTab = "saved";
 let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -598,13 +605,17 @@ function showView(name) {
   finishSwap(); // если прошлый переход ещё идёт (быстрые нажатия) — сразу завершаем его
   view = name;
   for (const b of document.querySelectorAll(".tabbtn")) {
-    const on = b.dataset.view === name;
+    const on = b.dataset.view === tabOf(name);
     b.classList.toggle("on", on);
     if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
   }
   if (name === "rev") renderRev();
   if (name === "games") renderGames();
   if (name === "inv") renderInv();
+  if (name === "general") renderGeneral();
+  if (name === "tenses") tenses.renderMap();
+  if (name === "tlesson") tenses.renderLesson();
+  if (name === "more") animateList($("moreBody"), { entrance: true, bottomEl: $("bar") });   // разделы выезжают, как слова в «Закладках»
   if (name === "prog") renderProg();
   const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) {
@@ -687,10 +698,12 @@ function invKeys(tab) {
 
 /** animate = true — строки «выезжают» (при открытии вкладки и смене раздела); false — при поиске и после удаления закладки, без выезда. */
 function renderInv(animate = true) {
-  for (const b of document.querySelectorAll(".segbtn")) {
+  const segBtns = [...document.querySelectorAll("#inv .segbtn")];
+  for (const b of segBtns) {
     b.classList.toggle("on", b.dataset.tab === invTab);
     b.setAttribute("aria-pressed", String(b.dataset.tab === invTab));
   }
+  invThumb.go(segBtns.findIndex((b) => b.dataset.tab === invTab));   // белая плашка переезжает, как в «Общих»
   const q = $("invSearch").value.trim().toLowerCase();
   let keys = invKeys(invTab);
   if (q) {
@@ -834,6 +847,9 @@ function renderGames() {
 
 /** Устройство с касанием: клавиатура сама выскакивать не должна (как и в обычных карточках). */
 const touchOnly = () => window.matchMedia("(pointer: coarse)").matches;
+
+// «Времена» (tenses.js): карта 12 времён, уроки, тесты
+const tenses = initTenses({ make, play, $, getProgress: () => progress, version: VER, shuffle, animateList, showView, touchOnly });
 
 function answerGame(option) {
   if (!game || game.picked !== null) return;
@@ -1042,14 +1058,16 @@ function confetti(x, y) {
 
 /** Цель дня выполнена: огонёк в шапке подпрыгивает, из него вылетает конфетти. */
 function celebrate() {
-  try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }  // «серия» заменяет «верно»
-  play("streak");
+  if (settings().goalSound !== false) {   // «серия» заменяет «верно»; если звук цели выключен — слышен обычный «верно»
+    try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }
+    play("streak");
+  }
   const chip = el.streakChip;
   chip.classList.remove("pop");
   void chip.offsetWidth; // перезапуск анимации
   chip.classList.add("pop");
   setTimeout(() => chip.classList.remove("pop"), 1100);
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (settings().confetti === false || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const r = chip.getBoundingClientRect();
   confetti(r.width ? r.left + r.width / 2 : window.innerWidth / 2, r.height ? r.top + r.height / 2 : 60);
 }
@@ -1204,38 +1222,277 @@ function diagText() {
   return `Версия страницы ${APP_VERSION} · ${where} · полный экран: ${fs}`;
 }
 
-function openSettings() {
-  sheetOpen((box) => {
-    box.append(make("h2", "", "Настройки"));
-    box.append(setRow("Цель на день (верных ответов)",
-      segRow(GOALS.map((n) => [n, String(n)]), progress.goal(), (n) => {
-        progress.data.goal = n; progress.save(); updateGoal(); openSettings();
-      })));
-    box.append(setRow("Звук",
-      segRow([[true, "Вкл"], [false, "Выкл"]], settings().sound !== false, (v) => {
-        settings().sound = v; progress.save(); openSettings();
-      })));
-    box.append(setRow("Задний фон",
-      segRow([["anim", "Анимация"], ["still", "Без движения"], ["off", "Выкл"]], settings().bg || "anim", (v) => {
-        settings().bg = v; progress.save(); applyBg(); openSettings();
-      })));
-    box.append(setRow("Время на ответ (с)",
-      segRow([20, 30, 45, 60].map((n) => [n, String(n)]), settings().ask || ASK_DEFAULT, (n) => {
-        settings().ask = n; progress.save(); openSettings();
-      })));
-    box.append(make("p", "", "Время начнёт действовать со следующей карточки. Цель дня учитывается и в календаре за прошлые дни."));
-    const done = make("button", "btn primary wide", "Готово");
-    done.addEventListener("click", sheetClose);
-    box.append(done);
-    box.append(make("p", "diag", diagText()));
-  }, true);
+/**
+ * Раскрытие карточки настройки. Перенос анимации появления из CardNav (React Bits): высота панели — пружина с лёгким
+ * отскоком (жёсткость 160, bounce 0.2), внутри кнопки «поднимаются» по очереди (эффект rise: сдвиг 26 px, масштаб 0.97→1,
+ * прозрачность; задержка между кнопками 0.12). При «уменьшить движение» — без пружины и сдвигов.
+ */
+function attachReveal(head, panel, inner, items) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const K = 160, BOUNCE = 0.2, STAGGER = 0.12;
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  const S = { p: 0, v: 0 };
+  let raf = 0, last = 0, open = false;
+
+  const render = () => {
+    panel.style.height = `${Math.max(0, S.p) * inner.offsetHeight}px`;
+    // обрезка не по самой панели, а с запасом 24 px (сверху и по бокам всегда, снизу — по мере раскрытия), чтобы свечение выбранной кнопки не обрезалось «квадратом»
+    panel.style.clipPath = `inset(-24px -24px ${-24 * clamp(S.p, 0, 1)}px -24px)`;
+    const n = items.length, lag = n > 1 ? Math.min(STAGGER, 0.7 / (n - 1)) : 0, span = 1 - lag * (n - 1);
+    items.forEach((el, i) => {
+      const local = clamp((S.p - i * lag) / Math.max(span, 0.05), 0, 1), e = 1 - (1 - local) ** 3;
+      el.style.transform = e < 1 && !reduce ? `translateY(${(1 - e) * 26}px) scale(${0.97 + 0.03 * e})` : "";
+      el.style.opacity = e < 1 ? String(e) : "";
+    });
+  };
+  const tick = (now) => {
+    raf = 0;
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+    last = now;
+    const target = open ? 1 : 0;
+    if (reduce) { S.p = target; S.v = 0; }
+    else {
+      const zeta = open ? 1 - 0.68 * BOUNCE : 1;
+      const steps = Math.ceil(dt / (1 / 240)), h = dt / steps;
+      for (let i = 0; i < steps; i++) {
+        S.v += (-K * (S.p - target) - 2 * zeta * Math.sqrt(K) * S.v) * h;
+        S.p += S.v * h;
+      }
+    }
+    const done = Math.abs(S.p - target) < 0.0005 && Math.abs(S.v) < 0.002;
+    if (done) { S.p = target; S.v = 0; }
+    render();
+    if (done && !open) panel.classList.remove("vis");   // закрыто — кнопки недоступны ни мышью, ни с клавиатуры
+    if (!done) raf = requestAnimationFrame(tick);
+  };
+  head.addEventListener("click", () => {
+    open = !open;
+    head.setAttribute("aria-expanded", String(open));
+    if (open) panel.classList.add("vis");
+    if (!raf) { last = 0; raf = requestAnimationFrame(tick); }
+  });
+  render();
+}
+
+/**
+ * Белая «плашка» выбора, которая переезжает между вариантами. Перенос анимации RubberSegment (React Bits) на обычный JS, без Motion:
+ * при нажатии плашка растягивается (stretch 15%, 0.19 с, ease-out) и «приземляется» пружиной (0.3 с, bounce 0): передний край приходит
+ * первым, задний догоняет с лёгким «сжатием» на 3 px и расслабляется (0.16 с); скорость 1.15. Тёмный текст внутри плашки рисует копия
+ * подписей, обрезанная по плашке (clip-path), поэтому цвет букв меняется ровно по мере проезда. При «уменьшить движение» плашка прыгает.
+ * Не перенесено: перетаскивание плашки пальцем (резиновые края, бросок) — по просьбе только анимация.
+ */
+function cubicBezier(x1, y1, x2, y2) {
+  const at = (a, b, t) => 3 * (1 - t) ** 2 * t * a + 3 * (1 - t) * t * t * b + t ** 3;
+  return (x) => {
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (at(x1, x2, mid) < x) lo = mid; else hi = mid; }
+    return at(y1, y2, (lo + hi) / 2);
+  };
+}
+const EASE_THUMB = cubicBezier(0.23, 1, 0.32, 1);
+
+function attachThumb(seg, labels, startIdx) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const STRETCH = 0.15, SQUASH = 3, SPEED = 1.15, DILATE = 0.19, HANDOFF = 0.15, INSET = 4;
+  const t = (sec) => sec / SPEED;
+  const glow = make("div", "thumbglow"), thumb = make("div", "thumb");
+  thumb.setAttribute("aria-hidden", "true");
+  for (const text of labels) thumb.append(make("span", "thumbcopy", text));
+  const btns = [...seg.querySelectorAll(".segbtn")];
+  seg.append(glow, thumb);
+
+  const L = { x: 0, v: 0, m: null }, R = { x: 0, v: 0, m: null };
+  let slots = [], innerW = 0, idx = startIdx, handoff = 0, gen = 0, raf = 0, last = 0;
+
+  const render = () => {
+    thumb.style.clipPath = `inset(0 ${Math.max(0, innerW - R.x)}px 0 ${Math.max(0, L.x)}px round 999px)`;
+    glow.style.left = `${INSET + L.x}px`;
+    glow.style.width = `${Math.max(0, R.x - L.x)}px`;
+  };
+  const measure = () => {   // offsetLeft не зависит от сдвигов и масштаба карточки во время раскрытия
+    slots = btns.map((b) => ({ l: b.offsetLeft - INSET, r: b.offsetLeft - INSET + b.offsetWidth }));
+    innerW = thumb.clientWidth;
+  };
+  const jump = (i) => {
+    const sl = slots[i];
+    if (!sl) return;
+    clearTimeout(handoff); gen++;
+    L.x = sl.l; R.x = sl.r; L.v = R.v = 0; L.m = R.m = null;
+    render();
+  };
+
+  const step = (e, now, dt) => {
+    const m = e.m;
+    if (!m) return;
+    if (m.type === "tw") {
+      const p = Math.min(1, (now - m.t0) / m.dur), nx = m.from + (m.to - m.from) * EASE_THUMB(p);
+      e.v = dt ? (nx - e.x) / dt : 0;
+      e.x = nx;
+      if (p >= 1) e.m = null;
+    } else {
+      const n = Math.ceil(dt / (1 / 240)), h = dt / n;
+      for (let i = 0; i < n; i++) { e.v += (-m.k * (e.x - m.to) - m.c * e.v) * h; e.x += e.v * h; }
+      if (Math.abs(e.x - m.to) < 0.01 && Math.abs(e.v) < 0.05) { e.x = m.to; e.v = 0; e.m = null; m.done?.(); }
+    }
+  };
+  const tick = (now) => {
+    raf = 0;
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+    last = now;
+    step(L, now, dt); step(R, now, dt);
+    render();
+    if (L.m || R.m) raf = requestAnimationFrame(tick);
+  };
+  const wake = () => { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } };
+  const tween = (e, to, sec) => { e.m = { type: "tw", from: e.x, to, t0: performance.now(), dur: sec * 1000 }; wake(); };
+  const spring = (e, to, sec, done) => {
+    const w = (2 * Math.PI) / sec;                        // bounce 0 = критическое затухание
+    e.v = Math.min(2000, Math.max(-2000, e.v));
+    e.m = { type: "sp", to, k: w * w, c: 2 * w, done };
+    wake();
+  };
+
+  /** Приземление: передний край приходит первым, задний — со «сжатием» на 3 px, затем расслабляется. */
+  const land = (to) => {
+    const b = slots[to], g = ++gen;
+    if (!b) return;
+    const dir = Math.sign((b.l + b.r) / 2 - (L.x + R.x) / 2) || 1;
+    const [lead, leadTo, trail, trailTo] = dir > 0 ? [R, b.r, L, b.l] : [L, b.l, R, b.r];
+    spring(lead, leadTo, t(0.3));
+    spring(trail, trailTo + dir * SQUASH, t(0.3), () => { if (gen === g) spring(trail, trailTo, t(0.16)); });
+  };
+
+  new ResizeObserver(() => { measure(); jump(idx); }).observe(seg);   // сработает и когда экран станет видимым
+  return {
+    go(to) {
+      if (to === idx) return;
+      measure();
+      const a = slots[idx], b = slots[to];
+      idx = to;
+      if (!a || !b) return;
+      if (reduce) { jump(to); return; }
+      clearTimeout(handoff); gen++;
+      tween(L, b.l + (Math.min(a.l, b.l) - b.l) * STRETCH, t(DILATE));
+      tween(R, b.r + (Math.max(a.r, b.r) - b.r) * STRETCH, t(DILATE));
+      handoff = setTimeout(() => land(to), t(HANDOFF) * 1000);
+    },
+  };
+}
+
+const ONOFF = [[true, "Вкл"], [false, "Выкл"]];
+
+/** Поле настройки: подпись (необязательная) и переключатель с переезжающей белой плашкой. */
+function field(label, options, current, onPick, groupName) {
+  const seg = segRow(options, current, (v) => {
+    onPick(v);
+    play("set");
+    [...seg.querySelectorAll(".segbtn")].forEach((b, i) => {   // карточки не перестраиваются — раскрытие не сбрасывается
+      const on = options[i][0] === v;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    thumb.go(options.findIndex((o) => o[0] === v));            // белая плашка переезжает на выбранный вариант
+  });
+  const thumb = attachThumb(seg, options.map((o) => o[1]), options.findIndex((o) => o[0] === current));
+  seg.setAttribute("role", "group");
+  seg.setAttribute("aria-label", groupName || label || "");
+  const f = make("div", "field");
+  if (label) f.append(make("div", "fieldlabel", label));
+  f.append(seg);
+  return f;
+}
+
+/** «Дневная серия»: цель дня и награда за неё. Одни и те же два раздела — в «Настройках → Общие» и во всплывающем окне у серии (⋯). */
+function streakSections() {
+  const goal = make("div", "section");
+  goal.append(
+    make("div", "sechead", "Цель на день"),
+    field("Верных ответов", GOALS.map((n) => [n, String(n)]), progress.goal(), (n) => {
+      progress.data.goal = n; progress.save(); updateGoal();
+    }, "Цель на день, верных ответов"));
+  const reward = make("div", "section");
+  reward.append(
+    make("div", "sechead", "При достижении цели"),
+    field("Звук", ONOFF, settings().goalSound !== false, (v) => { settings().goalSound = v; progress.save(); }),
+    field("Конфетти", ONOFF, settings().confetti !== false, (v) => { settings().confetti = v; progress.save(); }));
+  return [goal, reward];
+}
+
+/** «Настройки → Общие»: каждая настройка — отдельная карточка (как слово в «Закладках»); варианты спрятаны и всплывают по нажатию. */
+function renderGeneral() {
+  const body = $("generalBody");
+  const card = (title, nodes) => {
+    const id = "set" + Math.random().toString(36).slice(2, 8);
+    const head = make("button", "sethead");
+    head.setAttribute("aria-expanded", "false");
+    head.setAttribute("aria-controls", id);
+    head.append(make("span", "setlabel", title));
+    head.insertAdjacentHTML("beforeend", '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>');
+    const inner = make("div", "setinner");
+    inner.append(...nodes);
+    const panel = make("div", "setpanel");
+    panel.id = id;
+    panel.append(inner);
+    const c = make("div", "item setcard");
+    c.append(head, panel);
+    attachReveal(head, panel, inner, [...inner.children]);   // всплывают поля по очереди (в каждом — полоска с плашкой)
+    return c;
+  };
+  body.replaceChildren(
+    card("Дневная серия", streakSections()),
+    card("Звук", [field(null, ONOFF, settings().sound !== false, (v) => { settings().sound = v; progress.save(); })]),
+    card("Задний фон", [field(null, [["anim", "Анимация"], ["still", "Без движения"], ["off", "Выкл"]], settings().bg || "anim", (v) => {
+      settings().bg = v; progress.save(); applyBg();
+    })]),
+    card("Время на ответ", [field(null, [20, 30, 45, 60].map((n) => [n, n + "s"]), settings().ask || ASK_DEFAULT, (n) => {
+      settings().ask = n; progress.save();
+    })]));
+  $("generalNote").replaceChildren(
+    make("p", "", "Время начнёт действовать со следующей карточки. Цель дня учитывается и в календаре за прошлые дни."),
+    make("p", "diag", diagText()));
+  animateList(body, { entrance: true, bottomEl: $("bar") });
+}
+
+// «Инвентарь»: переключатель разделов (Закладки · Трудные · Учу · Выучено) — та же переезжающая плашка, что в «Общих»
+const invSeg = document.querySelector("#inv .seg");
+const invThumb = attachThumb(invSeg, [...invSeg.querySelectorAll(".segbtn")].map((b) => b.textContent), 0);
+
+// ---------- три точки у серии: всплывающее окно с теми же настройками «Дневной серии» ----------
+function openStreakPop() {
+  const wrap = $("spopWrap"), box = $("spop"), more = $("chipMore");
+  if (!wrap.hidden) return;
+  box.replaceChildren(...streakSections().map((sec) => {
+    const c = make("div", "item setcard spopcard");
+    c.append(sec);
+    return c;
+  }));
+  wrap.hidden = false;
+  const r = more.getBoundingClientRect(), m = r;
+  const w = Math.min(340, window.innerWidth - 24);
+  const left = Math.max(12, Math.min(r.right - w, window.innerWidth - w - 12));
+  box.style.width = `${w}px`;
+  box.style.left = `${left}px`;
+  box.style.top = `${r.bottom + 8}px`;
+  box.style.transformOrigin = `${m.left + m.width / 2 - left}px 0`;   // вырастает из самих трёх точек
+  more.setAttribute("aria-expanded", "true");
+  void wrap.offsetHeight;                                             // чтобы переход проигрался с начала
+  wrap.classList.add("show");
+  box.focus({ preventScroll: true });
+}
+function closeStreakPop() {
+  const wrap = $("spopWrap");
+  if (wrap.hidden) return;
+  wrap.classList.remove("show");
+  $("chipMore").setAttribute("aria-expanded", "false");
+  $("chipMore").focus({ preventScroll: true });
+  setTimeout(() => { if (!wrap.classList.contains("show")) wrap.hidden = true; }, 260);
 }
 
 /** Первый запуск: выбрать цель на день. */
 function openWelcome(then) {
   sheetOpen((box) => {
     box.append(make("h2", "", "Цель на день"));
-    box.append(make("p", "", "Сколько верных ответов в день вы хотите давать? Выполнили цель — дни считаются в серию. Потом это можно изменить в настройках (шестерёнка вверху)."));
+    box.append(make("p", "", "Сколько верных ответов в день вы хотите давать? Выполнили цель — дни считаются в серию. Потом это можно изменить: Настройки → Общие."));
     const pick = make("div", "goalpick");
     for (const n of GOALS) {
       const b = make("button", "btn" + (n === 20 ? " primary" : ""));
@@ -1256,7 +1513,7 @@ function openWelcome(then) {
 // 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
 // 2) свайп вниз по окну («Настройки», «Что учить») — закрыть его.
 function setupGestures() {
-  const SKIP = "input, textarea, select, .swipe-toast, .sheet, #bar";   // отсюда свайп вкладок не начинаем
+  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar";   // отсюда свайп вкладок не начинаем
   let st = null;
   document.addEventListener("pointerdown", (e) => {
     st = e.button === 0 && sheetEl.hidden && !e.target.closest(SKIP)
@@ -1273,8 +1530,9 @@ function setupGestures() {
     if (!s || s.id !== e.pointerId || s.lock !== "h") return;
     const dx = e.clientX - s.x, fast = performance.now() - s.t < 250;
     if (Math.abs(dx) < (fast ? 40 : 70)) return;                    // нужен либо длинный, либо быстрый свайп
-    const i = VIEWS.indexOf(view) + (dx < 0 ? 1 : -1);
-    if (i >= 0 && i < VIEWS.length) showView(VIEWS[i]);
+    if (tabOf(view) !== view && dx > 0) { showView(BACK_OF[view] || "more"); return; }   // из раздела «Настроек» свайп вправо = назад
+    const i = TABS.indexOf(tabOf(view)) + (dx < 0 ? 1 : -1);
+    if (i >= 0 && i < TABS.length) showView(TABS[i]);
   });
   document.addEventListener("pointercancel", () => { st = null; });
 
@@ -1332,8 +1590,9 @@ async function boot() {
       const fs = !!tg.isFullscreen, chip = $("streakChip"), top = $("topbar");
       document.body.classList.toggle("fs", fs);
       top.hidden = !fs;
-      if (fs) top.append(chip);
-      else document.querySelector(".hdr").insertBefore(chip, $("settingsBtn"));
+      const more = $("chipMore");
+      if (fs) top.append(chip, more);
+      else document.querySelector(".hdr").append(chip, more);
     };
     const refit = () => { applyFullscreen(); fit(); };
     tg.onEvent("fullscreenChanged", refit);
@@ -1354,8 +1613,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=13").then((r) => r.json()),
-    fetch("data/aspect.json?v=13").then((r) => r.json()),
+    fetch("data/phrases.json?v=14").then((r) => r.json()),
+    fetch("data/aspect.json?v=14").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -1382,6 +1641,7 @@ async function boot() {
   }
   $("invSearch").addEventListener("input", () => renderInv(false));
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("spopWrap").hidden) { closeStreakPop(); return; }
     if (e.key === "Escape" && !sheetEl.hidden && sheetEl.dataset.closable) { sheetClose(); return; }
     if (e.key === "Enter" && view === "learn" && sheetEl.hidden) { e.preventDefault(); onEnter(); }
   });
@@ -1391,7 +1651,9 @@ async function boot() {
   });
   window.addEventListener("pagehide", Store.flush);
 
-  $("settingsBtn").addEventListener("click", openSettings);
+  $("chipMore").addEventListener("click", () => { if ($("spopWrap").hidden) openStreakPop(); else closeStreakPop(); });
+  $("spopWrap").addEventListener("pointerdown", (e) => { if (e.target === $("spopWrap")) closeStreakPop(); });   // тап мимо окна — закрыть
+  for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // строки «Настроек» и кнопки «назад»
   sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });
 
   // телефон: тап по пустому месту убирает клавиатуру; пока печатают, панель вкладок прячется

@@ -593,3 +593,144 @@ body.compact2 .nav #backBtn { width: 52px; }
 /* подсказка в скобках рядом со словом: мелко и слабо заметно (непрозрачность 40%, то есть прозрачность 60%) */
 .hint { font-size: .5em; font-weight: 500; opacity: .6; margin-left: .45em; white-space: normal; letter-spacing: 0; }   /* было .4; .6 — контраст не ниже 4.5:1 */
 #answer .hint { font-size: .62em; }
+
+/* «Настройки»: каждый раздел — отдельная строка-карточка, как слово в «Закладках» (.item), с той же анимацией «pop» (animlist.js) */
+.menurow { width: 100%; padding: 14px 16px; gap: 14px; color: var(--fg); font-size: 18px; font-weight: 600; text-align: start; cursor: pointer; }
+.mico { flex: none; width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center;
+  background: rgba(255, 255, 255, .08); border: 1px solid var(--line); }
+.mtitle { flex: 1; min-width: 0; }
+.menurow .chev { flex: none; color: var(--muted); }
+#moreBody[data-animated] .item:not([data-state]) { opacity: 0; }
+@media (hover: hover) { #moreBody .item:hover { filter: brightness(1.12); } }
+#moreBody .item:active { filter: brightness(.85); }
+/* верх раздела внутри «Настроек»: кнопка «назад» и заголовок */
+.subhead { display: flex; align-items: center; gap: 12px; margin: 4px 0 2px; }
+.subhead h1 { margin: 0; }
+
+/* «Настройки → Общие»: карточка настройки — подпись и переключатель; те же анимация и нажатия, что у строк «Настроек» */
+.setcard { flex-direction: column; align-items: stretch; gap: 0; padding: 0 16px; }
+/* заголовок карточки — кнопка-«вкладка»: по нажатию варианты всплывают (attachReveal в app.js) */
+.sethead { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 58px; padding: 0;
+  background: none; border: 0; color: var(--fg); font-size: 18px; font-weight: 600; text-align: start; cursor: pointer; }
+.setlabel { min-width: 0; }
+.sethead .chev { flex: none; color: var(--muted); transition: transform .35s cubic-bezier(.22, 1, .36, 1); }
+.sethead[aria-expanded="true"] .chev { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .sethead .chev { transition: none; } }
+.setpanel { height: 0; visibility: hidden; }   /* обрезку делает clip-path из attachReveal (с запасом под свечение), а не overflow */
+.setpanel.vis { visibility: visible; }
+.setinner { padding-bottom: 14px; }
+.setcard .seg { position: relative; overflow-x: visible; }
+/* в карточках настроек выбранный вариант рисует не сама кнопка, а переезжающая плашка (attachThumb в app.js) */
+.setcard .segbtn.on { background: none; box-shadow: none; color: var(--muted); }
+.thumb { position: absolute; inset: 4px; display: flex; gap: 6px; pointer-events: none; color: #0b0c12;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); clip-path: inset(0 100% 0 0); }
+.thumbcopy { flex: 1; min-width: 0; display: grid; place-items: center; padding: 11px 3px; font-size: 13.5px; font-weight: 600;
+  line-height: 1.15; text-align: center; }
+.thumbglow { position: absolute; top: 4px; bottom: 4px; left: 4px; width: 0; border-radius: 999px; pointer-events: none;
+  box-shadow: 0 0 18px rgba(255, 255, 255, .45); }
+.setcard .segbtn { white-space: normal; line-height: 1.15; padding: 11px 3px; font-size: 13.5px; }
+.gnote { display: flex; flex-direction: column; gap: 10px; }
+.gnote p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+.gnote p.diag { font-size: 12px; opacity: .7; text-align: center; overflow-wrap: anywhere; }
+#generalBody[data-animated] .item:not([data-state]) { opacity: 0; }
+
+/* кнопки «Что учить» и «в закладки» чуть меньше (было 52 px): 46 / на невысоких экранах 40 и 36 */
+#favBtn, #modeBtn { width: 46px; height: 46px; border-radius: 16px; }
+#favBtn svg, #modeBtn svg { width: 27px; height: 27px; }
+body.compact #favBtn, body.compact #modeBtn { width: 40px; height: 40px; border-radius: 14px; }
+body.compact2 #favBtn, body.compact2 #modeBtn { width: 36px; height: 36px; border-radius: 13px; }
+
+/* кнопка «назад» в разделах «Настроек»: стрелка полностью белая (раньше была серой и плохо видной) */
+.subhead .icon { color: #fff; }
+
+/* поля внутри карточек «Дневной серии»: подпись и переключатель; раздел «При достижении цели» */
+.field + .field { margin-top: 12px; }
+.fieldlabel { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+.section + .section { margin-top: 20px; }
+.sechead { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+
+/* три точки у серии — отдельная кнопка рядом с серией; открыта — белая */
+.chipmore[aria-expanded="true"] { color: #fff; }
+#topbar { gap: 8px; }
+#topbar .chipmore { pointer-events: auto; }
+
+/* всплывающее окно у серии: стеклянная панель вырастает из трёх точек, внутри два виджета «выпрыгивают» по очереди */
+.spopwrap { position: fixed; inset: 0; z-index: 20; }
+.spop { position: absolute; display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: 28px; outline: none;
+  max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain;
+  background: linear-gradient(180deg, rgba(44, 44, 58, .84), rgba(10, 10, 16, .93)); border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 18px 50px rgba(0, 0, 0, .6);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  opacity: 0; transform: scale(.82); transition: transform .45s cubic-bezier(.22, 1, .36, 1), opacity .2s ease; }
+.spopwrap.show .spop { opacity: 1; transform: none; }
+.spopcard { padding: 16px; }
+.spopwrap .spopcard { opacity: 0; }
+.spopwrap.show .spopcard { animation: spop-rise .5s cubic-bezier(.22, 1, .36, 1) both; }
+.spopwrap.show .spopcard:nth-child(2) { animation-delay: .09s; }
+@keyframes spop-rise { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .spop { transform: none; transition: opacity .2s ease; }
+  .spopwrap.show .spopcard { animation: none; opacity: 1; }
+}
+
+/* «Времена»: карта 3×4, карточка входного теста, уроки, тест */
+#tensesBody[data-animated] .item:not([data-state]), #tlessonBody[data-animated] .item:not([data-state]) { opacity: 0; }
+.tplace { width: 100%; padding: 14px 16px; gap: 14px; color: var(--fg); text-align: start; cursor: pointer; }
+.ttxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ttxt .mtitle { font-size: 18px; font-weight: 600; }
+.tsub { font-size: 13px; line-height: 1.3; }
+.tplace .chev { flex: none; color: var(--muted); }
+.tcols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; color: var(--muted); font-size: 13px; margin-top: 4px; }
+.tgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tcell { flex-direction: column; justify-content: flex-start; padding: 12px 4px 12px; gap: 6px; color: var(--fg); cursor: pointer; min-width: 0; text-align: center; }
+.tringbox { position: relative; width: 44px; height: 44px; display: grid; place-items: center; }
+.tring { position: absolute; inset: 0; width: 44px; height: 44px; fill: none; }
+.tring circle { fill: none; stroke-width: 3; stroke-linecap: round; }
+.tring .trk { stroke: rgba(255, 255, 255, .14); }
+.tring .arc { stroke: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .5)); transition: stroke-dasharray .6s cubic-bezier(.22, 1, .36, 1); }
+.tpct { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tname { font-size: 13px; font-weight: 600; line-height: 1.15; }
+.tstat { font-size: 11px; color: var(--muted); }
+/* освоенное время (от 80%): кольцо, число и надпись «освоено» — зелёные */
+.tcell.done .tstat, .tcell.done .tpct { color: var(--ok); }
+.tcell.done .tring .arc { stroke: var(--ok); filter: drop-shadow(0 0 4px rgba(95, 208, 138, .55)); }
+.tcell.done .tstat { text-shadow: 0 0 8px rgba(95, 208, 138, .45); }
+.tcell.weak .tring .trk { stroke: var(--bad); stroke-dasharray: 3 4; opacity: .7; }
+.tcell.weak .tstat { color: var(--bad); }
+.tnote { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; }
+/* урок */
+.thead h2 { margin: 6px 2px 0; font-size: 26px; font-weight: 600; text-wrap: balance; }
+.thead .tru { margin: 2px 2px 0; font-size: 15px; }
+.tmean { margin: 12px 2px 0; font-size: 16px; line-height: 1.5; }
+.tcard { flex-direction: column; align-items: stretch; gap: 6px; padding: 14px 16px; }
+.tcard .sechead { margin-bottom: 4px; }
+.tformula { font-size: 16px; font-weight: 600; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tusetitle { font-size: 15px; font-weight: 600; color: var(--muted); }
+.ten { font-size: 18px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.tcard .tru { font-size: 14px; }
+.tsignals { display: flex; flex-wrap: wrap; gap: 8px; }
+.ttrap + .ttrap { margin-top: 12px; }
+.tbad { color: var(--bad); font-size: 15px; text-decoration: line-through; text-decoration-color: rgba(255, 123, 123, .6); overflow-wrap: anywhere; }
+.tgood { color: var(--ok); font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.tnote2 { font-size: 13px; line-height: 1.4; margin-top: 2px; }
+/* тест */
+.topts { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 4px; }
+.topts .btn { padding: 15px 12px; font-size: 18px; white-space: normal; line-height: 1.2; }
+.topts .btn:disabled { cursor: default; }
+.topts .btn.ok { border-color: rgba(95, 208, 138, .9); color: #eafff1;
+  background: linear-gradient(180deg, rgba(95, 208, 138, .38), rgba(95, 208, 138, .16)); box-shadow: 0 0 18px rgba(95, 208, 138, .4); }
+.topts .btn.bad { border-color: rgba(255, 123, 123, .9); color: #ffecec;
+  background: linear-gradient(180deg, rgba(255, 123, 123, .34), rgba(255, 123, 123, .14)); box-shadow: 0 0 18px rgba(255, 123, 123, .35); }
+.twrong { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.twrong .qsentence { font-size: 20px; }
+@media (prefers-reduced-motion: reduce) { .tring .arc { transition: none; } }
+
+/* формула урока: подпись («Утверждение», «Отрицание», «Вопрос») мелко и серо, под ней — сама формула */
+.tfrow + .tfrow { margin-top: 10px; }
+.tflabel { color: var(--muted); font-size: 13px; margin-bottom: 2px; }
+
+/* «Инвентарь»: выбранный раздел рисует переезжающая плашка (как в «Общих»), а не сама кнопка */
+#inv .seg { position: relative; overflow: visible; }
+#inv .segbtn.on { background: none; box-shadow: none; color: var(--muted); }
+#inv .thumbcopy { padding: 11px 2px; font-size: 14px; }
+@media (max-width: 340px) { #inv .thumbcopy { font-size: 13px; } }
