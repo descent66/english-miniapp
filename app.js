@@ -3,8 +3,9 @@ import * as Core from "./core.js";
 import * as Store from "./storage.js";
 
 const params = new URLSearchParams(location.search);
-const ASK_SEC = Number(params.get("ask")) || 60;        // время на ответ
+const ASK_DEFAULT = 30;                                 // время на ответ (можно изменить в настройках)
 const REVEAL_SEC = Number(params.get("reveal")) || 10;  // сколько показывать ответ до новой фразы
+const WRONG_SEC = Number(params.get("wrong")) || 5;     // после неверного ответа — быстрее к новой фразе
 
 const TYPE_RU = {
   idiom: "идиома", proverb: "пословица", "phrasal verb": "фразовый глагол",
@@ -14,12 +15,21 @@ const TYPE_RU = {
 const $ = (id) => document.getElementById(id);
 const el = {
   tag: $("tag"), prompt: $("prompt"), entry: $("entry"), status: $("status"), answer: $("answer"),
-  example: $("example"), countdown: $("countdown"), goal: $("goal"), fav: $("favBtn"),
+  example: $("example"), countdown: $("countdown"), timerFill: $("timerFill"), goalNum: $("goalNum"), goalFill: $("goalFill"),
+  goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"),
   check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
-  inv: $("inv"), invBody: $("invBody"),
+  savedBody: $("savedBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
 };
 const actionBtns = [el.known, el.easy, el.normal, el.hard];
+
+// ---------- огонёк (анимируется стилями, см. .flame в style.css) ----------
+const FLAME_PATH = "M12 1.5c.4 3.2-1.6 4.9-3.3 7C7.2 10.4 5.6 12.6 5.6 15.4 5.6 19 8.4 21.6 12 21.6s6.4-2.6 6.4-6.2c0-2.3-1-4.1-2.1-5.6-.1 1.4-.7 2.3-1.7 2.9.3-3.1-.9-6.3-3.6-9.7-.1-.4-.1-.7-.1-1z";
+const FLAME = `<svg class="flame" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+  <g class="f1"><path d="${FLAME_PATH}" fill="#ff7a1a" stroke="none"/></g>
+  <g class="f2"><path d="${FLAME_PATH}" transform="translate(12 21.6) scale(.68) translate(-12 -21.6)" fill="#ffb524" stroke="none"/></g>
+  <g class="f3"><path d="${FLAME_PATH}" transform="translate(12 21.6) scale(.38) translate(-12 -21.6)" fill="#fff0a6" stroke="none"/></g>
+</svg>`;
 
 // ---------- звуки (файлы из виджета) ----------
 const sounds = {};
@@ -29,6 +39,7 @@ for (const n of ["correct", "error", "next", "back", "fav"]) {
   sounds[n] = a;
 }
 function play(name) {
+  if (progress && settings().sound === false) return;
   try {
     const a = sounds[name];
     a.currentTime = 0;
@@ -36,12 +47,26 @@ function play(name) {
   } catch { /* звук не критичен */ }
 }
 
+// ---------- телефон: клавиатура ----------
+const touch = window.matchMedia("(pointer: coarse)").matches;
+let keepFocus = true; // false — пользователь сам убрал клавиатуру, новые карточки её не вызывают
+let maxViewH = 0;
+
+function checkKeyboard() {
+  const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  maxViewH = Math.max(maxViewH, h);
+  const typing = document.activeElement && document.activeElement.tagName === "INPUT";
+  document.body.classList.toggle("kbd", touch && typing && h < maxViewH - 120);
+}
+
 // ---------- состояние ----------
 let progress, phrases;
 let cur = null, direction = "en2ru", revealed = false;
-let phase = "ask", nextAt = 0;
+let phase = "ask", nextAt = Infinity, phaseMs = 1;
 
 const recent = () => progress.data.recent;
+const settings = () => progress.data.settings || (progress.data.settings = {});
+const askSec = () => Number(params.get("ask")) || settings().ask || ASK_DEFAULT;
 
 function showActions(...shown) {
   for (const b of actionBtns) b.hidden = !shown.includes(b);
@@ -57,26 +82,30 @@ function setStatus(text, kind = "") {
 // показываем правильный ответ и пример, затем приходит новая фраза.
 function schedule(seconds, ph) {
   phase = ph;
-  nextAt = Date.now() + seconds * 1000;
+  phaseMs = seconds * 1000;
+  nextAt = Date.now() + phaseMs;
   updateCountdown();
 }
 
 function updateCountdown() {
-  const left = Math.max(0, Math.round((nextAt - Date.now()) / 1000));
+  if (!Number.isFinite(nextAt)) { el.countdown.textContent = ""; el.timerFill.style.width = "0%"; return; }
+  const msLeft = Math.max(0, nextAt - Date.now());
+  const left = Math.round(msLeft / 1000);
   el.countdown.textContent = phase === "ask"
-    ? `Время на ответ: ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
-    : `Новая фраза через ${left} с`;
+    ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
+    : `дальше ${left} с`;
+  el.timerFill.style.width = `${Math.min(100, (msLeft / phaseMs) * 100)}%`;
 }
 
+/** Шапка: цель дня с полоской и серия дней. */
 function updateGoal() {
-  const n = progress.todayCorrect(), goal = progress.goal();
-  if (n >= goal) {
-    el.goal.textContent = `🔥 ${progress.streak()}`;
-    el.goal.className = "done";
-  } else {
-    el.goal.textContent = `Сегодня ${n}/${goal}`;
-    el.goal.className = "";
-  }
+  const n = progress.todayCorrect(), goal = progress.goal(), streak = progress.streak();
+  const done = n >= goal;
+  el.goalNum.textContent = `${n}/${goal}`;
+  el.goalFill.style.width = `${Math.min(100, (n / goal) * 100)}%`;
+  el.goalText.classList.toggle("done", done);
+  el.streakNum.textContent = String(streak);
+  el.streakChip.classList.toggle("on", streak > 0);
 }
 
 function loop() {
@@ -101,10 +130,19 @@ function onTick() {
 
 // ---------- карточки ----------
 function nextCard() {
-  const key = progress.pick(recent());
+  let key;
+  if (session) {
+    if (session.finished) { schedule(askSec(), "ask"); return; }
+    const pool = progress.reviewPool().filter((k) => !session.seen.includes(k));
+    if (session.done >= session.total || !pool.length) { finishSession(); return; }
+    key = pool[Math.floor(Math.random() * pool.length)];
+    session.seen.push(key);
+  } else {
+    key = progress.pick(recent());
+  }
   if (key === null) {
     cur = null;
-    schedule(ASK_SEC, "ask");
+    schedule(askSec(), "ask");
     setIdle("Все фразы выучены 🎉");
     return;
   }
@@ -120,7 +158,7 @@ function back() {
 }
 
 function setIdle(text) {
-  el.tag.textContent = "";
+  el.tag.replaceChildren();
   el.prompt.textContent = text;
   setStatus("");
   el.answer.textContent = "";
@@ -135,9 +173,12 @@ function show(key, dir, isRevealed) {
   cur = key; direction = dir; revealed = false;
   const p = progress.phrases.get(key);
   const state = progress.state(key);
-  const label = TYPE_RU[p.type] || p.type;
-  const mode = dir === "en2ru" ? "EN → RU" : "RU → EN";
-  el.tag.textContent = `${label} · ${p.level} · ${mode}${state === "learning" ? "  ·  повторение" : ""}`;
+  const pills = [];
+  if (session && !session.finished) pills.push([`Повтор ${session.done + 1}/${session.total}`, "sess"]);
+  pills.push([TYPE_RU[p.type] || p.type, ""], [p.level, "lvl"], [dir === "en2ru" ? "EN → RU" : "RU → EN", "mode"]);
+  if (state === "learning") pills.push(["↻", "rep"]);
+  el.tag.replaceChildren(...pills.map(([text, cls]) => make("span", "pill " + cls, text)));
+  el.tag.title = state === "learning" ? "повторение" : "";
   el.prompt.textContent = dir === "en2ru" ? p.en : p.ru[0];
   el.entry.readOnly = false;
   el.entry.value = "";
@@ -151,8 +192,8 @@ function show(key, dir, isRevealed) {
     reveal(null);
   } else {
     el.check.hidden = el.show.hidden = false;
-    el.entry.focus({ preventScroll: true });
-    schedule(ASK_SEC, "ask");
+    if (!touch || keepFocus) el.entry.focus({ preventScroll: true });
+    schedule(askSec(), "ask");
   }
 }
 
@@ -186,7 +227,7 @@ function giveUp() {
 function reveal(ok) {
   const p = progress.phrases.get(cur);
   revealed = true;
-  schedule(REVEAL_SEC, "next");
+  schedule(ok === false ? WRONG_SEC : REVEAL_SEC, "next");
   if (direction === "en2ru") {
     el.answer.textContent = p.ru.slice(0, 3).join(" / ");
   } else {
@@ -200,6 +241,7 @@ function reveal(ok) {
   el.entry.className = ok ? "ok" : "bad";
   const before = progress.state(cur);
   const state = progress.record(cur, ok);
+  if (session && !session.finished) { session.done += 1; session.correct += ok ? 1 : 0; }
   progress.logAnswer(ok);
   updateGoal();
   if (state === "mastered") {
@@ -232,9 +274,7 @@ function onKnown() {
 }
 
 function refreshFav() {
-  const on = cur && progress.isFav(cur);
-  el.fav.textContent = on ? "★" : "☆";
-  el.fav.classList.toggle("on", !!on);
+  el.fav.classList.toggle("on", !!(cur && progress.isFav(cur)));
 }
 
 function toggleFav() {
@@ -244,78 +284,291 @@ function toggleFav() {
   refreshFav();
 }
 
-// ---------- инвентарь и статистика ----------
-let tab = "saved";
+// ---------- нижняя панель: Учить / Повтор / Закладки / Инвентарь / Прогресс ----------
+const VIEWS = ["learn", "rev", "saved", "inv", "prog"];
+let view = "learn";
+let invTab = "hard";
+let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-function renderInv() {
-  for (const b of document.querySelectorAll(".tab")) b.classList.toggle("on", b.dataset.tab === tab);
-  const body = el.invBody;
+function showView(name) {
+  view = name;
+  for (const v of VIEWS) $(v).hidden = v !== name;
+  for (const b of document.querySelectorAll(".tabbtn")) b.classList.toggle("on", b.dataset.view === name);
+  if (name === "rev") renderRev();
+  if (name === "saved") renderSaved();
+  if (name === "inv") renderInv();
+  if (name === "prog") renderProg();
+  window.scrollTo(0, 0);
+}
+
+function make(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function emptyNote(text) { return make("div", "empty", text); }
+
+const SIDE = {
+  hard: (c) => (c.misses ? `ошибок: ${c.misses}` : "трудно"),
+  learning: (c) => (c.state === "new" ? "видел" : `серия ${c.streak} из ${Core.NEEDED_STREAK}`),
+  mastered: () => "выучено",
+  known: () => "знал",
+};
+
+/** Список фраз: в закладках — крестик «убрать», в остальных — подпись справа. */
+function renderList(body, keys, kind, emptyText) {
   body.replaceChildren();
-  if (tab === "stats") {
-    const s = progress.stats(), acc = progress.accuracy();
-    const d = document.createElement("div");
-    d.className = "stats";
-    d.textContent =
-      `Сегодня: ${progress.todayCorrect()} из ${progress.goal()} верных ответов\n` +
-      `Серия: ${progress.streak()} дн. подряд\n` +
-      `Точность ответов: ${acc !== null ? acc + "%" : "—"}\n` +
-      `Трудных слов: ${progress.hardCards().length}\n\n` +
-      `Ещё не показывались: ${s.unseen}\n` +
-      `Видел, но не выучил: ${s.new}\n` +
-      `Учу (проверки): ${s.learning}\n` +
-      `Выучено (3 подряд): ${s.mastered}\n` +
-      `Уже знал: ${s.known}`;
-    body.append(d);
-    return;
-  }
-  const keys = tab === "saved" ? progress.favorites() : progress.hardCards();
-  if (!keys.length) {
-    const e = document.createElement("div");
-    e.className = "empty";
-    e.textContent = tab === "saved"
-      ? "Пока пусто.\nНажмите ☆ на карточке,\nчтобы сохранить фразу сюда."
-      : "Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».";
-    body.append(e);
-    return;
-  }
-  for (const key of keys) {
-    const row = document.createElement("div");
-    row.className = "item";
-    const txt = document.createElement("div");
-    txt.className = "txt";
-    const en = document.createElement("div");
-    en.className = "en";
-    en.textContent = key;
-    const ru = document.createElement("div");
-    ru.className = "ru";
-    ru.textContent = progress.phrases.get(key).ru.slice(0, 2).join(" / ");
-    txt.append(en, ru);
+  if (!keys.length) { body.append(emptyNote(emptyText)); return; }
+  const LIMIT = 300;
+  for (const key of keys.slice(0, LIMIT)) {
+    const row = make("div", "item");
+    const txt = make("div", "txt");
+    txt.append(make("div", "en", key), make("div", "ru", progress.phrases.get(key).ru.slice(0, 2).join(" / ")));
     row.append(txt);
-    if (tab === "saved") {
-      const rm = document.createElement("button");
-      rm.className = "rm";
-      rm.textContent = "✕";
-      rm.setAttribute("aria-label", "Убрать из сохранённых");
+    if (kind === "saved") {
+      const rm = make("button", "rm");
+      rm.setAttribute("aria-label", "Убрать из закладок");
+      rm.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M6 6l12 12M18 6L6 18"/></svg>';
       rm.addEventListener("click", () => {
         progress.toggleFav(key);
         refreshFav();
-        renderInv();
+        renderSaved();
       });
       row.append(rm);
     } else {
-      const side = document.createElement("div");
-      side.className = "side";
-      const m = progress.cards[key].misses || 0;
-      side.textContent = m ? `ошибок: ${m}` : "трудно";
-      row.append(side);
+      row.append(make("div", "side", SIDE[kind](progress.cards[key])));
     }
     body.append(row);
   }
+  if (keys.length > LIMIT) body.append(emptyNote(`Показано ${LIMIT} из ${keys.length}. Уточните поиск.`));
 }
 
-function openInv() {
-  renderInv();
-  el.inv.hidden = false;
+function renderSaved() {
+  renderList(el.savedBody, progress.favorites(), "saved",
+    "Пока пусто.\nНажмите звёздочку на карточке,\nчтобы сохранить фразу сюда.");
+}
+
+// --- Инвентарь: все слова по состояниям, с поиском ---
+const INV_EMPTY = {
+  hard: "Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».",
+  learning: "Здесь будут слова, которые вы\nсейчас учите.",
+  mastered: "Выученных слов пока нет.\nСлово считается выученным после\nтрёх верных ответов подряд.",
+  known: "Слов с отметкой «Уже знал» пока нет.",
+};
+
+function invKeys(tab) {
+  if (tab === "hard") return progress.hardCards();
+  if (tab === "learning") return progress.keysByState("new", "learning");
+  return progress.keysByState(tab);
+}
+
+function renderInv() {
+  for (const b of document.querySelectorAll(".segbtn")) b.classList.toggle("on", b.dataset.tab === invTab);
+  const q = $("invSearch").value.trim().toLowerCase();
+  let keys = invKeys(invTab);
+  if (q) {
+    keys = keys.filter((k) => k.toLowerCase().includes(q)
+      || progress.phrases.get(k).ru.some((r) => r.toLowerCase().includes(q)));
+  }
+  renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
+}
+
+// --- Повтор: короткая сессия из «трудных» и тех, у кого подошёл срок ---
+const SESSION_SIZE = 10;
+let session = null; // { total, done, correct, seen, finished }
+
+function panel(title, text, buttons) {
+  const p = make("div", "panel");
+  p.append(make("div", "big", title));
+  if (text) p.append(make("p", "", text));
+  for (const [label, primary, fn] of buttons) {
+    const b = make("button", "btn wide" + (primary ? " primary" : ""), label);
+    b.addEventListener("click", fn);
+    p.append(b);
+  }
+  return p;
+}
+
+function renderRev() {
+  const body = el.revBody;
+  body.replaceChildren();
+  if (session && !session.finished) {
+    body.append(panel(`Идёт повтор: ${session.done} из ${session.total}`,
+      "Отвечайте на карточки во вкладке «Учить».",
+      [["Продолжить", true, () => showView("learn")], ["Закончить повтор", false, endSession]]));
+  } else if (session) {
+    body.append(panel("Готово!", `Верных ответов: ${session.correct} из ${session.done}.`,
+      [["Ещё раз", true, startReview], ["К обычным карточкам", false, endSession]]));
+  } else {
+    const hard = progress.hardCards().length;
+    const pool = progress.reviewPool().length;
+    body.append(panel(pool ? `К повторению: ${pool}` : "Повторять пока нечего",
+      pool ? `Трудные слова и те, у которых подошёл срок проверки. В сессии — до ${SESSION_SIZE} карточек.\nТрудных: ${hard}.`
+           : "Когда подойдёт срок проверки или появятся трудные слова, они будут здесь.",
+      pool ? [["Начать", true, startReview]] : []));
+  }
+}
+
+function startReview() {
+  const pool = progress.reviewPool();
+  if (!pool.length) return;
+  session = { total: Math.min(SESSION_SIZE, pool.length), done: 0, correct: 0, seen: [], finished: false };
+  showView("learn");
+  nextCard();
+}
+
+function finishSession() {
+  session.finished = true;
+  cur = null;
+  schedule(askSec(), "ask");
+  setIdle("Повтор закончен");
+  showView("rev");
+}
+
+function endSession() {
+  session = null;
+  showView("learn");
+  nextCard();
+}
+
+// --- Прогресс: цифры и календарь ---
+function renderProg() {
+  const body = el.progBody;
+  body.replaceChildren();
+  const acc = progress.accuracy(), s = progress.stats();
+  const done = progress.todayCorrect() >= progress.goal();
+
+  const tiles = make("div", "tiles");
+  for (const [num, label, gold] of [
+    [`${progress.todayCorrect()}/${progress.goal()}`, "сегодня", false],
+    [String(progress.streak()), progress.streak() % 10 === 1 && progress.streak() % 100 !== 11 ? "день подряд" : "дней подряд", done],
+    [acc !== null ? `${acc}%` : "—", "точность", false],
+  ]) {
+    const t = make("div", "tile" + (gold ? " gold" : ""));
+    const b = make("b", "", num);
+    if (label.endsWith("подряд")) { // плитка серии: рядом анимированный огонёк
+      const fl = make("span", "flamewrap" + (progress.streak() > 0 ? " on" : ""));
+      fl.innerHTML = FLAME;
+      b.prepend(fl);
+    }
+    t.append(b, make("span", "", label));
+    tiles.append(t);
+  }
+  body.append(tiles);
+
+  const cal = make("div", "panel");
+  const head = make("div", "calhead");
+  const prev = make("button", "", "‹"), next = make("button", "", "›");
+  prev.setAttribute("aria-label", "Предыдущий месяц");
+  next.setAttribute("aria-label", "Следующий месяц");
+  prev.style.fontSize = next.style.fontSize = "26px";
+  const title = calMonth.toLocaleDateString("ru-RU", { month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
+  head.append(prev, make("span", "", title[0].toUpperCase() + title.slice(1)), next);
+  const nowMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  next.disabled = calMonth >= nowMonth;
+  next.style.opacity = next.disabled ? ".3" : "1";
+  prev.addEventListener("click", () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderProg(); });
+  next.addEventListener("click", () => {
+    if (!next.disabled) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderProg(); }
+  });
+  const grid = make("div", "cal");
+  for (const w of ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]) grid.append(make("div", "wd", w));
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  for (let i = 0; i < (new Date(y, m, 1).getDay() + 6) % 7; i++) grid.append(make("div"));
+  const today = Core.dayKey(new Date());
+  for (let d = 1; d <= new Date(y, m + 1, 0).getDate(); d++) {
+    const day = new Date(y, m, d, 12), info = progress.dayInfo(day);
+    let cls = "d";
+    if (info.correct >= progress.goal()) cls += " goal";
+    else if (info.answered > 0) cls += " some";
+    if (Core.dayKey(day) === today) cls += " today";
+    grid.append(make("div", cls, String(d)));
+  }
+  cal.append(head, grid, make("p", "", `Белым отмечены дни, когда выполнена цель (${progress.goal()} верных ответов).`));
+  body.append(cal);
+
+  body.append(make("div", "stats",
+    `Трудных слов: ${progress.hardCards().length}\n\n` +
+    `Ещё не показывались: ${s.unseen}\n` +
+    `Видел, но не выучил: ${s.new}\n` +
+    `Учу (проверки): ${s.learning}\n` +
+    `Выучено (3 подряд): ${s.mastered}\n` +
+    `Уже знал: ${s.known}`));
+}
+
+// ---------- настройки и выбор цели ----------
+const sheetEl = $("sheet"), sheetBox = $("sheetBox");
+
+function sheetOpen(build, closable) {
+  sheetBox.replaceChildren();
+  build(sheetBox);
+  sheetEl.dataset.closable = closable ? "1" : "";
+  sheetEl.hidden = false;
+}
+const sheetClose = () => { sheetEl.hidden = true; };
+
+/** Ряд кнопок-переключателей: options = [[значение, подпись], ...]. */
+function segRow(options, current, onPick) {
+  const seg = make("div", "seg");
+  for (const [value, label] of options) {
+    const b = make("button", "segbtn" + (value === current ? " on" : ""), label);
+    b.addEventListener("click", () => onPick(value));
+    seg.append(b);
+  }
+  return seg;
+}
+
+function setRow(label, control) {
+  const r = make("div", "setrow");
+  r.append(make("label", "", label), control);
+  return r;
+}
+
+const GOALS = [10, 20, 30];
+
+function openSettings() {
+  sheetOpen((box) => {
+    box.append(make("h2", "", "Настройки"));
+    box.append(setRow("Цель на день (верных ответов)",
+      segRow(GOALS.map((n) => [n, String(n)]), progress.goal(), (n) => {
+        progress.data.goal = n; progress.save(); updateGoal(); openSettings();
+      })));
+    box.append(setRow("Звук",
+      segRow([[true, "Вкл"], [false, "Выкл"]], settings().sound !== false, (v) => {
+        settings().sound = v; progress.save(); openSettings();
+      })));
+    box.append(setRow("Время на ответ (с)",
+      segRow([20, 30, 45, 60].map((n) => [n, String(n)]), settings().ask || ASK_DEFAULT, (n) => {
+        settings().ask = n; progress.save(); openSettings();
+      })));
+    box.append(make("p", "", "Время начнёт действовать со следующей карточки. Цель дня учитывается и в календаре за прошлые дни."));
+    const done = make("button", "btn primary wide", "Готово");
+    done.addEventListener("click", sheetClose);
+    box.append(done);
+  }, true);
+}
+
+/** Первый запуск: выбрать цель на день. */
+function openWelcome(then) {
+  sheetOpen((box) => {
+    box.append(make("h2", "", "Цель на день"));
+    box.append(make("p", "", "Сколько верных ответов в день вы хотите давать? Выполнили цель — дни считаются в серию. Потом это можно изменить в настройках (шестерёнка вверху)."));
+    const pick = make("div", "goalpick");
+    for (const n of GOALS) {
+      const b = make("button", "btn" + (n === 20 ? " primary" : ""));
+      b.append(String(n), make("small", "", n === 10 ? "спокойно" : n === 20 ? "рекомендуем" : "упорно"));
+      b.addEventListener("click", () => {
+        progress.data.goal = n;
+        progress.save();
+        sheetClose();
+        then();
+      });
+      pick.append(b);
+    }
+    box.append(pick);
+  }, false);
 }
 
 // ---------- запуск ----------
@@ -324,7 +577,8 @@ async function boot() {
   if (tg) {
     tg.ready();
     tg.expand();
-    try { tg.setHeaderColor("#120f17"); tg.setBackgroundColor("#120f17"); } catch { /* старый клиент */ }
+    try { tg.setHeaderColor("#05060d"); tg.setBackgroundColor("#05060d");
+      if (tg.setBottomBarColor) tg.setBottomBarColor("#05060d"); } catch { /* старый клиент */ }
     try { tg.disableVerticalSwipes(); } catch { /* старый клиент */ }
   }
   const [list, aspect, saved] = await Promise.all([
@@ -346,13 +600,13 @@ async function boot() {
   el.normal.addEventListener("click", () => onRate("normal"));
   el.hard.addEventListener("click", () => onRate("hard"));
   el.fav.addEventListener("click", toggleFav);
-  $("invBtn").addEventListener("click", openInv);
-  $("invClose").addEventListener("click", () => { el.inv.hidden = true; });
-  for (const b of document.querySelectorAll(".tab")) {
-    b.addEventListener("click", () => { tab = b.dataset.tab; renderInv(); });
+  for (const b of document.querySelectorAll(".tabbtn")) b.addEventListener("click", () => showView(b.dataset.view));
+  for (const b of document.querySelectorAll(".segbtn")) {
+    b.addEventListener("click", () => { invTab = b.dataset.tab; renderInv(); });
   }
+  $("invSearch").addEventListener("input", renderInv);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && el.inv.hidden) { e.preventDefault(); onEnter(); }
+    if (e.key === "Enter" && view === "learn") { e.preventDefault(); onEnter(); }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) Store.flush();
@@ -360,8 +614,29 @@ async function boot() {
   });
   window.addEventListener("pagehide", Store.flush);
 
-  nextCard();
+  $("settingsBtn").addEventListener("click", openSettings);
+  sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });
+
+  // телефон: тап по пустому месту убирает клавиатуру; пока печатают, панель вкладок прячется
+  el.entry.addEventListener("pointerdown", () => { keepFocus = true; });
+  document.addEventListener("click", (e) => {
+    if (!touch || e.target.closest("input, button, .item, .sheetbox")) return;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    keepFocus = false;
+    checkKeyboard();
+  });
+  for (const ev of ["focusin", "focusout"]) document.addEventListener(ev, () => setTimeout(checkKeyboard, 50));
+  window.addEventListener("resize", checkKeyboard);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", checkKeyboard);
+  if (tg) tg.onEvent("viewportChanged", checkKeyboard);
+  checkKeyboard();
+
+  for (const s of document.querySelectorAll(".flame-slot")) s.innerHTML = FLAME;
+  updateGoal();
   setInterval(loop, 250);
+  const firstRun = progress.data.goal == null && Object.keys(progress.cards).length === 0;
+  if (firstRun) openWelcome(nextCard);
+  else nextCard();
 }
 
 boot();

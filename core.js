@@ -282,6 +282,27 @@ export class Progress {
     });
   }
 
+  /** Что берёт сессия «Повтор»: «учу» со сроком, который уже настал, и «трудные». */
+  reviewPool(now = nowSec()) {
+    const set = new Set(this.hardCards());
+    for (const k of Object.keys(this.cards)) {
+      const c = this.cards[k];
+      if (this.phrases.has(k) && c.state === "learning" && c.due <= now) set.add(k);
+    }
+    return [...set];
+  }
+
+  /** Фразы с заданными состояниями (для «Инвентаря»), в порядке появления. */
+  keysByState(...states) {
+    return Object.keys(this.cards).filter((k) => this.phrases.has(k) && states.includes(this.cards[k].state));
+  }
+
+  /** Сколько ответов и верных ответов было в этот день. */
+  dayInfo(day) {
+    const d = (this.data.days || {})[dayKey(day)];
+    return d ? { correct: d.correct, answered: d.answered } : { correct: 0, answered: 0 };
+  }
+
   // --- цель дня, серия, точность ---
   goal() { return this.data.goal ?? DAILY_GOAL; }
 

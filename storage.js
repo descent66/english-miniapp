@@ -18,6 +18,7 @@ export function pack(data, ts = Date.now()) {
   for (const [d, v] of Object.entries(data.days || {})) days[d] = [v.correct, v.answered];
   const out = { v: 1, ts, cards, recent: data.recent || [], days };
   if (data.goal != null) out.goal = data.goal;
+  if (data.settings) out.s = data.settings;
   return JSON.stringify(out);
 }
 
@@ -34,6 +35,7 @@ export function unpack(text) {
   for (const [d, a] of Object.entries(o.days || {})) days[d] = { correct: a[0], answered: a[1] };
   const data = { cards, recent: o.recent || [], days };
   if (o.goal != null) data.goal = o.goal;
+  if (o.s) data.settings = o.s;
   return { data, ts: o.ts || 0 };
 }
 

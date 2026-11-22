@@ -8,58 +8,119 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <main id="card">
-    <div class="row top">
-      <button id="invBtn" class="ghost" aria-label="Инвентарь">↗</button>
-      <div id="tag" class="muted"></div>
-      <button id="favBtn" class="ghost" aria-label="Сохранить фразу">☆</button>
-    </div>
+  <div id="views">
+    <!-- Учить -->
+    <main id="learn" class="view">
+      <header class="hdr">
+        <div class="goalbox">
+          <div class="goaltext"><span id="goalLabel" class="muted">Сегодня</span> <b id="goalNum">0/20</b></div>
+          <div class="track"><i id="goalFill"></i></div>
+        </div>
+        <div id="streakChip" class="chip" title="Дней подряд"><span class="flame-slot"></span><b id="streakNum">0</b></div>
+        <button id="settingsBtn" class="icon small" aria-label="Настройки">
+          <svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.6M12 18.4V21M3 12h2.6M18.4 12H21M5.6 5.6l1.9 1.9M16.5 16.5l1.9 1.9M5.6 18.4l1.9-1.9M16.5 7.5l1.9-1.9"/></svg>
+        </button>
+      </header>
 
-    <div id="prompt"></div>
-
-    <div class="row">
-      <input id="entry" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
-             spellcheck="false" enterkeyhint="done" aria-label="Ваш ответ">
-      <button id="checkBtn" class="btn hi">Проверить</button>
-    </div>
-
-    <div id="status"></div>
-    <div id="answer"></div>
-    <div id="example" class="muted"></div>
-
-    <div id="actions" class="row wrap">
-      <button id="knownBtn" class="btn hi" hidden>Уже знал</button>
-      <button id="easyBtn" class="btn hi" hidden>Легко</button>
-      <button id="normalBtn" class="btn hi" hidden>Нормально</button>
-      <button id="hardBtn" class="btn hi" hidden>Трудно</button>
-    </div>
-
-    <div class="row meta muted">
-      <span id="countdown"></span>
-      <span id="goal"></span>
-    </div>
-
-    <div class="row nav">
-      <button id="backBtn" class="btn">◀</button>
-      <button id="nextBtn" class="btn grow">▶ Дальше</button>
-      <button id="showBtn" class="btn">Показать ответ</button>
-    </div>
-  </main>
-
-  <section id="inv" hidden>
-    <div class="invbox">
-      <div class="row invhead">
-        <div class="invtitle">Инвентарь</div>
-        <button id="invClose" class="ghost" aria-label="Закрыть">✕</button>
+      <div class="timer">
+        <div class="track"><i id="timerFill"></i></div>
+        <span id="countdown" class="muted"></span>
       </div>
-      <div class="tabs">
-        <button class="tab" data-tab="saved">Сохранённые</button>
-        <button class="tab" data-tab="hard">Трудные</button>
-        <button class="tab" data-tab="stats">Статистика</button>
+
+      <div class="glass">
+        <div class="row top">
+          <div id="tag"></div>
+          <button id="favBtn" class="icon" aria-label="Сохранить в закладки">
+            <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 3.6l2.5 5.3 5.8.8-4.2 4.1 1 5.8-5.1-2.8-5.1 2.8 1-5.8-4.2-4.1 5.8-.8z"/></svg>
+          </button>
+        </div>
+
+        <div id="prompt"></div>
+
+        <div class="row">
+          <input id="entry" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+                 spellcheck="false" enterkeyhint="done" aria-label="Ваш ответ">
+        </div>
+        <button id="checkBtn" class="btn primary wide">Проверить</button>
+
+        <div id="status"></div>
+        <div id="answer"></div>
+        <div id="example" class="muted"></div>
+
+        <div id="actions" class="row wrap">
+          <button id="knownBtn" class="btn primary" hidden>Уже знал</button>
+          <button id="easyBtn" class="btn" hidden>Легко</button>
+          <button id="normalBtn" class="btn" hidden>Нормально</button>
+          <button id="hardBtn" class="btn" hidden>Трудно</button>
+        </div>
       </div>
-      <div id="invBody"></div>
-    </div>
-  </section>
+
+      <div class="row nav">
+        <button id="backBtn" class="btn" aria-label="Назад">
+          <svg viewBox="0 0 24 24" width="28" height="28"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button id="nextBtn" class="btn primary grow">Дальше</button>
+        <button id="showBtn" class="btn">Показать ответ</button>
+      </div>
+    </main>
+
+    <!-- Повтор -->
+    <section id="rev" class="view" hidden>
+      <h1>Повтор</h1>
+      <div id="revBody" class="list"></div>
+    </section>
+
+    <!-- Закладки -->
+    <section id="saved" class="view" hidden>
+      <h1>Закладки</h1>
+      <div id="savedBody" class="list"></div>
+    </section>
+
+    <!-- Инвентарь -->
+    <section id="inv" class="view" hidden>
+      <h1>Инвентарь</h1>
+      <div class="seg">
+        <button class="segbtn" data-tab="hard">Трудные</button>
+        <button class="segbtn" data-tab="learning">Учу</button>
+        <button class="segbtn" data-tab="mastered">Выучено</button>
+        <button class="segbtn" data-tab="known">Знал</button>
+      </div>
+      <input id="invSearch" class="search" type="search" placeholder="Поиск по слову" autocomplete="off"
+             autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск по слову">
+      <div id="invBody" class="list"></div>
+    </section>
+
+    <!-- Прогресс -->
+    <section id="prog" class="view" hidden>
+      <h1>Прогресс</h1>
+      <div id="progBody" class="list"></div>
+    </section>
+  </div>
+
+  <div id="sheet" class="sheet" hidden><div id="sheetBox" class="sheetbox"></div></div>
+
+  <nav id="bar">
+    <button class="tabbtn on" data-view="learn">
+      <svg viewBox="0 0 24 24" width="30" height="30"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>
+      <span>Учить</span>
+    </button>
+    <button class="tabbtn" data-view="rev">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M20 11a8 8 0 0 0-14-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/></svg>
+      <span>Повтор</span>
+    </button>
+    <button class="tabbtn" data-view="saved">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg>
+      <span>Закладки</span>
+    </button>
+    <button class="tabbtn" data-view="inv">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>
+      <span>Инвентарь</span>
+    </button>
+    <button class="tabbtn" data-view="prog">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 20v-8M12 20V5M19 20v-11"/></svg>
+      <span>Прогресс</span>
+    </button>
+  </nav>
 
   <script type="module" src="app.js"></script>
 </body>
