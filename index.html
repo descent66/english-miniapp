@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>English widget</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main id="card">
+    <div class="row top">
+      <button id="invBtn" class="ghost" aria-label="Инвентарь">↗</button>
+      <div id="tag" class="muted"></div>
+      <button id="favBtn" class="ghost" aria-label="Сохранить фразу">☆</button>
+    </div>
+
+    <div id="prompt"></div>
+
+    <div class="row">
+      <input id="entry" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+             spellcheck="false" enterkeyhint="done" aria-label="Ваш ответ">
+      <button id="checkBtn" class="btn hi">Проверить</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="answer"></div>
+    <div id="example" class="muted"></div>
+
+    <div id="actions" class="row wrap">
+      <button id="knownBtn" class="btn hi" hidden>Уже знал</button>
+      <button id="easyBtn" class="btn hi" hidden>Легко</button>
+      <button id="normalBtn" class="btn hi" hidden>Нормально</button>
+      <button id="hardBtn" class="btn hi" hidden>Трудно</button>
+    </div>
+
+    <div class="row meta muted">
+      <span id="countdown"></span>
+      <span id="goal"></span>
+    </div>
+
+    <div class="row nav">
+      <button id="backBtn" class="btn">◀</button>
+      <button id="nextBtn" class="btn grow">▶ Дальше</button>
+      <button id="showBtn" class="btn">Показать ответ</button>
+    </div>
+  </main>
+
+  <section id="inv" hidden>
+    <div class="invbox">
+      <div class="row invhead">
+        <div class="invtitle">Инвентарь</div>
+        <button id="invClose" class="ghost" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="tabs">
+        <button class="tab" data-tab="saved">Сохранённые</button>
+        <button class="tab" data-tab="hard">Трудные</button>
+        <button class="tab" data-tab="stats">Статистика</button>
+      </div>
+      <div id="invBody"></div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
