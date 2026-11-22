@@ -353,7 +353,13 @@ body.kbd .view { padding-bottom: 14px; }
 
 /* окно настроек и выбор цели */
 .sheet { position: fixed; inset: 0; z-index: 10; display: flex; justify-content: center; align-items: flex-end;
-  background: rgba(0, 0, 0, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  background: rgba(0, 0, 0, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .3s ease; }
+.sheet.show { opacity: 1; }
+/* плавное появление: окно выезжает снизу (как окно закладок), при закрытии уезжает чуть быстрее */
+.sheetbox { transform: translateY(100%); transition: transform .3s cubic-bezier(.4, 0, 1, 1); }
+.sheet.show .sheetbox { transform: none; transition-duration: .5s; transition-timing-function: cubic-bezier(.23, 1, .32, 1); }
+@media (prefers-reduced-motion: reduce) { .sheet, .sheetbox, .sheet.show .sheetbox { transition: opacity .2s ease; transform: none; } }
 .sheetbox { width: 100%; max-width: 520px; max-height: 92dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
   padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0;
   background: linear-gradient(180deg, rgba(48, 48, 62, .96), rgba(12, 12, 18, .98));
@@ -466,7 +472,9 @@ body.compact2 .nav #backBtn { width: 52px; }
 .sheetbox p.diag { font-size: 12px; opacity: .7; text-align: center; margin: -4px 0 0; overflow-wrap: anywhere; }
 
 /* плавный переход между экранами: старый уходит и тает, новый приезжает со стороны нажатой вкладки */
-#views { position: relative; }
+#views { position: relative; z-index: 1; }
+/* задний фон «Molten Metal» (molten.js): на весь экран позади всего, касания проходят насквозь */
+.molten-bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
 .view.entering { animation: view-in .32s cubic-bezier(.2, .7, .2, 1) both; }
 .view.from-r { --dx: 28px; }
 .view.from-l { --dx: -28px; }

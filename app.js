@@ -1,9 +1,10 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=9";
-import * as Store from "./storage.js?v=9";
+import * as Core from "./core.js?v=10";
+import * as Store from "./storage.js?v=10";
+import { startMolten } from "./molten.js?v=10";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.9";
+const APP_VERSION = "2026-11-22.10";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -882,13 +883,33 @@ function celebrate() {
 // ---------- настройки и выбор цели ----------
 const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
+// окно выезжает снизу и проявляется плавно (классы .show в style.css); если оно уже открыто — только обновляется
+let sheetTimer = 0;
 function sheetOpen(build, closable) {
   sheetBox.replaceChildren();
   build(sheetBox);
   sheetEl.dataset.closable = closable ? "1" : "";
-  sheetEl.hidden = false;
+  clearTimeout(sheetTimer);
+  if (sheetEl.hidden) {
+    sheetEl.hidden = false;
+    void sheetEl.offsetHeight;                 // чтобы переход проигрался с начала
+  }
+  sheetEl.classList.add("show");
 }
-const sheetClose = () => { sheetEl.hidden = true; };
+const sheetClose = () => {
+  sheetEl.classList.remove("show");
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => { sheetEl.hidden = true; }, 400);
+};
+
+// ---------- задний фон: «Анимация» / «Без движения» / «Выкл» (настройка bg) ----------
+let bgCtl = null;
+function applyBg() {
+  const mode = settings().bg || "anim";
+  if (mode === "off") { bgCtl?.stop(); bgCtl = null; return; }
+  if (!bgCtl) { try { bgCtl = startMolten(); } catch { bgCtl = null; } }   // без WebGL2 фона просто нет
+  bgCtl?.setStill(mode === "still");
+}
 
 /** Ряд кнопок-переключателей: options = [[значение, подпись], ...]. */
 function segRow(options, current, onPick) {
@@ -932,6 +953,10 @@ function openSettings() {
     box.append(setRow("Звук",
       segRow([[true, "Вкл"], [false, "Выкл"]], settings().sound !== false, (v) => {
         settings().sound = v; progress.save(); openSettings();
+      })));
+    box.append(setRow("Задний фон",
+      segRow([["anim", "Анимация"], ["still", "Без движения"], ["off", "Выкл"]], settings().bg || "anim", (v) => {
+        settings().bg = v; progress.save(); applyBg(); openSettings();
       })));
     box.append(setRow("Время на ответ (с)",
       segRow([20, 30, 45, 60].map((n) => [n, String(n)]), settings().ask || ASK_DEFAULT, (n) => {
@@ -1011,6 +1036,7 @@ async function boot() {
   Core.setAspect(aspect);
   progress = new Core.Progress(phrases, saved, Store.save);
   if (Store.usingCloud) Store.save(progress.data); // если локальная копия была новее — подтянуть облако
+  applyBg();
 
   el.check.addEventListener("click", submit);
   el.show.addEventListener("click", giveUp);
