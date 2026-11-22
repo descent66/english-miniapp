@@ -20,7 +20,10 @@ button, input { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-#views { width: 100%; max-width: 520px; }
+/* touch-action: pan-y — вертикальная прокрутка работает, а горизонтальные свайпы (смена вкладки) получает приложение;
+   текст не выделяется при протягивании мышью (поле ввода — исключение) */
+#views { width: 100%; max-width: 520px; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+input { -webkit-user-select: text; user-select: text; }
 .view { min-height: 100dvh; padding: 14px 16px calc(104px + var(--bar-gap));
   display: flex; flex-direction: column; gap: 12px; }
 .view h1 { font-size: 28px; font-weight: 600; margin: 8px 2px 2px; }
@@ -402,6 +405,47 @@ body.kbd .view { padding-bottom: 14px; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 18px rgba(255, 255, 255, .4); }
 body.compact #modeBtn { width: 44px; height: 44px; }
 body.compact2 #modeBtn { width: 40px; height: 40px; border-radius: 14px; }
+
+/* в «Инвентаре» четыре переключателя (Закладки · Трудные · Учу · Выучено) — чуть уже, чтобы поместились без прокрутки */
+#inv .segbtn { padding: 11px 2px; font-size: 14px; min-width: 0; }
+
+/* вкладка «Игры» */
+.gamecard { background: var(--glass); border: 1px solid var(--line); border-radius: 26px; padding: 18px 16px 18px;
+  display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 40px rgba(0, 0, 0, .35);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.gamecard h2 { margin: 0; font-size: 24px; font-weight: 600; }
+.gamecard p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+.gamemeta { color: var(--muted); font-size: 13px; }
+.gamehead { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.gamehead .muted:first-child { flex: 1; }
+/* «Выйти» — белый крестик с мягким белым свечением */
+.gamequit { background: none; border: 0; color: #fff; padding: 4px; cursor: pointer; display: grid; place-items: center; }
+.gamequit svg { display: block; stroke-width: 2.2; filter: drop-shadow(0 0 3px rgba(255, 255, 255, .9)) drop-shadow(0 0 9px rgba(255, 255, 255, .55)); }
+.gamequit:active { transform: scale(.92); }
+.qlabel { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.qsentence { font-size: 26px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.blank { display: inline-block; min-width: 56px; padding: 0 10px; margin: 0 2px; border-radius: 12px; text-align: center;
+  border: 1.5px dashed rgba(255, 255, 255, .5); color: rgba(255, 255, 255, .6); }
+.blank.ok { border-style: solid; border-color: var(--ok); color: var(--ok); box-shadow: 0 0 14px rgba(95, 208, 138, .35); }
+.qru { font-size: 15px; line-height: 1.4; }
+.qhint { font-size: 15px; }
+.gameopts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+.gameopts .btn { padding: 16px 8px; font-size: 20px; }
+.gameopts .btn:disabled { cursor: default; }
+.gameopts .btn.ok { border-color: rgba(95, 208, 138, .9); color: #eafff1;
+  background: linear-gradient(180deg, rgba(95, 208, 138, .38), rgba(95, 208, 138, .16)); box-shadow: 0 0 18px rgba(95, 208, 138, .4); }
+.gameopts .btn.bad { border-color: rgba(255, 123, 123, .9); color: #ffecec;
+  background: linear-gradient(180deg, rgba(255, 123, 123, .34), rgba(255, 123, 123, .14)); box-shadow: 0 0 18px rgba(255, 123, 123, .35); }
+.gameentry { width: 100%; background: rgba(5, 8, 22, .55); border: 1px solid var(--line); border-radius: 18px; padding: 17px 18px;
+  font-size: 20px; outline: none; box-shadow: inset 0 2px 8px rgba(0, 0, 0, .4); }
+.gameentry:focus { border-color: #fff; box-shadow: inset 0 2px 8px rgba(0, 0, 0, .4), 0 0 0 3px rgba(255, 255, 255, .22); }
+.gameentry.ok { border-color: var(--ok); }
+.gameentry.bad { border-color: var(--bad); }
+.qnote { font-size: 14px; line-height: 1.4; }
+.qfeedback { font-size: 17px; font-weight: 600; }
+.qfeedback.ok { color: var(--ok); text-shadow: 0 0 12px rgba(95, 208, 138, .5); }
+.qfeedback.bad { color: var(--bad); text-shadow: 0 0 12px rgba(255, 123, 123, .5); }
+.gamescore { font-size: 54px; font-weight: 600; line-height: 1.1; }
 
 /* анимированный огонёк */
 .flame-slot { display: inline-flex; align-items: center; }

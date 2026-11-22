@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>English widget</title>
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -77,20 +77,20 @@
       <div id="revBody" class="list"></div>
     </section>
 
-    <!-- Закладки -->
-    <section id="saved" class="view" hidden>
-      <h1>Закладки</h1>
-      <div id="savedBody" class="list"></div>
+    <!-- Игры -->
+    <section id="games" class="view" hidden>
+      <h1>Игры</h1>
+      <div id="gamesBody" class="list"></div>
     </section>
 
     <!-- Инвентарь -->
     <section id="inv" class="view" hidden>
       <h1>Инвентарь</h1>
       <div class="seg">
+        <button class="segbtn" data-tab="saved">Закладки</button>
         <button class="segbtn" data-tab="hard">Трудные</button>
         <button class="segbtn" data-tab="learning">Учу</button>
         <button class="segbtn" data-tab="mastered">Выучено</button>
-        <button class="segbtn" data-tab="known">Знал</button>
       </div>
       <input id="invSearch" class="search" type="search" placeholder="Поиск по слову" autocomplete="off"
              autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск по слову">
@@ -108,27 +108,27 @@
 
   <nav id="bar">
     <button class="tabbtn on" data-view="learn">
-      <svg viewBox="0 0 24 24" width="30" height="30"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 7C9.6 5.3 6.6 4.8 3 5.2V18.2c3.6-.4 6.6.1 9 1.8 2.4-1.7 5.4-2.2 9-1.8V5.2C17.4 4.8 14.4 5.3 12 7z"/><path d="M12 7v13"/></svg>
       <span>Учить</span>
     </button>
     <button class="tabbtn" data-view="rev">
       <svg viewBox="0 0 24 24" width="30" height="30"><path d="M20 11a8 8 0 0 0-14-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/></svg>
       <span>Повтор</span>
     </button>
-    <button class="tabbtn" data-view="saved">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg>
-      <span>Закладки</span>
+    <button class="tabbtn" data-view="games">
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M7.6 7h8.8a4.6 4.6 0 0 1 4.5 3.7l.9 4.6a2.7 2.7 0 0 1-4.6 2.3L15.4 15H8.6l-1.8 2.6a2.7 2.7 0 0 1-4.6-2.3l.9-4.6A4.6 4.6 0 0 1 7.600 7z"/><path d="M8 9.6v3.6M6.2 11.4h3.6"/><path d="M15.6 10.3h.02M17.6 12.3h.02" stroke-width="2.4"/></svg>
+      <span>Игры</span>
     </button>
     <button class="tabbtn" data-view="inv">
       <svg viewBox="0 0 24 24" width="30" height="30"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>
       <span>Инвентарь</span>
     </button>
     <button class="tabbtn" data-view="prog">
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 20v-8M12 20V5M19 20v-11"/></svg>
+      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M3.4 2.8v18h18" stroke-width="1.5"/><path d="M7.4 12.6C10 11.8 12.9 9.9 15.3 7.6" stroke-width="1.9"/><path d="M18 4.6l-3.9.9 2.9 2.9z" fill="currentColor" stroke-width=".7"/><rect x="6.2" y="16.9" width="2.2" height="3.1" rx=".8" fill="currentColor" stroke="none"/><rect x="9.2" y="15.3" width="2.2" height="4.7" rx=".8" fill="currentColor" stroke="none"/><rect x="12.2" y="13.3" width="2.2" height="6.7" rx=".8" fill="currentColor" stroke="none"/><rect x="15.2" y="11.1" width="2.2" height="8.9" rx=".8" fill="currentColor" stroke="none"/><rect x="18.2" y="8.9" width="2.2" height="11.1" rx=".8" fill="currentColor" stroke="none"/></svg>
       <span>Прогресс</span>
     </button>
   </nav>
 
-  <script type="module" src="app.js?v=11"></script>
+  <script type="module" src="app.js?v=12"></script>
 </body>
 </html>

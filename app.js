@@ -1,10 +1,10 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=11";
-import * as Store from "./storage.js?v=11";
-import { startMolten } from "./molten.js?v=11";
+import * as Core from "./core.js?v=12";
+import * as Store from "./storage.js?v=12";
+import { startMolten } from "./molten.js?v=12";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-22.11";
+const APP_VERSION = "2026-11-22.12";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -25,7 +25,7 @@ const el = {
   goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"), mode: $("modeBtn"),
   check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
-  savedBody: $("savedBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
+  gamesBody: $("gamesBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
 };
 const actionBtns = [el.known, el.easy, el.normal, el.hard];
 
@@ -72,9 +72,11 @@ function calendarSvg() {
 // ---------- звуки (correct, error, next — файлы из виджета; fill, ping, leaf, streak — новые файлы пользователя) ----------
 // fill — кнопка «назад», ping — добавление в закладки, unstar — повторное нажатие на звезду и «Отменить» в уведомлении,
 // leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
+// «correct» (верный ответ, в том числе в играх) теперь играет файл petal.wav (файл пользователя)
+const SOUND_FILE = { correct: "petal" };
 const sounds = {};
 for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak"]) {
-  const a = new Audio(`sounds/${n}.wav`);
+  const a = new Audio(`sounds/${SOUND_FILE[n] || n}.wav`);
   a.preload = "auto";
   sounds[n] = a;
 }
@@ -569,10 +571,10 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
   toast = api;
 }
 
-// ---------- нижняя панель: Учить / Повтор / Закладки / Инвентарь / Прогресс ----------
-const VIEWS = ["learn", "rev", "saved", "inv", "prog"];
+// ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
+const VIEWS = ["learn", "rev", "games", "inv", "prog"];
 let view = "learn";
-let invTab = "hard";
+let invTab = "saved";
 let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
 let swapTimer = null;
@@ -594,7 +596,7 @@ function showView(name) {
   view = name;
   for (const b of document.querySelectorAll(".tabbtn")) b.classList.toggle("on", b.dataset.view === name);
   if (name === "rev") renderRev();
-  if (name === "saved") renderSaved();
+  if (name === "games") renderGames();
   if (name === "inv") renderInv();
   if (name === "prog") renderProg();
   const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -624,7 +626,6 @@ const SIDE = {
   hard: (c) => (c.misses ? `ошибок: ${c.misses}` : "трудно"),
   learning: (c) => (c.state === "new" ? "видел" : `серия ${c.streak} из ${Core.NEEDED_STREAK}`),
   mastered: () => "выучено",
-  known: () => "знал",
 };
 
 /** Список фраз: в закладках — крестик «убрать», в остальных — подпись справа. */
@@ -646,11 +647,11 @@ function renderList(body, keys, kind, emptyText) {
         play("leaf");
         progress.toggleFav(key);
         refreshFav();
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderSaved(); return; }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderInv(); return; }
         row.style.height = row.offsetHeight + "px";   // чтобы высота плавно уменьшалась до нуля
         void row.offsetHeight;
         row.classList.add("removing");
-        setTimeout(renderSaved, 440);                  // после анимации — перерисовать список
+        setTimeout(renderInv, 440);                    // после анимации — перерисовать список
       });
       row.append(rm);
     } else {
@@ -661,20 +662,16 @@ function renderList(body, keys, kind, emptyText) {
   if (keys.length > LIMIT) body.append(emptyNote(`Показано ${LIMIT} из ${keys.length}. Уточните поиск.`));
 }
 
-function renderSaved() {
-  renderList(el.savedBody, progress.favorites(), "saved",
-    "Пока пусто.\nНажмите звёздочку на карточке,\nчтобы сохранить фразу сюда.");
-}
-
-// --- Инвентарь: все слова по состояниям, с поиском ---
+// --- Инвентарь: закладки и все слова по состояниям, с поиском ---
 const INV_EMPTY = {
-  hard: "Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».",
+  saved: "Пока пусто.\nНажмите звёздочку на карточке,\nчтобы сохранить фразу сюда.",
+  hard:"Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».",
   learning: "Здесь будут слова, которые вы\nсейчас учите.",
   mastered: "Выученных слов пока нет.\nСлово считается выученным после\nтрёх верных ответов подряд.",
-  known: "Слов с отметкой «Уже знал» пока нет.",
 };
 
 function invKeys(tab) {
+  if (tab === "saved") return progress.favorites();
   if (tab === "hard") return progress.hardCards();
   if (tab === "learning") return progress.keysByState("new", "learning");
   return progress.keysByState(tab);
@@ -689,6 +686,161 @@ function renderInv() {
       || progress.phrases.get(k).ru.some((r) => r.toLowerCase().includes(q)));
   }
   renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
+}
+
+// --- Игры ---
+// «Подставь частицу»: предложение с пропуском на месте частицы фразового глагола («I'm looking ___ my keys»), 4 варианта.
+// Данные (data/pv_game.json) делает miniapp_tests/make_pv_game.py из примеров базы; в раунде — 10 случайных вопросов.
+// Игра не влияет на прогресс, цель дня и серию.
+const VER = new URL(import.meta.url).searchParams.get("v") || "0";
+const GAME_ROUND = 10;
+let pvData = null;      // данные игры, загружаются при первом запуске
+let game = null;        // идущий раунд: { items, i, right, picked, options }
+
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+
+/** 4 варианта: верная частица + 3 неверных (того же числа слов; не подходящие по смыслу к этому глаголу; частые — чаще). */
+function gameOptions(item) {
+  const n = item.answer.split(" ").length, count = new Map();
+  for (const x of pvData) if (x.answer.split(" ").length === n) count.set(x.answer, (count.get(x.answer) || 0) + 1);
+  const bad = new Set([item.answer, ...item.ex]);
+  const cand = [...count].filter(([p]) => !bad.has(p));
+  const picks = [];
+  while (picks.length < 3 && cand.length) {
+    let r = Math.random() * cand.reduce((s, [, w]) => s + w, 0), k = 0;
+    for (; k < cand.length - 1; k++) { r -= cand[k][1]; if (r < 0) break; }
+    picks.push(cand.splice(k, 1)[0][0]);
+  }
+  return shuffle([item.answer, ...picks]);
+}
+
+/** mode: "choose" — выбрать из 4 вариантов, "type" — вписать частицу самому. */
+async function startGame(mode) {
+  if (!pvData) pvData = await fetch(`data/pv_game.json?v=${VER}`).then((r) => r.json());
+  const items = shuffle(pvData).slice(0, GAME_ROUND);
+  game = { mode, items, i: 0, right: 0, picked: null, note: "", options: gameOptions(items[0]) };
+  renderGames();
+}
+
+function sentence(item, fill, cls) {
+  const [a, b] = item.gap.split("___");
+  const s = make("div", "qsentence");
+  s.append(a, make("span", "blank" + (cls ? " " + cls : ""), fill || "?"), b);
+  return s;
+}
+
+function renderGames() {
+  const body = el.gamesBody;
+  body.replaceChildren();
+  if (!game) {
+    const n = [...progress.phrases.values()].filter((p) => p.type === "phrasal verb" && p.en.includes(" ")).length;
+    const card = make("div", "gamecard");
+    card.append(make("h2", "", "Подставь частицу"),
+      make("p", "", "Фразовые глаголы: впишите нужный предлог в предложение, например «I'm looking ___ my keys» → for."),
+      make("div", "gamemeta", `${GAME_ROUND} вопросов за раунд · ${n} глаголов в игре`));
+    const modes = [["choose", "Выбрать из 4 вариантов", "primary"], ["type", "Вписать самому", ""]];
+    const btns = modes.map(([mode, label, cls]) => {
+      const b = make("button", ("btn wide " + cls).trim(), label);
+      b.addEventListener("click", () => { btns.forEach((x) => { x.disabled = true; }); startGame(mode).catch(() => { btns.forEach((x) => { x.disabled = false; }); }); });
+      return b;
+    });
+    card.append(...btns);
+    body.append(card);
+    return;
+  }
+  if (game.i >= game.items.length) {                       // итоги
+    const card = make("div", "gamecard");
+    const tail = game.right >= 9 ? "Отлично!" : game.right >= 7 ? "Хороший результат" : game.right >= 5 ? "Неплохо, но стоит повторить" : "Есть над чем поработать";
+    card.append(make("h2", "", "Результат"), make("div", "gamescore", `${game.right} из ${game.items.length}`), make("p", "", tail));
+    const again = make("button", "btn primary wide", "Ещё раз");
+    again.addEventListener("click", () => { const mode = game.mode; game = null; startGame(mode); });
+    const menu = make("button", "btn wide", "К играм");
+    menu.addEventListener("click", () => { game = null; renderGames(); });
+    card.append(again, menu);
+    body.append(card);
+    return;
+  }
+  const item = game.items[game.i], answered = game.picked !== null, ok = answered && game.picked === item.answer;
+  const card = make("div", "gamecard");
+  const head = make("div", "gamehead");
+  const quit = make("button", "gamequit");
+  quit.setAttribute("aria-label", "Выйти из игры");
+  quit.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  quit.addEventListener("click", () => { game = null; renderGames(); });
+  head.append(make("span", "muted", `Вопрос ${game.i + 1} из ${game.items.length}`), make("span", "muted", `Верно: ${game.right}`), quit);
+  const bar = make("div", "track"), fill = make("i");
+  fill.style.width = `${(game.i / game.items.length) * 100}%`;
+  bar.append(fill);
+  const hint = make("div", "qhint");
+  hint.append(make("span", "muted", "Значение: "), item.pv_ru);
+  card.append(head, bar, make("div", "qlabel", "Какая частица пропущена?"),
+    sentence(item, answered ? item.answer : "", answered ? "ok" : ""),      // после ответа в пропуске всегда верная частица
+    make("div", "qru muted", item.ru), hint);
+  let entry = null;
+  if (game.mode === "type") {
+    entry = make("input", "gameentry" + (answered ? (ok ? " ok" : " bad") : ""));
+    Object.assign(entry, { type: "text", placeholder: "Впишите частицу", autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: false, enterKeyHint: "done" });
+    entry.setAttribute("aria-label", "Пропущенная частица");
+    if (answered) { entry.value = game.picked; entry.readOnly = true; if (!game.picked) entry.placeholder = "не знаю"; }
+    else {
+      entry.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitTyped(entry.value); } });
+      const check = make("button", "btn primary wide", "Проверить");
+      check.addEventListener("click", () => submitTyped(entry.value));
+      card.append(entry, check);
+    }
+    if (answered) card.append(entry);
+  } else {
+    const opts = make("div", "gameopts");
+    for (const o of game.options) {
+      const b = make("button", "btn", o);
+      if (answered) { b.disabled = true; if (o === item.answer) b.classList.add("ok"); else if (o === game.picked) b.classList.add("bad"); }
+      else b.addEventListener("click", () => answerGame(o));
+      opts.append(b);
+    }
+    card.append(opts);
+  }
+  if (answered) {
+    card.append(make("div", "qfeedback " + (ok ? "ok" : "bad"), ok ? "Верно!" : `Неверно. Правильно: «${item.answer}»`));
+    if (game.note) card.append(make("div", "qnote muted", game.note));
+    const last = game.i + 1 >= game.items.length;
+    const next = make("button", "btn primary wide", last ? "Результат" : "Дальше");
+    next.addEventListener("click", () => {
+      game.i += 1; game.picked = null; game.note = "";
+      if (game.i < game.items.length) game.options = gameOptions(game.items[game.i]);
+      renderGames();
+    });
+    card.append(next);
+  }
+  body.append(card);
+  if (entry && !answered && !touchOnly()) entry.focus();   // на компьютере сразу можно печатать; на телефоне клавиатуру вызывает нажатие
+}
+
+/** Устройство с касанием: клавиатура сама выскакивать не должна (как и в обычных карточках). */
+const touchOnly = () => window.matchMedia("(pointer: coarse)").matches;
+
+function answerGame(option) {
+  if (!game || game.picked !== null) return;
+  game.picked = option;
+  const ok = option === game.items[game.i].answer;
+  if (ok) game.right += 1;
+  play(ok ? "correct" : "error");
+  renderGames();
+}
+
+/** Ответ, вписанный вручную: пробелы и регистр не важны; «тоже бывает» (другой фразовый глагол с этим глаголом) — не засчитывается, но объясняется. */
+function submitTyped(raw) {
+  if (!game || game.picked !== null) return;
+  const text = raw.trim().toLowerCase().replace(/\s+/g, " ");
+  const item = game.items[game.i];
+  if (!text) { answerGame(""); return; }            // «Проверить» с пустым полем = «не знаю»: считается ошибкой, как в обычных карточках
+  if (text !== item.answer && item.ex.includes(text)) {
+    game.note = `«${text}» с этим глаголом тоже встречается, но здесь по смыслу нужно «${item.answer}».`;
+  }
+  answerGame(text);
 }
 
 // --- Повтор: короткая сессия из «трудных» и тех, у кого подошёл срок ---
@@ -809,8 +961,7 @@ function renderProg() {
     `Ещё не показывались: ${s.unseen}\n` +
     `Видел, но не выучил: ${s.new}\n` +
     `Учу (проверки): ${s.learning}\n` +
-    `Выучено (3 подряд): ${s.mastered}\n` +
-    `Уже знал: ${s.known}`));
+    `Выучено (3 подряд): ${s.mastered}`));
 }
 
 // ---------- конфетти: цель дня достигнута, огонёк «загорелся» ----------
@@ -897,6 +1048,7 @@ const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 let sheetTimer = 0, sheetAfterClose = null;
 function sheetOpen(build, closable) {
   sheetAfterClose = null;
+  sheetBox.style.transition = ""; sheetBox.style.transform = "";   // след прошлого свайпа вниз
   sheetBox.replaceChildren();
   build(sheetBox);
   sheetEl.dataset.closable = closable ? "1" : "";
@@ -905,6 +1057,8 @@ function sheetOpen(build, closable) {
     sheetEl.hidden = false;
     void sheetEl.offsetHeight;                 // чтобы переход проигрался с начала
   }
+  // если окно прокручивается — касанием двигаем содержимое, иначе — тянем окно вниз (закрыть)
+  sheetBox.style.touchAction = sheetBox.scrollHeight > sheetBox.clientHeight + 1 ? "pan-y" : "none";
   sheetEl.classList.add("show");
 }
 const sheetClose = () => {
@@ -1063,6 +1217,71 @@ function openWelcome(then) {
   }, false);
 }
 
+// ---------- жесты ----------
+// 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
+// 2) свайп вниз по окну («Настройки», «Что учить») — закрыть его.
+function setupGestures() {
+  const SKIP = "input, textarea, select, .swipe-toast, .sheet, #bar";   // отсюда свайп вкладок не начинаем
+  let st = null;
+  document.addEventListener("pointerdown", (e) => {
+    st = e.button === 0 && sheetEl.hidden && !e.target.closest(SKIP)
+      ? { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), lock: null } : null;
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (!st || st.id !== e.pointerId || st.lock) return;
+    const dx = e.clientX - st.x, dy = e.clientY - st.y;
+    if (Math.hypot(dx, dy) > 10) st.lock = Math.abs(dx) > Math.abs(dy) * 1.3 ? "h" : "v";   // «вбок» или «вверх-вниз»
+  });
+  document.addEventListener("pointerup", (e) => {
+    const s = st;
+    st = null;
+    if (!s || s.id !== e.pointerId || s.lock !== "h") return;
+    const dx = e.clientX - s.x, fast = performance.now() - s.t < 250;
+    if (Math.abs(dx) < (fast ? 40 : 70)) return;                    // нужен либо длинный, либо быстрый свайп
+    const i = VIEWS.indexOf(view) + (dx < 0 ? 1 : -1);
+    if (i >= 0 && i < VIEWS.length) showView(VIEWS[i]);
+  });
+  document.addEventListener("pointercancel", () => { st = null; });
+
+  let sd = null;
+  const resetBox = () => { sheetBox.style.transition = ""; sheetBox.style.transform = ""; };
+  sheetBox.addEventListener("pointerdown", (e) => {
+    sd = e.button === 0 && sheetEl.dataset.closable && sheetEl.classList.contains("show") && sheetBox.scrollTop === 0
+      ? { id: e.pointerId, y: e.clientY, dy: 0, t: performance.now(), moved: false } : null;
+  });
+  sheetBox.addEventListener("pointermove", (e) => {
+    if (!sd || sd.id !== e.pointerId) return;
+    const dy = e.clientY - sd.y;
+    if (!sd.moved) {
+      if (dy < 8) return;
+      sd.moved = true;
+      try { sheetBox.setPointerCapture(e.pointerId); } catch { /* не страшно */ }
+      sheetBox.style.transition = "none";
+    }
+    sd.dy = Math.max(0, dy);
+    sheetBox.style.transform = `translateY(${sd.dy}px)`;
+  });
+  const endSheetDrag = (e) => {
+    if (!sd || sd.id !== e.pointerId) return;
+    const s = sd;
+    sd = null;
+    try { sheetBox.releasePointerCapture(e.pointerId); } catch { /* не страшно */ }
+    if (!s.moved) return;
+    if (s.dy > 90 || (s.dy > 40 && performance.now() - s.t < 300)) {  // длинный или быстрый свайп вниз — закрыть
+      sheetBox.style.transition = "transform .28s cubic-bezier(.4, 0, 1, 1)";
+      sheetBox.style.transform = "translateY(100%)";
+      sheetClose();
+      setTimeout(resetBox, 450);
+    } else {                                                           // не дотянули — вернуть на место
+      sheetBox.style.transition = "transform .35s cubic-bezier(.23, 1, .32, 1)";
+      sheetBox.style.transform = "translateY(0)";
+      setTimeout(resetBox, 380);
+    }
+  };
+  sheetBox.addEventListener("pointerup", endSheetDrag);
+  sheetBox.addEventListener("pointercancel", endSheetDrag);
+}
+
 // ---------- запуск ----------
 async function boot() {
   const tg = window.Telegram && window.Telegram.WebApp;
@@ -1100,8 +1319,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=11").then((r) => r.json()),
-    fetch("data/aspect.json?v=11").then((r) => r.json()),
+    fetch("data/phrases.json?v=12").then((r) => r.json()),
+    fetch("data/aspect.json?v=12").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -1111,6 +1330,7 @@ async function boot() {
   applyBg();
   refreshModeBtn();
   el.mode.addEventListener("click", openModes);
+  setupGestures();
 
   el.check.addEventListener("click", submit);
   el.show.addEventListener("click", giveUp);
