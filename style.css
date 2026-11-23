@@ -49,13 +49,16 @@ input { -webkit-user-select: text; user-select: text; }
 .icon { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 14px; color: var(--muted);
   width: 52px; height: 52px; border-radius: 18px; display: grid; place-items: center; cursor: pointer; }
 #favBtn.on { color: var(--gold); }
-/* заливка звезды: жёлтая звезда растёт из центра внутри контура с лёгким отскоком (instant — без анимации при смене карточки) */
-#favBtn .star-fill { fill: var(--gold); stroke: var(--gold); opacity: 0; transform: scale(0);
+/* заливка закладки: жёлтая закладка растёт из центра внутри контура с лёгким отскоком (instant — без анимации при смене карточки);
+   у заполненной — лёгкое тёплое свечение, как у огонька в шапке (.flame) */
+#favBtn svg { transition: filter .4s ease; }
+#favBtn.on svg { filter: drop-shadow(0 0 5px rgba(255, 170, 40, .6)); }
+#favBtn .mark-fill { fill: var(--gold); stroke: var(--gold); opacity: 0; transform: scale(0);
   transform-box: fill-box; transform-origin: center;
   transition: transform .32s cubic-bezier(.4, 0, .2, 1), opacity .32s ease; }       /* убирание: плавно сжимается, без отскока */
-#favBtn.on .star-fill { opacity: 1; transform: scale(1); transition: transform .5s cubic-bezier(.3, 1.45, .5, 1), opacity .2s ease; }  /* добавление: с отскоком */
-#favBtn.instant .star-fill { transition: none; }
-@media (prefers-reduced-motion: reduce) { #favBtn .star-fill { transition: opacity .2s ease; transform: none; } }
+#favBtn.on .mark-fill { opacity: 1; transform: scale(1); transition: transform .5s cubic-bezier(.3, 1.45, .5, 1), opacity .2s ease; }  /* добавление: с отскоком */
+#favBtn.instant .mark-fill, #favBtn.instant svg { transition: none; }
+@media (prefers-reduced-motion: reduce) { #favBtn .mark-fill { transition: opacity .2s ease; transform: none; } #favBtn svg { transition: none; } }
 
 #prompt { font-size: 30px; font-weight: 600; line-height: 1.3; min-height: 72px; padding: 14px 2px 4px; overflow-wrap: anywhere; }
 
@@ -73,7 +76,7 @@ input { -webkit-user-select: text; user-select: text; }
 .swipe-toast {
   --st-bg: #27272a;
   --st-ink: #f5f5f5;
-  --st-fuse: #ffffff;
+  --st-fuse: #ffd24a;   /* полоска времени — жёлтая, как закладка и кубок (было белое) */
   --st-fuse-h: 2px;
   --st-w: 356px;
   --st-radius: 26px;
@@ -367,7 +370,14 @@ body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
 .timer { display: flex; align-items: center; gap: 12px; padding: 0 4px; }
 .timer .track { flex: 1; height: 5px; }
 .timer .track i { transition: width .25s linear; }
-#countdown { font-size: 14px; min-width: 76px; text-align: right; font-variant-numeric: tabular-nums; }
+#countdown { font-size: 14px; min-width: 76px; text-align: right; font-variant-numeric: tabular-nums; transition: color 1s ease, text-shadow 1s ease; }
+/* последние 5 секунд ответа: полоска и цифры плавно краснеют (тот же красный, что у «Неверно»); красный слой проявляется поверх белой полоски */
+.timer .track i { position: relative; }
+.timer .track i::after { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity 1s ease;
+  background: linear-gradient(90deg, #ff9494, var(--bad)); box-shadow: 0 0 10px rgba(255, 90, 90, .7); }
+.timer.urgent .track i::after { opacity: 1; }
+.timer.urgent #countdown { color: var(--bad); text-shadow: 0 0 10px rgba(255, 90, 90, .55); }
+@media (prefers-reduced-motion: reduce) { #countdown, .timer .track i::after { transition-duration: .01s; } }
 
 /* пилюли в карточке */
 #tag { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -634,6 +644,9 @@ body.compact2 .nav #backBtn { width: 52px; }
 /* «Настройки»: кнопка поиска справа от заголовка (поле открывается по нажатию), результаты — строки как у разделов */
 .tophead { position: relative; }
 .tophead .icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: #fff; }
+@media (hover: hover) { #setResults .item:hover { filter: brightness(1.12); } }
+#setResults .item:active { filter: brightness(.85); }
+.subhead #achSearchBtn { margin-left: auto; }
 .menurow .msub { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
 .searchwrap { animation: search-in .22s ease-out; }
 @keyframes search-in { from { opacity: 0; transform: translateY(-6px); } }
@@ -647,7 +660,7 @@ body.compact2 .nav #backBtn { width: 52px; }
 .dkind small { font-size: 12px; font-weight: 500; opacity: .8; font-variant-numeric: tabular-nums; }
 .dkind.on { color: #0b0c12; border-color: transparent; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 14px rgba(255, 255, 255, .35); }
 /* «Достижения»: итог сверху, группы, карточки (полученные — белая иконка со свечением и зелёная галочка) */
-#achBody[data-animated] .item:not([data-state]) { opacity: 0; }
+#achBody[data-animated] .item:not([data-state]), #setResults[data-animated] .item:not([data-state]) { opacity: 0; }
 .achsum { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
 .achsum b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .achhead { margin: 8px 4px -2px; color: var(--muted); }
@@ -657,6 +670,8 @@ body.compact2 .nav #backBtn { width: 52px; }
 .achprog { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .achprog .track { flex: 1; height: 5px; }
 .achprog span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 4.2em; text-align: right; }   /* полоски одной длины */
+.achtitle { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.achpct { flex: none; font-size: 12px; color: var(--muted); opacity: .7; font-variant-numeric: tabular-nums; }   /* % прогресса: мелко и полупрозрачно */
 .achdate { font-size: 13px; color: var(--muted); margin-top: 4px; }
 /* после нажатия на уведомление: карточка достижения мягко вспыхивает белой кромкой */
 .ach.flash { animation: ach-flash 2s ease-out; }
@@ -691,6 +706,9 @@ body.compact2 .nav #backBtn { width: 52px; }
   line-height: 1.15; text-align: center; }
 .thumbglow { position: absolute; top: 4px; bottom: 4px; left: 4px; width: 0; border-radius: 999px; pointer-events: none;
   box-shadow: 0 0 18px rgba(255, 255, 255, .45); }
+/* плашка и её свечение плавно проявляются и тают (когда выбранного варианта нет — например, ползунок «Времени на ответ» на 14s при кнопках 15s/30s/45s/60s) */
+.thumb, .thumbglow { transition: opacity .3s ease; }
+@media (prefers-reduced-motion: reduce) { .thumb, .thumbglow { transition: none; } }
 .setcard .segbtn { white-space: normal; line-height: 1.15; padding: 11px 3px; font-size: 13.5px; }
 .gnote { display: flex; flex-direction: column; gap: 10px; }
 .gnote p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
@@ -819,3 +837,84 @@ body.compact2 #favBtn, body.compact2 #modeBtn { width: 36px; height: 36px; borde
 
 /* «Инвентарь»: ТЕКСТ вкладок (Закладки · Трудные · Словарь · Выучено) на 2 px ниже исходного; высота кнопок и белая плашка не меняются (верхний отступ +2, нижний -2) */
 #inv .segbtn, #inv .thumbcopy { padding: 13px 2px 9px; }
+
+/* «Время на ответ»: ползунок 5–60 с (белая заполненная часть, белая «пилюля»-ручка), крупное значение сверху и подсказка про красный */
+.askfield { display: flex; flex-direction: column; gap: 6px; }
+.askvalue { font-size: 30px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; margin-top: 18px; }   /* число чуть ниже — ближе к ползунку */
+.askfield input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: none; cursor: pointer; --p: 50%; }
+.askfield input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg, #fff 0 var(--p), rgba(255, 255, 255, .16) var(--p) 100%); }
+.askfield input[type=range]::-moz-range-track { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .16); }
+.askfield input[type=range]::-moz-range-progress { height: 6px; border-radius: 999px; background: #fff; }
+.askfield input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -11px; border-radius: 50%; border: 0;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 8px rgba(255, 255, 255, .45); }
+.askfield input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; border: 0;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 8px rgba(255, 255, 255, .45); }
+.askfield input[type=range]:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 14px; }
+
+/* «Переводчик»: две стеклянные карточки (текст и перевод), между ними круглая белая кнопка смены направления; перевод идёт сам */
+input, textarea { -webkit-user-select: text; user-select: text; }
+.trresult { -webkit-user-select: text; user-select: text; }
+/* обе карточки одной высоты: строки сетки равны по самой высокой; кнопка смены стоит ровно посередине между ними */
+.trpair { position: relative; display: grid; grid-auto-rows: 1fr; gap: 12px; }
+.trcard { min-height: 180px; position: relative; background: var(--glass); border: 1px solid var(--line); border-radius: 26px; padding: 16px 18px 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 12px 34px rgba(0, 0, 0, .35); display: flex; flex-direction: column; gap: 10px; }
+.trhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; }
+/* язык — просто надпись в углу, без рамки; в обеих карточках стоит ровно одинаково (одинаковые отступы и высота строки) */
+.trlabel { font-size: 16px; font-weight: 600; color: var(--muted); letter-spacing: .1px; }
+.trx { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .06); color: var(--muted); cursor: pointer; }
+.trx:active { filter: brightness(1.3); }
+.trtext { display: block; width: 100%; flex: 1; min-height: 100px; resize: none; background: none; border: 0; outline: none; padding: 0 0 22px;
+  color: var(--fg); font: inherit; font-size: 23px; font-weight: 500; line-height: 1.35; caret-color: #fff; }
+.trtext::placeholder { color: var(--muted); font-weight: 400; }
+.trcount { position: absolute; right: 18px; bottom: 12px; font-size: 12px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.trswap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; margin: 0; width: 52px; height: 52px; border-radius: 50%; border: 0; display: grid; place-items: center;
+  color: #0b0c12; cursor: pointer; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 0 22px rgba(255, 255, 255, .45); transition: transform .35s cubic-bezier(.3, 1.45, .5, 1), filter .15s; }
+.trswap:active { transform: translate(-50%, -50%) scale(.92) rotate(180deg); filter: brightness(1.1); }
+.trresult { font-size: 23px; font-weight: 500; line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere; }
+.trresult:empty::before { content: attr(data-ph); color: var(--muted); font-weight: 400; }
+.trstatus { font-size: 13px; }
+.trstatus.busy::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, .8); animation: tr-pulse 1s ease-in-out infinite; }
+@keyframes tr-pulse { 0%, 100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.trerr { margin: 0; color: var(--bad); font-size: 15px; line-height: 1.4; text-shadow: 0 0 10px rgba(255, 90, 90, .5); }
+.trfoot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+#trCopy { width: 42px; height: 42px; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .trstatus.busy::before { animation: none; } .trswap { transition: none; } }
+
+/* 4 кнопки в нижней панели: на самых узких экранах (320 px) подпись «Переводчик» чуть меньше, чтобы помещалась */
+@media (max-width: 340px) { .tabbtn { font-size: 11px; } }
+
+/* карточка слова: «тип» и «уровень» (слово, идиома, B1…) — как «RU → EN»: бледный текст, без яркой рамки и свечения */
+.pill:not(.sess):not(.rep) { color: var(--muted); }
+.pill.lvl { border-color: var(--line); box-shadow: none; }
+/* значки «закладка» и «что учить» — белые (были серые); у заполненной закладки остаётся золото, у включённого фильтра — тёмный на белом. Подписи вкладок инвентаря и невыбранные кнопки нижней панели — снова серые, как было (пользователь вернул) */
+#favBtn, #modeBtn { color: #fff; }
+
+/* «Русский» / «English» и «Перевод: DeepL»: надпись прижата к углу карточки так, чтобы расстояние до края сверху (для языка) и снизу (для «Перевод: DeepL») равнялось расстоянию от левого края до текста — отступы зеркальны */
+.trhead { align-items: flex-start; }
+.trfoot { align-items: flex-end; }
+.trlabel { margin-top: 1px; }
+.trfoot > .muted { margin-bottom: -3px; }   /* точная подгонка по замеру букв: сверху и снизу ровно 19 px, как слева */
+/* мусорка — белая (была серой); «Перевод: DeepL» — прозрачнее, чтобы не бросалось в глаза */
+#trClear { color: #fff; }
+.trfoot > .muted { opacity: .5; }
+/* мусорка того же размера, что и значок копирования: кнопка 42 px, значок 22 px */
+#trClear { width: 42px; height: 42px; }
+#trClear svg, #trCopy svg { width: 22px; height: 22px; }
+
+/* «Перевожу…»: перенос анимации ThoughtLine (React Bits) на CSS — только текст: волна света по буквам (градиент 100°, 250% ширины,
+   1,8 с, linear, бесконечно) и мягкое проявление/таяние (прозрачность + размытие 2 px, 350 мс, ease-out 0.23/1/0.32/1). Кружок слева — прежний. */
+.trshim { display: inline-block; font-weight: 500; opacity: 0; filter: blur(2px); will-change: opacity, filter;
+  transition: opacity .35s cubic-bezier(.23, 1, .32, 1), filter .35s cubic-bezier(.23, 1, .32, 1); }
+.trstatus.busy .trshim { opacity: 1; filter: blur(0); }
+@keyframes tr-shimmer { to { background-position: -125% 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .trshim { background: linear-gradient(100deg, rgba(255, 255, 255, .5) 30%, #fff 50%, rgba(255, 255, 255, .5) 70%);
+    background-size: 250% 100%; background-position: 125% 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+    animation: tr-shimmer 1.8s linear infinite; animation-play-state: paused; }
+  .trstatus.busy .trshim { animation-play-state: running; }
+}
+@media (prefers-reduced-motion: reduce) { .trshim { filter: none; transition: opacity .3s ease; } }

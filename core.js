@@ -369,3 +369,9 @@ export class Progress {
     return counts;
   }
 }
+
+/** Только в Mini App (в core.py нет). За сколько секунд до конца таймер ответа краснеет, зависит от его длины:
+ *  5–9 с → 2, 10–15 → 3, 16–20 → 4, 21–30 → 5, 31–45 → 7, 46–60 → 10. */
+export function redLead(total) {
+  return total <= 9 ? 2 : total <= 15 ? 3 : total <= 20 ? 4 : total <= 30 ? 5 : total <= 45 ? 7 : 10;
+}

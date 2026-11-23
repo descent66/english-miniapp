@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=16";
-import { MASTERED } from "./tenses.js?v=16";
+import { dayKey, HARD_MISSES } from "./core.js?v=17";
+import { MASTERED } from "./tenses.js?v=17";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -62,6 +62,8 @@ export const ACHIEVEMENTS = [
   ...[[10, "Первый десяток"], [30, "Тридцать слов"], [50, "Полсотни"], [100, "Сотня слов"]]
     .map(([n, title]) => ({ id: `words${n}`, group: "words", title, text: `${n} слов во вкладке «Выучено»`, target: n,
       value: (p) => learned(p).length })),
+  ...[[10, "Шнырь"], [25, "Кура"], [50, "Опытный курьер"]]
+    .map(([n, title]) => ({ id: `saved${n}`, group: "saved", title, text: `${n} слов и фраз в закладках`, target: n, value: (p) => p.favorites().length })),
   { id: "fixErrors", group: "mastery", title: "Работа над ошибками", text: "Выучить 10 слов, которые были в «Трудных»", target: 10,
     value: (p) => learned(p).filter((k) => wasHard(p.cards[k])).length },
   { id: "firstTry", group: "mastery", title: "С первого раза", text: "Выучить 10 слов, ни разу не ошибившись в них", target: 10,
@@ -75,7 +77,7 @@ export const ACHIEVEMENTS = [
     value: (p) => EXPLORE.filter((k) => p.data.explored?.[k]).length },
 ];
 
-export const GROUP_TITLES = { fire: "Огонёк", answers: "Ответы", games: "Игры", tenses: "Времена", words: "Выученные слова", mastery: "Мастерство", explore: "Исследование" };
+export const GROUP_TITLES = { fire: "Огонёк", answers: "Ответы", games: "Игры", tenses: "Времена", words: "Выученные слова", saved: "Закладки", mastery: "Мастерство", explore: "Исследование" };
 
 /** Игрок впервые попробовал что-то из списка EXPLORE ("pv", "dlg", "tenses", "rev", "mode"). true — это было в первый раз. */
 export function recordExplored(p, key) {

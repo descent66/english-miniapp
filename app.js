@@ -1,18 +1,21 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=16";
-import * as Store from "./storage.js?v=16";
-import { startMolten } from "./molten.js?v=16";
-import { animateList } from "./animlist.js?v=16";
-import { initTenses, fitBlanks } from "./tenses.js?v=16";
-import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=16";
+import * as Core from "./core.js?v=17";
+import * as Store from "./storage.js?v=17";
+import { startMolten } from "./molten.js?v=17";
+import { animateList } from "./animlist.js?v=17";
+import { initTenses, fitBlanks } from "./tenses.js?v=17";
+import { translate, TranslateError, MAX_CHARS } from "./translator.js?v=17";
+import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=17";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.16";
+const APP_VERSION = "2026-11-23.17";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
 const params = new URLSearchParams(location.search);
 const ASK_DEFAULT = 30;                                 // время на ответ (можно изменить в настройках)
+const ASK_MIN = 5, ASK_MAX = 60;                       // границы ползунка «Время на ответ», секунды
+const redLead = Core.redLead;                         // за сколько секунд до конца таймер краснеет (зависит от длины таймера)
 const REVEAL_SEC = Number(params.get("reveal")) || 10;  // сколько показывать ответ до новой фразы
 const WRONG_SEC = Number(params.get("wrong")) || 5;     // после неверного ответа — быстрее к новой фразе
 
@@ -24,7 +27,7 @@ const TYPE_RU = {
 const $ = (id) => document.getElementById(id);
 const el = {
   tag: $("tag"), prompt: $("prompt"), entry: $("entry"), status: $("status"), answer: $("answer"),
-  example: $("example"), countdown: $("countdown"), timerFill: $("timerFill"), goalNum: $("goalNum"), goalFill: $("goalFill"),
+  example: $("example"), countdown: $("countdown"), timerFill: $("timerFill"), timerBox: document.querySelector(".timer"), goalNum: $("goalNum"), goalFill: $("goalFill"),
   goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"), mode: $("modeBtn"),
   check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
@@ -64,13 +67,13 @@ const FOLDER = `<svg class="folder" viewBox="0 0 24 24" aria-hidden="true">
   <rect class="paper" x="5.2" y="7.6" width="13.6" height="9" rx="1.2" fill="#f4f5f7" stroke="none"/>
   <path class="front" d="M2.5 11.3a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2z" fill="#ffc933" stroke="none"/>
 </svg>`;
-/** 🏆 «Новое достижение»: серебристый кубок слегка подпрыгивает и блестит. */
+/** 🏆 «Новое достижение»: золотой кубок слегка подпрыгивает и блестит. */
 const TROPHY = `<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true">
-  <path d="M7.2 5.2H4.4v1.8a3.6 3.6 0 0 0 3.6 3.6M16.8 5.2h2.8v1.8a3.6 3.6 0 0 1-3.6 3.6" fill="none" stroke="#c9ccd4" stroke-width="1.6"/>
-  <path d="M7 3.6h10v5.4a5 5 0 0 1-10 0z" fill="#e7e9ee" stroke="none"/>
-  <path d="M10.6 13.8h2.8V17h-2.8z" fill="#c9ccd4" stroke="none"/>
-  <rect x="7.6" y="17" width="8.8" height="3" rx="1.2" fill="#e7e9ee" stroke="none"/>
-  <path class="shine" d="M9.4 5.2v3.6" stroke="#fff" stroke-width="1.4" fill="none"/>
+  <path d="M7.2 5.2H4.4v1.8a3.6 3.6 0 0 0 3.6 3.6M16.8 5.2h2.8v1.8a3.6 3.6 0 0 1-3.6 3.6" fill="none" stroke="#e5a321" stroke-width="1.6"/>
+  <path d="M7 3.6h10v5.4a5 5 0 0 1-10 0z" fill="#ffd24a" stroke="none"/>
+  <path d="M10.6 13.8h2.8V17h-2.8z" fill="#e5a321" stroke="none"/>
+  <rect x="7.6" y="17" width="8.8" height="3" rx="1.2" fill="#ffd24a" stroke="none"/>
+  <path class="shine" d="M9.4 5.2v3.6" stroke="#fff6cf" stroke-width="1.4" fill="none"/>
 </svg>`;
 
 /** Отрывной календарь: верхний листок (вчера) отлетает, под ним сегодняшний. */
@@ -89,21 +92,56 @@ function calendarSvg() {
 }
 
 // ---------- звуки (correct, error, next — файлы из виджета; fill, ping, leaf, streak — новые файлы пользователя) ----------
-// fill — кнопка «назад», ping — добавление в закладки, unstar — повторное нажатие на звезду и «Отменить» в уведомлении,
+// fill — кнопка «назад», ping — добавление в закладки, unstar — повторное нажатие на закладку и «Отменить» в уведомлении,
 // leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
 // «correct» (верный ответ, в том числе в играх) теперь играет файл petal.wav (файл пользователя)
 // 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
 const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound" };
-const sounds = {};
-for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald"]) {   // herald — новое достижение
-  const a = new Audio(`sounds/${SOUND_FILE[n] || n}.wav`);
-  a.preload = "auto";
-  sounds[n] = a;
+const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald"];   // herald — новое достижение
+const soundUrl = (n) => `sounds/${SOUND_FILE[n] || n}.wav`;
+
+// Основной путь — Web Audio: все звуки заранее декодируются в память, и старт почти мгновенный. Обычный <audio> на телефонах
+// запускается с задержкой ~0,4 с (пользователь заметил; в самих файлах тишины в начале нет — проверено), поэтому он остался только запасным:
+// на случай, когда Web Audio нет, звук ещё не декодирован или «будильник» звука (resume) не сработал.
+let actx = null;
+const buffers = {};   // имя → декодированный звук
+const live = {};      // имя → источник, который играет сейчас (чтобы можно было оборвать или перезапустить)
+const sounds = {};    // запасной путь: <audio>, создаётся только если понадобится
+try {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) {
+    actx = new AC({ latencyHint: "interactive" });
+    for (const n of SOUND_NAMES) {
+      fetch(soundUrl(n)).then((r) => r.arrayBuffer())
+        .then((data) => new Promise((ok, bad) => actx.decodeAudioData(data, ok, bad)))   // с колбэками — так работает и в старом Safari
+        .then((buf) => { buffers[n] = buf; })
+        .catch(() => { /* не декодировался — будет играть запасной путь */ });
+    }
+  }
+} catch { actx = null; }
+// iOS и Android включают звук только после касания: «будим» контекст на первом же касании/клавише (до обработчика самой кнопки)
+const unlockAudio = () => { if (actx && actx.state !== "running") actx.resume().catch(() => {}); };
+for (const ev of ["pointerdown", "touchend", "keydown"]) document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
+
+function stopSound(name) {
+  try { live[name]?.stop(); } catch { /* уже закончился */ }
+  try { if (sounds[name]) { sounds[name].pause(); sounds[name].currentTime = 0; } } catch { /* звук не критичен */ }
 }
 function play(name) {
   if (progress && settings().sound === false) return;
   try {
-    const a = sounds[name];
+    stopSound(name);                                              // повторное нажатие — с начала, как раньше
+    if (actx && buffers[name] && actx.state === "running") {
+      const src = actx.createBufferSource();
+      src.buffer = buffers[name];
+      src.connect(actx.destination);
+      live[name] = src;
+      src.onended = () => { if (live[name] === src) delete live[name]; };
+      src.start();
+      return;
+    }
+    unlockAudio();
+    const a = sounds[name] || (sounds[name] = new Audio(soundUrl(name)));
     a.currentTime = 0;
     a.play().catch(() => {});
   } catch { /* звук не критичен */ }
@@ -130,7 +168,7 @@ function checkKeyboard() {
   const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   maxViewH = Math.max(maxViewH, h);
   fit();
-  const typing = document.activeElement && document.activeElement.tagName === "INPUT";
+  const typing = document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName);
   document.body.classList.toggle("kbd", touch && typing && h < maxViewH - 120);
 }
 
@@ -174,13 +212,14 @@ function schedule(seconds, ph) {
 }
 
 function updateCountdown() {
-  if (!Number.isFinite(nextAt)) { el.countdown.textContent = ""; el.timerFill.style.width = "0%"; return; }
+  if (!Number.isFinite(nextAt)) { el.countdown.textContent = ""; el.timerFill.style.width = "0%"; el.timerBox.classList.remove("urgent"); return; }
   const msLeft = Math.max(0, nextAt - Date.now());
   const left = Math.round(msLeft / 1000);
   el.countdown.textContent = phase === "ask"
     ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
     : `дальше ${left} с`;
   el.timerFill.style.width = `${Math.min(100, (msLeft / phaseMs) * 100)}%`;
+  el.timerBox.classList.toggle("urgent", phase === "ask" && msLeft <= redLead(phaseMs / 1000) * 1000);   // последние секунды до показа ответа (зависят от длины таймера) — таймер плавно краснеет
 }
 
 /** Шапка: цель дня с полоской и серия дней. */
@@ -364,7 +403,7 @@ function onKnown() {
 }
 
 function refreshFav(animate = false) {
-  el.fav.classList.toggle("instant", !animate);   // анимация заливки — только при нажатии на звезду
+  el.fav.classList.toggle("instant", !animate);   // анимация заливки — только при нажатии на закладку
   const faved = !!(cur && progress.isFav(cur));
   el.fav.classList.toggle("on", faved);
   el.fav.setAttribute("aria-pressed", String(faved));
@@ -616,8 +655,8 @@ function showToast({ title, description = "", actionLabel = "", icon = "", onAct
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
 // порядок = «кто справа от кого» для анимации; общие, игры, повтор и прогресс — внутри «Настроек» (на панели у них своей кнопки нет)
-const VIEWS = ["learn", "inv", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach"];
-const TABS = ["learn", "inv", "more"];
+const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach"];
+const TABS = ["learn", "inv", "tr", "more"];
 const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more" };
 const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Настройки»)
 const tabOf = (v) => TAB_OF[v] || v;
@@ -655,7 +694,7 @@ function showView(name) {
   if (name === "tlesson") tenses.renderLesson();
   if (name === "more") { setSettingsSearchOpen(false); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // вернулись в «Настройки» — поиск закрыт   // разделы выезжают, как слова в «Закладках»
   if (name === "prog") renderProg();
-  if (name === "ach") renderAch();
+  if (name === "ach") { achOpened = false; setAchSearchOpen(false); renderAch(); }   // открыли экран — поиск закрыт, строки выезжают (как раньше)
   if (name === "tlesson") markExplored("tenses");
   const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) {
@@ -723,7 +762,7 @@ function renderList(body, keys, kind, emptyText) {
 
 // --- Инвентарь: закладки, трудные, словарь (вся база по алфавиту), выученные; везде поиск ---
 const INV_EMPTY = {
-  saved: "Пока пусто.\nНажмите звёздочку на карточке,\nчтобы сохранить фразу сюда.",
+  saved: "Пока пусто.\nНажмите закладку на карточке,\nчтобы сохранить фразу сюда.",
   hard:"Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».",
   mastered: "Выученных слов пока нет.\nСлово считается выученным после\nтрёх верных ответов подряд.",
 };
@@ -751,7 +790,7 @@ const SETTINGS_INDEX = [
   ["Конфетти", "general", "при достижении цели", "Общие"],
   ["Звук", "general", "звуки включить выключить", "Общие"],
   ["Задний фон", "general", "анимация без движения выкл фон", "Общие"],
-  ["Время на ответ", "general", "таймер секунд 20 30 45 60", "Общие"],
+  ["Время на ответ", "general", "таймер секунд ползунок длина карточка", "Общие"],
   ["Что учить", "modes", "виды слова фразовые глаголы фразы идиомы сленг пословицы", "Учить"],
   ["Времена", "tenses", "грамматика past present future", ""],
   ["Входной тест", "tenses", "времена тест уровень", "Времена"],
@@ -773,10 +812,10 @@ function goToSetting(where) {
 /** Показать результаты поиска по настройкам; пустой запрос — обычный список разделов. */
 function renderSettingsSearch() {
   const q = $("setSearch").value.trim().toLowerCase();
-  const res = $("setResults");
-  $("moreBody").hidden = !!q;
+  const res = $("setResults"), list = $("moreBody");
+  list.hidden = !!q;
   res.hidden = !q;
-  if (!q) return;
+  if (!q) { animateList(list, { entrance: false, bottomEl: $("bar") }); return; }   // вернулись из результатов — без выезда (только вернуть прокрутку «pop» этому списку)
   res.replaceChildren();
   const found = SETTINGS_INDEX.filter(([title, , words]) => startsWord(title, q) || words.split(" ").some((w) => w && startsWord(w, q)));
   if (!found.length) { res.append(emptyNote("Такой настройки нет.")); return; }
@@ -792,21 +831,26 @@ function renderSettingsSearch() {
     row.addEventListener("click", () => goToSetting(where));
     res.append(row);
   }
+  animateList(res, { entrance: false, bottomEl: $("bar") });   // при поиске строки появляются сразу, без выезда
 }
 
-/** Поле поиска открывается кнопкой; закрытие стирает запрос и возвращает список разделов. */
-function setSettingsSearchOpen(open) {
-  const wrap = $("setSearchWrap"), btn = $("setSearchBtn"), input = $("setSearch");
+const SEARCH_LUPA = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+const SEARCH_CLOSE = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+/** Кнопка-лупа открывает поле поиска (крестик закрывает, стирает запрос и вызывает onClose, чтобы вернуть полный список). */
+function setSearchOpen({ btn, wrap, input, label, onClose }, open) {
   if (open === !wrap.hidden) return;
   wrap.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
-  btn.setAttribute("aria-label", open ? "Закрыть поиск" : "Поиск по настройкам");
-  btn.innerHTML = open
-    ? '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
-    : '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+  btn.setAttribute("aria-label", open ? "Закрыть поиск" : label);
+  btn.innerHTML = open ? SEARCH_CLOSE : SEARCH_LUPA;
   if (open) input.focus();
-  else { input.value = ""; renderSettingsSearch(); }
+  else { input.value = ""; onClose(); }
 }
+const settingsSearch = { btn: $("setSearchBtn"), wrap: $("setSearchWrap"), input: $("setSearch"), label: "Поиск по настройкам", onClose: () => renderSettingsSearch() };
+const achSearch = { btn: $("achSearchBtn"), wrap: $("achSearchWrap"), input: $("achSearch"), label: "Поиск по достижениям", onClose: () => renderAch() };
+const setSettingsSearchOpen = (open) => setSearchOpen(settingsSearch, open);
+const setAchSearchOpen = (open) => setSearchOpen(achSearch, open);
 
 /**
  * Ряд листается пальцем вручную: у #views стоит touch-action: pan-y (ради свайпа вкладок), и родная прокрутка вбок
@@ -1291,15 +1335,16 @@ function renderProg() {
 function announceAchievements() {
   const fresh = checkAchievements(progress);
   if (!fresh.length) return;
-  try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }   // «герольд» заменяет «верно» в этот момент
+  stopSound("correct");   // «герольд» заменяет «верно» в этот момент
   play("herald");
-  showToast({ title: fresh.length > 1 ? "Новые достижения!" : "Новое достижение!", description: fresh.map((a) => a.title).join(", "), icon: TROPHY, duration: 6400,
+  showToast({ title: fresh.length > 1 ? "Новые достижения!" : "Новое достижение!", description: fresh.map((a) => a.title).join(", ") + "!", icon: TROPHY, duration: 6400,
     onTap: () => openAchievements(fresh.map((a) => a.id)) });   // дольше закладки (2 с): нужно прочитать названия
 }
 
 const ACH_ICON = {   // контурные значки в стиле остальных иконок
   fire: `<path d="${FLAME_PATH}"/>`,
   answers: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',
+  saved: '<path d="M7 3.5h10a1.2 1.2 0 0 1 1.2 1.2V20.5L12 15.2l-6.2 5.3V4.7A1.2 1.2 0 0 1 7 3.5z"/>',
   mastery: '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.6L7 21l5-2.6 5 2.6-1.6-7.4"/>',
   explore: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/>',
   games: '<path d="M8 4H16A5.6 5.6 0 0 1 21.6 9.7L22.1 16A3.7 3.7 0 0 1 16 18.7L14.5 16.3H9.5L8 18.7A3.7 3.7 0 0 1 1.9 16L2.4 9.7A5.6 5.6 0 0 1 8 4Z"/><path d="M7.7 9v4.2M5.6 11.1h4.2"/><path d="M16 9.7h.02M18.4 12.3h.02" stroke-width="2.6"/>',
@@ -1319,14 +1364,17 @@ function openAchievements(ids) {
     rows[0].scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
     for (const r of rows) { r.classList.remove("flash"); void r.offsetWidth; r.classList.add("flash"); setTimeout(() => r.classList.remove("flash"), 2200); }
   };
-  if (view === "ach") { go(); return; }
+  if (view === "ach") { setAchSearchOpen(false); go(); return; }
   showView("ach");
   setTimeout(go, 380);   // после того как экран приехал (переход 340 мс) и строки появились
 }
 
+let achOpened = false;   // false — экран только что открыли (строки выезжают); при поиске строки появляются сразу, без выезда
 function renderAch() {
   announceAchievements();                                   // заслуженное, но ещё не выданное (например, выучено до обновления), выдаём при открытии экрана
   const list = achievementStatus(progress), got = list.filter((a) => a.date).length;
+  const q = $("achSearch").value.trim().toLowerCase();
+  const matches = (a) => !q || startsWord(a.title, q) || startsWord(GROUP_TITLES[a.group], q) || a.text.split(" ").some((w) => w && startsWord(w, q));
   const body = $("achBody");
   body.replaceChildren();
   const sum = make("div", "item achsum");
@@ -1336,15 +1384,22 @@ function renderAch() {
   bar.append(fill);
   sum.append(make("b", "", `Получено ${got} из ${list.length}`), bar);
   body.append(sum);
+  const shown = [];
   for (const [group, title] of Object.entries(GROUP_TITLES)) {
+    const inGroup = list.filter((x) => x.group === group && matches(x));
+    if (!inGroup.length) continue;                        // при поиске пустые разделы не показываем
     body.append(make("div", "sechead achhead", title));
-    for (const a of list.filter((x) => x.group === group)) {
+    for (const a of inGroup) {
+      shown.push(a.id);
       const row = make("div", "item ach" + (a.date ? " got" : ""));
       row.dataset.ach = a.id;
       const ico = make("span", "mico");
       ico.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${ACH_ICON[group]}</svg>`;
       const txt = make("div", "txt");
-      txt.append(make("div", "en", a.title), make("div", "ru", a.text));
+      const top = make("div", "achtitle");
+      top.append(make("div", "en", a.title));
+      if (!a.date) top.append(make("span", "achpct", `${Math.floor((a.cur / a.target) * 100)}%`));   // у полученных процента нет; вниз — чтобы «99%» не стало «100%»
+      txt.append(top, make("div", "ru", a.text));
       if (a.date) {
         const [y, m, d] = a.date.split("-").map(Number);
         txt.append(make("div", "achdate", `Получено ${new Date(y, m - 1, d).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`));
@@ -1366,7 +1421,9 @@ function renderAch() {
       body.append(row);
     }
   }
-  animateList(body, { entrance: true, bottomEl: $("bar") });
+  if (!shown.length) body.append(emptyNote("Такого достижения нет."));
+  animateList(body, { entrance: !achOpened, bottomEl: $("bar") });
+  achOpened = true;
 }
 
 // ---------- конфетти: цель дня достигнута, огонёк «загорелся» ----------
@@ -1435,7 +1492,7 @@ function confetti(x, y) {
 /** Цель дня выполнена: огонёк в шапке подпрыгивает, из него вылетает конфетти. */
 function celebrate() {
   if (settings().goalSound !== false) {   // «серия» заменяет «верно»; если звук цели выключен — слышен обычный «верно»
-    try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }
+    stopSound("correct");
     play("streak");
   }
   const chip = el.streakChip;
@@ -1556,10 +1613,11 @@ function openModes() {
 
 // ---------- задний фон: «Анимация» / «Без движения» / «Выкл» (настройка bg) ----------
 let bgCtl = null;
+let appActive = true;   // false, пока Телеграм прислал «deactivated» (приложение свёрнуто); фон тогда стоит на паузе
 function applyBg() {
   const mode = settings().bg || "anim";
   if (mode === "off") { bgCtl?.stop(); bgCtl = null; return; }
-  if (!bgCtl) { try { bgCtl = startMolten(); } catch { bgCtl = null; } }   // без WebGL2 фона просто нет
+  if (!bgCtl) { try { bgCtl = startMolten(); bgCtl?.suspend(!appActive); } catch { bgCtl = null; } }   // без WebGL2 фона просто нет
   bgCtl?.setStill(mode === "still");
 }
 
@@ -1739,6 +1797,8 @@ function attachThumb(seg, labels, startIdx) {
     spring(trail, trailTo, t(0.3));                       // без «сжатия» и отскока в конце: края просто доезжают до места
   };
 
+  const shown = (on) => { thumb.style.opacity = glow.style.opacity = on ? "" : "0"; };   // прозрачность плавная (см. .thumb в style.css)
+  if (startIdx < 0) shown(false);                                                         // стартуем без выбранного — плашки нет
   new ResizeObserver(() => { measure(); jump(idx); }).observe(seg);   // сработает и когда экран станет видимым
   return {
     go(to) {
@@ -1746,7 +1806,8 @@ function attachThumb(seg, labels, startIdx) {
       measure();
       const a = slots[idx], b = slots[to];
       idx = to;
-      if (!a || !b) return;
+      if (!b) { shown(false); return; }                       // ничего не выбрано — плашка плавно тает на месте
+      if (!a) { jump(to); shown(true); return; }              // плашки не было — встаёт на место, пока прозрачна, и плавно проявляется
       if (reduce) { jump(to); return; }
       clearTimeout(handoff); gen++;
       tween(L, b.l + (Math.min(a.l, b.l) - b.l) * STRETCH, t(DILATE));
@@ -1776,6 +1837,36 @@ function field(label, options, current, onPick, groupName) {
   const f = make("div", "field");
   if (label) f.append(make("div", "fieldlabel", label));
   f.append(seg);
+  return f;
+}
+
+const ASK_PRESETS = [15, 30, 45, 60];   // быстрые кнопки под ползунком
+
+/** «Время на ответ»: ползунок от ASK_MIN до ASK_MAX секунд (шаг 1) и под ним быстрые кнопки 15s / 30s / 45s / 60s. Значение сохраняется сразу; действует со следующей карточки. */
+function askSlider() {
+  const f = make("div", "field askfield");
+  const value = make("div", "askvalue");
+  const range = make("input");
+  const start = Math.min(ASK_MAX, Math.max(ASK_MIN, settings().ask || ASK_DEFAULT));
+  Object.assign(range, { type: "range", min: ASK_MIN, max: ASK_MAX, step: 1, value: start });
+  range.setAttribute("aria-label", "Время на ответ, секунд");
+  const quick = segRow(ASK_PRESETS.map((n) => [n, n + "s"]), start, (n) => { range.value = n; apply(n); play("set"); });
+  quick.setAttribute("role", "group");
+  quick.setAttribute("aria-label", "Быстро выбрать время на ответ");
+  const thumb = attachThumb(quick, ASK_PRESETS.map((n) => n + "s"), ASK_PRESETS.indexOf(start));   // нет в списке — плашки нет
+  const apply = (n) => {                                   // показать, сохранить, подсветить подходящую быструю кнопку
+    value.textContent = `${n}s`;
+    range.style.setProperty("--p", `${((n - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
+    settings().ask = n; progress.save();
+    const at = ASK_PRESETS.indexOf(n);
+    [...quick.querySelectorAll(".segbtn")].forEach((b, k) => { b.classList.toggle("on", k === at); b.setAttribute("aria-pressed", String(k === at)); });
+    thumb.go(at);
+  };
+  range.addEventListener("input", () => apply(Number(range.value)));
+  range.addEventListener("change", () => play("set"));
+  value.textContent = `${start}s`;
+  range.style.setProperty("--p", `${((start - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
+  f.append(value, range, quick);
   return f;
 }
 
@@ -1821,9 +1912,7 @@ function renderGeneral() {
     card("Задний фон", [field(null, [["anim", "Анимация"], ["still", "Без движения"], ["off", "Выкл"]], settings().bg || "anim", (v) => {
       settings().bg = v; progress.save(); applyBg();
     })]),
-    card("Время на ответ", [field(null, [20, 30, 45, 60].map((n) => [n, n + "s"]), settings().ask || ASK_DEFAULT, (n) => {
-      settings().ask = n; progress.save();
-    })]));
+    card("Время на ответ", [askSlider()]));
   $("generalNote").replaceChildren(
     make("p", "", "Время начнёт действовать со следующей карточки. Цель дня учитывается и в календаре за прошлые дни."),
     make("p", "diag", diagText()));
@@ -1884,6 +1973,75 @@ function openWelcome(then) {
     }
     box.append(pick);
   }, false);
+}
+
+// ---------- «Переводчик» (вкладка; логика — translator.js, перевод делает DeepL через посредника) ----------
+// «Живой» режим: кнопки нет, перевод запускается сам через TR_DELAY мс после последней введённой буквы; если текст успел
+// измениться, прошлый запрос отменяется (ответ не тратит лимит и не перетирает новое). Одинаковый текст заново не отправляется.
+const TR_DELAY = 700;
+function setupTranslator() {
+  const input = $("trInput"), res = $("trResult"), err = $("trErr"), status = $("trStatus"), foot = $("trFoot"), clear = $("trClear");
+  let dir = "ru";                                           // "ru" — с русского на английский
+  let timer = 0, ctl = null, done = "";                     // done — для какого текста и направления сейчас показан перевод
+  const key = () => dir + "|" + input.value.trim();
+  const setStatus = (busy) => { status.classList.toggle("busy", busy); };   // текст «Перевожу…» всегда в разметке: плавно проявляется и тает через CSS
+  const showResult = (text) => { res.textContent = text; foot.hidden = !text; err.hidden = true; };
+  const showError = (msg) => { res.textContent = ""; foot.hidden = true; err.textContent = msg; err.hidden = false; };
+  const stop = () => { clearTimeout(timer); if (ctl) { ctl.abort(); ctl = null; } };
+  const refresh = () => {
+    $("trFrom").textContent = dir === "ru" ? "Русский" : "English";
+    $("trTo").textContent = dir === "ru" ? "English" : "Русский";
+    input.placeholder = dir === "ru" ? "Введите текст на русском" : "Type text in English";
+    $("trCount").textContent = String(input.value.length);
+    clear.hidden = !input.value;
+  };
+  const run = async () => {
+    const text = input.value.trim();
+    if (!text) return;
+    const k = key();
+    if (k === done) { setStatus(false); return; }
+    stop();
+    ctl = new AbortController();
+    const mine = ctl;
+    setStatus(true); err.hidden = true;
+    try {
+      const out = await translate(text, dir, { signal: mine.signal });
+      if (ctl !== mine) return;
+      showResult(out); done = k;
+    } catch (e) {
+      if (ctl !== mine || (e instanceof TranslateError && e.code === "cancelled")) return;
+      showError(e instanceof TranslateError ? e.message : "Что-то пошло не так. Попробуйте ещё раз.");
+    }
+    if (ctl === mine) { ctl = null; setStatus(false); }
+  };
+  const schedule = () => {                                  // вызывается при каждом изменении текста
+    refresh();
+    stop();
+    if (!input.value.trim()) { done = ""; showResult(""); setStatus(false); return; }
+    if (key() === done) { setStatus(false); return; }
+    setStatus(true);
+    timer = setTimeout(run, TR_DELAY);
+  };
+  input.setAttribute("maxlength", String(MAX_CHARS));
+  input.addEventListener("input", schedule);
+  clear.addEventListener("click", () => { input.value = ""; schedule(); input.focus(); });
+  $("trSwap").addEventListener("click", () => {
+    const had = res.textContent;
+    dir = dir === "ru" ? "en" : "ru";
+    if (had && err.hidden) input.value = had;    // готовый перевод становится новым текстом — сразу переводим обратно
+    done = "";
+    refresh(); stop();
+    if (input.value.trim()) { setStatus(true); run(); } else { showResult(""); setStatus(false); }
+  });
+  $("trCopy").addEventListener("click", async () => {
+    const copy = $("trCopy");
+    try { await navigator.clipboard.writeText(res.textContent); }
+    catch { const r = document.createRange(); r.selectNodeContents(res); const s = getSelection(); s.removeAllRanges(); s.addRange(r); try { document.execCommand("copy"); } catch { /* не страшно */ } }
+    copy.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';                                // подтверждение — галочка вместо значка на 1,5 секунды
+    copy.setAttribute("aria-label", "Скопировано");
+    setTimeout(() => { copy.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3.5" y="8.5" width="12" height="12" rx="3.2"/><path d="M8.5 8.3V6.7a3.2 3.2 0 0 1 3.2-3.2h5.6a3.2 3.2 0 0 1 3.2 3.2v5.6a3.2 3.2 0 0 1-3.2 3.2h-1.6"/></svg>'; copy.setAttribute("aria-label", "Скопировать перевод"); }, 1500);
+  });
+  refresh();
 }
 
 // ---------- жесты ----------
@@ -1972,6 +2130,9 @@ async function boot() {
     tg.onEvent("fullscreenChanged", refit);
     tg.onEvent("safeAreaChanged", fit);
     tg.onEvent("contentSafeAreaChanged", fit);
+    // Telegram 8.0+: приложение свернули / вернули (на некоторых клиентах вкладка при этом «не скрыта», и visibilitychange молчит)
+    tg.onEvent("deactivated", () => { appActive = false; bgCtl?.suspend(true); });
+    tg.onEvent("activated", () => { appActive = true; bgCtl?.suspend(document.hidden); });
     tgRef = tg;
     const wantFs = ["android", "ios"].includes(tg.platform);
     try { fsInfo.supported = tg.isVersionAtLeast("8.0"); } catch { fsInfo.supported = false; }
@@ -1987,8 +2148,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=16").then((r) => r.json()),
-    fetch("data/aspect.json?v=16").then((r) => r.json()),
+    fetch("data/phrases.json?v=17").then((r) => r.json()),
+    fetch("data/aspect.json?v=17").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2017,6 +2178,9 @@ async function boot() {
   $("setSearchBtn").addEventListener("click", () => setSettingsSearchOpen($("setSearchWrap").hidden));
   $("setSearch").addEventListener("input", renderSettingsSearch);
   $("setSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setSettingsSearchOpen(false); });
+  $("achSearchBtn").addEventListener("click", () => setAchSearchOpen($("achSearchWrap").hidden));
+  $("achSearch").addEventListener("input", renderAch);
+  $("achSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setAchSearchOpen(false); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("spopWrap").hidden) { closeStreakPop(); return; }
     if (e.key === "Escape" && !sheetEl.hidden && sheetEl.dataset.closable) { sheetClose(); return; }
@@ -2032,12 +2196,13 @@ async function boot() {
   $("spopWrap").addEventListener("pointerdown", (e) => { if (e.target === $("spopWrap")) closeStreakPop(); });   // тап мимо окна — закрыть
   for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // строки «Настроек» и кнопки «назад»
   $("dictRow").addEventListener("click", () => { invTab = "dict"; showView("inv"); });   // «Словарь» в «Настройках» — переход в «Инвентарь → Словарь»
+  setupTranslator();
   sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });
 
   // телефон: тап по пустому месту убирает клавиатуру; пока печатают, панель вкладок прячется
   el.entry.addEventListener("pointerdown", () => { keepFocus = true; });
   document.addEventListener("click", (e) => {
-    if (!touch || e.target.closest("input, button, .item, .sheetbox")) return;
+    if (!touch || e.target.closest("input, textarea, button, .item, .sheetbox")) return;   // textarea (поле переводчика) тоже: иначе тап по нему сразу убирал фокус
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     keepFocus = false;
     checkKeyboard();

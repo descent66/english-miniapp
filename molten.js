@@ -463,8 +463,23 @@ export function startMolten(options) {
   document.documentElement.addEventListener("pointerleave", onLeave);
   state.raf = requestAnimationFrame(tick);
 
+  // Приложение свёрнуто (вкладка скрыта или Телеграм прислал «deactivated») — цикл кадров останавливается совсем, без пробуждений;
+  // при возврате продолжается с того же места (dt не «прыгает»).
+  let suspended = false;
+  const suspend = (on) => {
+    if (on === suspended) return;
+    suspended = on;
+    if (on) { cancelAnimationFrame(state.raf); state.raf = 0; return; }
+    state.last = 0; state.quiet = 0;
+    state.raf = requestAnimationFrame(tick);
+  };
+  const onVisibility = () => suspend(document.hidden);
+  document.addEventListener("visibilitychange", onVisibility);
+  if (document.hidden) suspend(true);
+
   const stop = () => {
     cancelAnimationFrame(state.raf);
+    document.removeEventListener("visibilitychange", onVisibility);
     visibility.disconnect();
     sizes.disconnect();
     window.removeEventListener("pointermove", onMove);
@@ -484,5 +499,5 @@ export function startMolten(options) {
     s.flareOnClick = still ? false : base.flare;
     state.quiet = 0;
   };
-  return { stop, setStill };
+  return { stop, setStill, suspend };
 }
