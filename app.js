@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=23";
-import * as Store from "./storage.js?v=23";
-import { startMolten } from "./molten.js?v=23";
-import { attachSpecular, detachSpecular } from "./specular.js?v=23";
-import { animateList } from "./animlist.js?v=23";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=23";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=23";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=23";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=23";
+import * as Core from "./core.js?v=24";
+import * as Store from "./storage.js?v=24";
+import { startMolten } from "./molten.js?v=24";
+import { attachSpecular, detachSpecular } from "./specular.js?v=24";
+import { animateList } from "./animlist.js?v=24";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=24";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=24";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=24";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=24";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.23";
+const APP_VERSION = "2026-11-24.24";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -2393,7 +2393,7 @@ function aiSheet(build) {
   sheetOpen(build, true);
   sheetEl.classList.add("aiopen");
   sheetAfterClose = aiClosed;
-  sheetBox.style.touchAction = "pan-y";                    // внутри свой список сообщений — он должен листаться пальцем
+  sheetBox.style.touchAction = "none";                     // иначе телефон забирает вертикальный жест себе, и свайп вниз (закрыть) не доходит до окна; список сообщений листается сам (.aimsgs: pan-y)
   aiFit();
 }
 
@@ -2446,6 +2446,30 @@ function openAiSetup() {
   });
 }
 
+/** Бегущий градиент для названия: перенос GradientText (React Bits, вариант «flow», без реакции на мышь) — три цветных пятна плывут по основному градиенту.
+ *  Каждый кадр пишет в --gt-gradient элемента; цикл сам кончается, когда окно закрыто или заголовок убран из страницы. */
+function gradientText(root, { colors, speed, scale, angle }) {
+  const TAU = Math.PI * 2;
+  let t = 0, last = performance.now();
+  const paint = () => {
+    const cycle = t / speed, spin = cycle * TAU;
+    const blobs = colors.map((color, i) => {
+      const rate = 0.55 + ((i * 0.618) % 1) * 0.5;
+      const x = 50 + 44 * Math.sin(spin * rate + i * 2.1), y = 50 + 40 * Math.sin(spin * (rate * 0.83 + 0.21) + i * 1.3);
+      return `radial-gradient(ellipse ${(22 + 12 * scale).toFixed(1)}% ${(60 + 30 * scale).toFixed(1)}% at ${x.toFixed(2)}% ${y.toFixed(2)}%, ${color} 0%, transparent 100%)`;
+    });
+    root.style.setProperty("--gt-gradient", `${blobs.join(", ")}, linear-gradient(${angle}deg, ${colors.join(", ")})`);
+  };
+  const tick = (now) => {
+    if (!root.isConnected || sheetEl.hidden) return;
+    t += Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+    paint();
+    requestAnimationFrame(tick);
+  };
+  paint();
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(tick);
+}
+
 /** Окно чата: переписка, быстрые вопросы, поле ввода. */
 function openAiChat() {
   AI.token++;
@@ -2457,10 +2481,16 @@ function openAiChat() {
       aiIconBtn(SVG_TRASH, "Очистить переписку", () => { AI.ctl?.abort(); AI.gen++; AI.msgs = []; AI.busy = false; send.disabled = false; fill(); }),
       aiIconBtn(SVG_KEY, "Ключ ИИ", openAiSetup),
       aiIconBtn(SVG_X, "Закрыть", sheetClose));
-    // название ИИ, который отвечает: слева значок со «звёздочками» (как на кнопке вызова ИИ), справа слово; градиент течёт по обоим (см. .aititle в CSS)
-    const title = make("h2", "aititle"), spark = make("span", "aispark");
-    spark.setAttribute("aria-hidden", "true");
-    title.append(spark, make("span", "aiword", "Gemini"));
+    // название ИИ: слева значок со «звёздочками» (как на кнопке вызова ИИ), справа слово «Donald Ai»; цветной градиент «flow» течёт по обоим (GradientText, см. gradientText ниже),
+    // под ними такая же копия, размытая — это свечение (glow 0,65)
+    const title = make("h2", "aititle gradient-text"), inner = make("span", "gradient-text__inner"), glow = make("span", "gradient-text__inner gradient-text__glow");
+    for (const part of [inner, glow]) {
+      const spark = make("span", "aispark"); spark.setAttribute("aria-hidden", "true");
+      part.append(spark, make("span", "aiword", "Donald Ai"));
+    }
+    glow.setAttribute("aria-hidden", "true");
+    title.append(inner, glow);
+    gradientText(title, { colors: ["#ffeddd", "#FF9FFC", "#dbb5ff"], speed: 6, scale: 3, angle: 90 });
     head.append(title, btns);
     const list = make("div", "aimsgs");
     list.setAttribute("aria-live", "polite");
@@ -2669,9 +2699,17 @@ function openAiChat() {
         const run = () => askWithFallback(aiKey(), models, AI.msgs, { signal: ctl.signal, level: lvl(), onText });
         try { res = await run(); }
         catch (e) {
-          if (e.code !== "model") throw e;                 // все модели пропали из списка — подбираем заново и пробуем ещё раз
-          models = settings().aiModels = await checkKey(aiKey(), { signal: ctl.signal }); settings().aiModelsV = 2; progress.save();
-          res = await run();
+          if (e.code === "server") {                       // Google перегружен («high demand») — всплески обычно короткие: пауза и ещё круг по моделям, до двух раз; точки на экране всё это время крутятся
+            for (let n = 0; n < 2 && !res; n++) {
+              await new Promise((r) => setTimeout(r, 2500));
+              if (ctl.signal.aborted) throw Object.assign(new Error("отмена"), { code: "cancelled" });   // run() с уже отменённым сигналом не заметил бы отмену
+              try { res = await run(); } catch (e2) { if (e2.code !== "server") throw e2; }
+            }
+            if (!res) throw e;
+          } else if (e.code === "model") {                 // все модели пропали из списка — подбираем заново и пробуем ещё раз
+            models = settings().aiModels = await checkKey(aiKey(), { signal: ctl.signal }); settings().aiModelsV = 2; progress.save();
+            res = await run();
+          } else throw e;
         }
         if (gen !== AI.gen) return;                        // пока ждали, переписку очистили
         AI.msgs.push({ role: "model", text: res.text });
@@ -2794,8 +2832,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=23").then((r) => r.json()),
-    fetch("data/aspect.json?v=23").then((r) => r.json()),
+    fetch("data/phrases.json?v=24").then((r) => r.json()),
+    fetch("data/aspect.json?v=24").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

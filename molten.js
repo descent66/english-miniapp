@@ -436,14 +436,16 @@ export function startMolten(options) {
       inside: event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom,
     };
   };
+  const overAi = (event) => event.target instanceof Element && !!event.target.closest(".sheet.aiopen");   // окно ИИ закрывает фон: он не должен реагировать на пальцы под окном
   const onMove = (event) => {
+    if (overAi(event)) { state.inside = false; return; }
     const point = local(event);
     state.inside = point.inside;
     if (point.inside) state.pointer = [point.x, point.y];
   };
   const onLeave = () => { state.inside = false; };
   const onDown = (event) => {
-    if (!s.flareOnClick || event.button !== 0 || prefersReduced()) return;
+    if (!s.flareOnClick || event.button !== 0 || prefersReduced() || overAi(event)) return;
     if (event.target instanceof Element && event.target.closest('a, button, input, textarea, select, label, [role="button"]')) return;
     const point = local(event);
     if (!point.inside) return;
