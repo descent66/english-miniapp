@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=24";
-import * as Store from "./storage.js?v=24";
-import { startMolten } from "./molten.js?v=24";
-import { attachSpecular, detachSpecular } from "./specular.js?v=24";
-import { animateList } from "./animlist.js?v=24";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=24";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=24";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=24";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=24";
+import * as Core from "./core.js?v=25";
+import * as Store from "./storage.js?v=25";
+import { startMolten } from "./molten.js?v=25";
+import { attachSpecular, detachSpecular } from "./specular.js?v=25";
+import { animateList } from "./animlist.js?v=25";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=25";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=25";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=25";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=25";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-24.24";
+const APP_VERSION = "2026-11-24.25";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -1666,7 +1666,7 @@ const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
 // окно выезжает снизу и проявляется плавно (классы .show в style.css); если оно уже открыто — только обновляется
 let sheetTimer = 0, sheetAfterClose = null, sheetReturnFocus = null;
-const behindSheet = () => [$("views"), $("bar"), $("aiFab")];   // пока окно открыто, фон недоступен с клавиатуры и для чтения с экрана
+const behindSheet = () => [$("views"), $("bar")];   // пока окно открыто, фон недоступен с клавиатуры и для чтения с экрана
 function sheetOpen(build, closable) {
   sheetAfterClose = null;
   sheetBox.classList.remove("ai");                                   // окно чата ИИ высокое — у остальных окон этого класса нет
@@ -2296,7 +2296,7 @@ function setupTranslator() {
 // 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
 // 2) свайп вниз по окну («Что учить») — закрыть его.
 function setupGestures() {
-  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds, #aiFab";   // отсюда свайп вкладок не начинаем
+  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds";   // отсюда свайп вкладок не начинаем
   let st = null;
   document.addEventListener("pointerdown", (e) => {
     st = e.button === 0 && sheetEl.hidden && !e.target.closest(SKIP)
@@ -2323,6 +2323,7 @@ function setupGestures() {
   const resetBox = () => { sheetBox.style.transition = ""; sheetBox.style.transform = ""; };
   sheetBox.addEventListener("pointerdown", (e) => {
     sd = e.button === 0 && sheetEl.dataset.closable && sheetEl.classList.contains("show") && sheetBox.scrollTop === 0 && !e.target.closest(".aimsgs, textarea, input")
+      && !(e.pointerType === "touch" && sheetEl.classList.contains("aiopen"))   // пальцем окно ИИ тянет touch-код в setupAi (иначе двойная обработка)
       ? { id: e.pointerId, y: e.clientY, dy: 0, t: performance.now(), moved: false } : null;
   });
   sheetBox.addEventListener("pointermove", (e) => {
@@ -2489,7 +2490,7 @@ function openAiChat() {
       part.append(spark, make("span", "aiword", "Donald Ai"));
     }
     glow.setAttribute("aria-hidden", "true");
-    title.append(inner, glow);
+    title.append(inner, glow, make("span", "aibeta", "beta"));   // мелкая полупрозрачная пометка рядом с названием (вне градиента)
     gradientText(title, { colors: ["#ffeddd", "#FF9FFC", "#dbb5ff"], speed: 6, scale: 3, angle: 90 });
     head.append(title, btns);
     const list = make("div", "aimsgs");
@@ -2748,49 +2749,47 @@ function openAiChat() {
   });
 }
 
-/** Плавающая кнопка: стоит у левого или правого края, перетаскивается, положение запоминается (settings.aiFab = { side, y }). */
+/** Окно ИИ открывается из «Больше → Donald Ai» (плавающую кнопку убрали по просьбе). Здесь — подгонка окна под видимую область (клавиатура) и жесты пальцем. */
 function setupAi() {
-  const fab = $("aiFab"), SIZE = 48, EDGE = 8;
-  let fx = 0, fy = 0;
-  const place = (pos) => {
-    const p = pos || settings().aiFab || { side: "r", y: 0.52 };
-    const W = document.documentElement.clientWidth, H = window.innerHeight;
-    const barTop = $("bar").getBoundingClientRect().top || H - 90;   // выше нижней панели
-    fx = p.side === "l" ? EDGE : W - SIZE - EDGE;
-    fy = Math.min(Math.max(p.y * H, 70), barTop - SIZE - 12);
-    fab.style.transform = `translate(${fx}px, ${fy}px)`;
-    fab.hidden = false;
-  };
-  let d = null;
-  fab.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    d = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: fx, sy: fy, moved: false };
-    try { fab.setPointerCapture(e.pointerId); } catch { /* не страшно */ }
-  });
-  fab.addEventListener("pointermove", (e) => {
-    if (!d || e.pointerId !== d.id) return;
-    const dx = e.clientX - d.x, dy = e.clientY - d.y;
-    if (!d.moved && Math.hypot(dx, dy) < 7) return;
-    d.moved = true; fab.classList.add("drag");
-    fx = d.sx + dx; fy = d.sy + dy;
-    fab.style.transform = `translate(${fx}px, ${fy}px)`;
-  });
-  const end = (e) => {
-    if (!d || e.pointerId !== d.id) return;
-    const was = d; d = null; fab.classList.remove("drag");
-    if (e.type === "pointercancel") { place(); return; }
-    if (!was.moved) { openAi(); return; }                                   // обычное нажатие
-    const W = document.documentElement.clientWidth;
-    settings().aiFab = { side: fx + SIZE / 2 < W / 2 ? "l" : "r", y: fy / window.innerHeight };   // отпустили — прижимается к ближайшему краю
-    progress.save();
-    place();
-  };
-  fab.addEventListener("pointerup", end);
-  fab.addEventListener("pointercancel", end);
-  fab.addEventListener("click", (e) => { if (e.detail === 0) openAi(); });   // с клавиатуры (Enter / пробел)
-  window.addEventListener("resize", () => place());
+  $("aiRow").addEventListener("click", openAi);
   if (window.visualViewport) { window.visualViewport.addEventListener("resize", aiFit); window.visualViewport.addEventListener("scroll", aiFit); }
-  place();
+  // Жесты на окне ИИ ведём сами через touch-события. На iPhone `touch-action: none` страницу не держит: она ездила под окном (карточки вверх-вниз, окно «съезжало» вместе с visualViewport),
+  // а родной жест отменял pointer-события, и свайп вниз не доходил до закрытия. Теперь touchmove отменяем везде, кроме мест, которые листаются сами (список сообщений, длинный текст в поле,
+  // ряд файлов вбок); вниз тянем само окно — отпустили далеко или быстро = закрыть. Пальцы на странице за окном не двигают ничего.
+  let tgs = null;
+  const resetBox = () => { sheetBox.style.transition = ""; sheetBox.style.transform = ""; };
+  sheetEl.addEventListener("touchstart", (e) => {
+    tgs = sheetEl.classList.contains("aiopen") && e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: performance.now(), dy: 0, drag: false, el: e.target } : null;
+  }, { passive: true });
+  sheetEl.addEventListener("touchmove", (e) => {
+    if (!tgs) return;
+    const dx = e.touches[0].clientX - tgs.x, dy = e.touches[0].clientY - tgs.y, el = tgs.el;
+    if (!tgs.drag) {
+      const area = el.closest("textarea"), sc = el.closest(".aimsgs") || (sheetBox.classList.contains("ai") ? null : sheetBox);   // окно подключения целиком листается само
+      if (area && area.scrollHeight > area.clientHeight + 1) return;
+      if (el.closest(".aifiles") && Math.abs(dx) > Math.abs(dy)) return;
+      const top = !sc || sc.scrollTop <= 0, bottom = !sc || sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+      if (sc && !(top && dy > 0) && !(bottom && dy < 0)) return;      // список можно листать в эту сторону — пусть листается
+      if (dy <= 8 || !top) { e.preventDefault(); return; }             // вверх или ещё рано тянуть — страницу не двигаем
+      tgs.drag = true; sheetBox.style.transition = "none";
+    }
+    e.preventDefault();
+    tgs.dy = Math.max(0, dy);
+    sheetBox.style.transform = `translateY(${tgs.dy}px)`;
+  }, { passive: false });
+  const touchEnd = () => {
+    const s = tgs; tgs = null;
+    if (!s || !s.drag) return;
+    if (s.dy > 90 || (s.dy > 40 && performance.now() - s.t < 300)) {
+      sheetBox.style.transition = "transform .28s cubic-bezier(.4, 0, 1, 1)"; sheetBox.style.transform = "translateY(100%)";
+      sheetClose(); setTimeout(resetBox, 450);
+    } else {
+      sheetBox.style.transition = "transform .35s cubic-bezier(.23, 1, .32, 1)"; sheetBox.style.transform = "translateY(0)";
+      setTimeout(resetBox, 380);
+    }
+  };
+  sheetEl.addEventListener("touchend", touchEnd);
+  sheetEl.addEventListener("touchcancel", touchEnd);
 }
 
 // ---------- запуск ----------
@@ -2832,8 +2831,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=24").then((r) => r.json()),
-    fetch("data/aspect.json?v=24").then((r) => r.json()),
+    fetch("data/phrases.json?v=25").then((r) => r.json()),
+    fetch("data/aspect.json?v=25").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

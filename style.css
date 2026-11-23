@@ -1130,15 +1130,8 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .tile > .delta.out { animation: delta-out .45s ease forwards; }
 @media (prefers-reduced-motion: reduce) { .tile > .delta.out { animation: none; opacity: 0; } }
 
-/* «ИИ-помощник»: плавающая кнопка (стеклянный кружок со «звёздочками», перетаскивается, прижимается к краю) и высокое окно чата */
-.aifab { position: fixed; left: 0; top: 0; z-index: 9; width: 48px; height: 48px; padding: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #fff;
-  border: 1px solid rgba(255, 255, 255, .38); touch-action: none; -webkit-user-select: none; user-select: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 6px 22px rgba(0, 0, 0, .45), 0 0 18px rgba(255, 255, 255, .22);
-  transition: transform .4s cubic-bezier(.23, 1, .32, 1), filter .15s; }
-.aifab.drag { transition: none; filter: brightness(1.15); }
-.aifab svg { width: 24px; height: 24px; display: block; }
-body.kbd .aifab { display: none; }
+/* «ИИ-помощник»: блок «Donald Ai» в «Больше» (в сетке 3×2 он седьмой — стоит один в последнем ряду, по центру) и высокое окно чата */
+#moreBody .tgrid #aiRow { grid-column: 2; }
 .sheet.aiopen { padding-top: calc(env(safe-area-inset-top) + 34px); box-sizing: border-box; }
 .sheet.aiopen .sheetbox:not(.ai) { max-height: 100%; }
 .sheet.aiopen { touch-action: none; overscroll-behavior: contain; }   /* полоса над окном ИИ не прокручивает страницу под ним */
@@ -1202,7 +1195,7 @@ body.kbd .aifab { display: none; }
 .aimsgerr { color: var(--bad); font-size: 15px; line-height: 1.4; }
 .sheetbox p.aisafe { font-size: 13px; opacity: .8; }
 .aidel { color: var(--bad); }
-@media (prefers-reduced-motion: reduce) { .aifab { transition: none; } .aimsg, .aichip { animation: none; } .aimsg.typing span { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .aimsg, .aichip { animation: none; } .aimsg.typing span { animation: none; } }
 .aimsg small.aigoogle { display: block; margin-top: 6px; font-size: 12px; line-height: 1.35; opacity: .75; color: var(--muted); }
 .aimsg small.aimeta { display: block; margin-top: 6px; font-size: 11px; opacity: .45; color: var(--muted); }
 /* индикатор «ИИ печатает»: пузырь чуть светлее остальных, чтобы лучше читался */
@@ -1247,5 +1240,7 @@ body.kbd .aifab { display: none; }
   -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.9' stroke-linejoin='round' stroke-linecap='round'><path d='M10.5 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z'/><path d='M18.2 14.8l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.9' stroke-linejoin='round' stroke-linecap='round'><path d='M10.5 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z'/><path d='M18.2 14.8l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z'/></svg>") center / contain no-repeat; }
 .aititle .aiword { -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 .aihead .aibtns { margin-left: auto; }
+/* «beta» рядом с названием: мелкая, полупрозрачная, у верхнего края слова (не залита градиентом) */
+.aititle .aibeta { align-self: flex-start; margin: 3px 0 0 5px; font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--fg); opacity: .45; }
 /* иконки в шапке окна ИИ (очистить, ключ, закрыть) — белые */
 .aiicon { color: #fff; }
