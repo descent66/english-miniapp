@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=18";
-import { MASTERED } from "./tenses.js?v=18";
+import { dayKey, HARD_MISSES } from "./core.js?v=19";
+import { MASTERED } from "./tenses.js?v=19";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты

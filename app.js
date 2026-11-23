@@ -1,15 +1,15 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=18";
-import * as Store from "./storage.js?v=18";
-import { startMolten } from "./molten.js?v=18";
-import { attachSpecular } from "./specular.js?v=18";
-import { animateList } from "./animlist.js?v=18";
-import { initTenses, fitBlanks } from "./tenses.js?v=18";
-import { translate, TranslateError, MAX_CHARS } from "./translator.js?v=18";
-import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=18";
+import * as Core from "./core.js?v=19";
+import * as Store from "./storage.js?v=19";
+import { startMolten } from "./molten.js?v=19";
+import { attachSpecular } from "./specular.js?v=19";
+import { animateList } from "./animlist.js?v=19";
+import { initTenses, fitBlanks } from "./tenses.js?v=19";
+import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=19";
+import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=19";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.18";
+const APP_VERSION = "2026-11-23.19";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -2105,6 +2105,26 @@ function setupTranslator() {
     refresh(); stop();
     if (input.value.trim()) { setStatus(true); run(); } else { showResult(""); setStatus(false); }
   });
+  // Перевод по фото: кнопка-камера открывает обычное окно телефона (камера / галерея), снимок читает посредник, текст попадает в поле и переводится сам
+  const photo = $("trPhoto"), pick = $("trFile"), shim = status.querySelector(".trshim");
+  photo.addEventListener("click", () => pick.click());
+  pick.addEventListener("change", async () => {
+    const file = pick.files && pick.files[0];
+    pick.value = "";                                        // чтобы то же фото можно было выбрать снова
+    if (!file) return;
+    stop(); photo.disabled = true; err.hidden = true;
+    shim.textContent = "Читаю текст на фото…"; setStatus(true);
+    try {
+      const text = await recognizeText(file);
+      dir = guessDir(text);                                 // кириллица — «с русского», иначе «с английского»
+      input.value = text; done = "";
+      shim.textContent = "Перевожу…"; refresh(); run();
+    } catch (e) {
+      shim.textContent = "Перевожу…"; setStatus(false);
+      showError(e instanceof TranslateError ? e.message : "Что-то пошло не так. Попробуйте ещё раз.");
+    }
+    photo.disabled = false;
+  });
   $("trCopy").addEventListener("click", async () => {
     const copy = $("trCopy");
     try { await navigator.clipboard.writeText(res.textContent); }
@@ -2221,8 +2241,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=18").then((r) => r.json()),
-    fetch("data/aspect.json?v=18").then((r) => r.json()),
+    fetch("data/phrases.json?v=19").then((r) => r.json()),
+    fetch("data/aspect.json?v=19").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

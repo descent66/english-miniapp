@@ -968,3 +968,9 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 /* «Прекратить повтор» нужна, пока идёт ответ: когда «Проверить» скрыт (ответ показан), её тоже нет — иначе она вставала бы на его место и ловила случайные нажатия */
 #checkBtn[hidden] + #endSessBtn { display: none !important; }
+
+/* «Перевод по фото»: кнопка-камера рядом с мусоркой в карточке ввода (тот же размер и вид); камера видна всегда, мусорка — когда есть текст */
+.trbtns { display: flex; align-items: center; gap: 8px; }
+#trPhoto { width: 42px; height: 42px; color: #fff; }
+#trPhoto svg { width: 22px; height: 22px; }
+#trPhoto:disabled { opacity: .45; cursor: default; }
