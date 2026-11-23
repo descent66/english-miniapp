@@ -1129,3 +1129,123 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 @keyframes delta-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(.6) translateY(-6px); } }
 .tile > .delta.out { animation: delta-out .45s ease forwards; }
 @media (prefers-reduced-motion: reduce) { .tile > .delta.out { animation: none; opacity: 0; } }
+
+/* «ИИ-помощник»: плавающая кнопка (стеклянный кружок со «звёздочками», перетаскивается, прижимается к краю) и высокое окно чата */
+.aifab { position: fixed; left: 0; top: 0; z-index: 9; width: 48px; height: 48px; padding: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #fff;
+  border: 1px solid rgba(255, 255, 255, .38); touch-action: none; -webkit-user-select: none; user-select: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 6px 22px rgba(0, 0, 0, .45), 0 0 18px rgba(255, 255, 255, .22);
+  transition: transform .4s cubic-bezier(.23, 1, .32, 1), filter .15s; }
+.aifab.drag { transition: none; filter: brightness(1.15); }
+.aifab svg { width: 24px; height: 24px; display: block; }
+body.kbd .aifab { display: none; }
+.sheet.aiopen { padding-top: calc(env(safe-area-inset-top) + 34px); box-sizing: border-box; }
+.sheet.aiopen .sheetbox:not(.ai) { max-height: 100%; }
+.sheetbox.ai { height: 100%; max-height: 100%; overflow: hidden; gap: 10px; padding-top: 16px; }
+.aihead { display: flex; align-items: center; gap: 8px; }
+.aihead h2 { flex: 1; }
+.aibtns { display: flex; gap: 6px; }
+.aiicon { flex: none; width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; cursor: pointer; color: var(--muted);
+  background: rgba(255, 255, 255, .06); border: 1px solid var(--line); }
+.aiicon:active { transform: scale(.92); color: #fff; }
+.aimsgs { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 10px; padding: 2px 2px 6px; }
+.aimsg { max-width: 90%; padding: 11px 14px; border-radius: 18px; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; -webkit-user-select: text; user-select: text;
+  animation: ai-pop .38s cubic-bezier(.22, 1.25, .4, 1) both; }
+@keyframes ai-pop { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+.aimsg.user { align-self: flex-end; white-space: pre-wrap; border-bottom-right-radius: 6px; background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .24); }
+.aimsg.model { align-self: flex-start; border-bottom-left-radius: 6px; background: var(--glass); border: 1px solid var(--line); }
+.aimsg.model > div + div { margin-top: 7px; }
+.aimsg.model .li { position: relative; padding-left: 16px; }
+.aimsg.model .li::before { content: "•"; position: absolute; left: 3px; color: var(--muted); }
+.aimsg.model b { font-weight: 600; color: #fff; }
+.aimsg.err { align-self: flex-start; color: var(--bad); background: rgba(255, 90, 90, .08); border: 1px solid rgba(255, 90, 90, .35); }
+.aimsg.typing { display: flex; gap: 5px; padding: 15px 16px; }
+.aimsg.typing span { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: tr-pulse 1s ease-in-out infinite; }
+.aimsg.typing span:nth-child(2) { animation-delay: .18s; } .aimsg.typing span:nth-child(3) { animation-delay: .36s; }
+.aihint { color: var(--muted); font-size: 15px; line-height: 1.5; padding: 2px 2px 4px; }
+.aichips { display: flex; flex-direction: column; gap: 8px; }
+.aichip { text-align: left; padding: 12px 14px; border-radius: 16px; font-size: 15px; line-height: 1.35; color: var(--fg); cursor: pointer;
+  background: rgba(255, 255, 255, .06); border: 1px solid var(--line); animation: ai-pop .38s cubic-bezier(.22, 1.25, .4, 1) both; }
+.aichip:active { transform: scale(.98); background: rgba(255, 255, 255, .12); }
+/* строка ввода как в чате Claude: одна скруглённая рамка; сверху вложения и текст, внизу слева «+», справа кнопка отправки */
+.aibox { display: flex; flex-direction: column; gap: 6px; padding: 12px 10px 10px 16px; border-radius: 26px; background: rgba(5, 8, 22, .55); border: 1px solid var(--line); }
+.aibox:focus-within { border-color: rgba(255, 255, 255, .3); }   /* при фокусе рамку подсвечивают бегущие блики (specular.js), поэтому сама рамка не белая */
+.aibox textarea { width: 100%; min-width: 0; resize: none; max-height: 120px; padding: 0; border: 0; outline: none; background: none; color: inherit; font: inherit; font-size: 16px; line-height: 1.4;
+  -webkit-user-select: text; user-select: text; }
+.aitools { display: flex; align-items: center; justify-content: space-between; }
+.aiplus { flex: none; width: 38px; height: 38px; margin-left: -6px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--muted); background: none; border: 0; }
+.aiplus:active { transform: scale(.9); color: #fff; background: rgba(255, 255, 255, .08); }
+.aisend { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #0b0c12;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); border: 0; box-shadow: 0 0 14px rgba(255, 255, 255, .28); }
+.aisend:disabled { opacity: .4; cursor: default; }
+.aisend.idle:not(:disabled) { opacity: .5; box-shadow: none; }
+.aisend:active:not(:disabled) { transform: scale(.92); }
+.aisend svg { width: 20px; height: 20px; }
+.ainote { font-size: 13px; color: var(--bad); }
+.aifiles { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px 0; touch-action: pan-x; }
+.aifile { position: relative; flex: none; }
+.aifile img, .aiattach img { display: block; height: 56px; width: 56px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); }
+.aipdf { display: flex; align-items: center; gap: 6px; height: 56px; max-width: 150px; padding: 0 12px; border-radius: 12px; font-size: 12px; color: var(--muted); background: rgba(255, 255, 255, .06); border: 1px solid var(--line); }
+.aipdf svg { flex: none; width: 20px; height: 20px; }
+.aipdf span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aifilex { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; padding: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #fff;
+  background: rgba(30, 32, 44, .95); border: 1px solid rgba(255, 255, 255, .3); }
+.aifilex svg { width: 12px; height: 12px; }
+.aiattach { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.aimsg .aitext { white-space: pre-wrap; }
+.aisteps { margin: 0; padding-left: 22px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.aikey { width: 100%; padding: 15px 16px; border-radius: 18px; outline: none; color: inherit; font: inherit; font-size: 16px; background: rgba(5, 8, 22, .55);
+  border: 1px solid var(--line); -webkit-user-select: text; user-select: text; }
+.aikey:focus { border-color: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .18); }
+.aimsgerr { color: var(--bad); font-size: 15px; line-height: 1.4; }
+.sheetbox p.aisafe { font-size: 13px; opacity: .8; }
+.aidel { color: var(--bad); }
+@media (prefers-reduced-motion: reduce) { .aifab { transition: none; } .aimsg, .aichip { animation: none; } .aimsg.typing span { animation: none; } }
+.aimsg small.aigoogle { display: block; margin-top: 6px; font-size: 12px; line-height: 1.35; opacity: .75; color: var(--muted); }
+.aimsg small.aimeta { display: block; margin-top: 6px; font-size: 11px; opacity: .45; color: var(--muted); }
+/* индикатор «ИИ печатает»: пузырь чуть светлее остальных, чтобы лучше читался */
+.aimsg.typing { background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .22); }
+
+/* Уровень размышления ИИ: кнопка рядом с «+» и выезжающие плашки «Быстро / Обычно / Глубоко» (приближение к PillNav из React Bits: pill-плашки, заливка снизу, точка-индикатор) */
+.aibox { position: relative; }
+.aileft { display: flex; align-items: center; gap: 4px; }
+.ailevel { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px 0 11px; border-radius: 999px; cursor: pointer; color: var(--fg); font-size: 14px; font-weight: 500;
+  background: rgba(255, 255, 255, .06); border: 1px solid var(--line); transition: background .2s ease, border-color .2s ease; }
+.ailevel:active { transform: scale(.96); }
+.ailevel[aria-expanded="true"] { background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .55); }
+.ailevel .aidot { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .7); }
+.aimenu { position: absolute; left: 0; bottom: calc(100% + 10px); z-index: 3; max-width: 100%; }
+.aipills { display: inline-flex; gap: 6px; padding: 5px; border-radius: 999px; overflow: hidden; white-space: nowrap; background: rgba(18, 20, 32, .94);
+  border: 1px solid rgba(255, 255, 255, .2); box-shadow: 0 12px 32px rgba(0, 0, 0, .55); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.aipill { position: relative; overflow: hidden; isolation: isolate; height: 36px; padding: 0 18px; border-radius: 999px; cursor: pointer; color: #fff; font-size: 15px; font-weight: 600;
+  background: none; border: 1px solid rgba(255, 255, 255, .22); }
+.aifillc { position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: #fff; transform: scale(0); transform-origin: 50% 100%;
+  transition: transform .5s cubic-bezier(.215, .61, .355, 1); }
+.aipill:hover .aifillc, .aipill:active .aifillc, .aipill.on .aifillc { transform: scale(1.08); }
+.ailabel { position: relative; transition: color .3s ease; }
+.aipill:hover .ailabel, .aipill:active .ailabel, .aipill.on .ailabel { color: #0b0c12; }
+.aipdot { position: absolute; left: 50%; bottom: 4px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #0b0c12; opacity: 0; transform: scale(0);
+  transition: transform .3s ease .15s, opacity .3s ease .15s; }
+.aipill.on .aipdot { opacity: .55; transform: scale(1); }
+@media (max-width: 340px) { .aipill { padding: 0 12px; font-size: 14px; } .ailevel { padding: 0 11px 0 9px; } }
+@media (prefers-reduced-motion: reduce) { .aifillc, .ailabel, .aipdot, .ailevel { transition: none; } }
+
+/* Строка ввода ИИ: блик по кромке (specular.js, тусклее, чем у карточки) лежит позади содержимого рамки, но поверх её фона */
+.aibox { isolation: isolate; }
+.aibox > .specular-light { z-index: -1; }
+
+/* Название ИИ в окне чата: значок «звёздочки» (как на кнопке вызова ИИ) и слово «Gemini» — оба залиты плавно бегущим градиентом (приближение к GradientText из React Bits:
+   цвета #5227FF, #FF9FFC, #B497CF, 8 с на круг, свечение 0,4; исходник компонента не присылали). Градиент у значка и у слова один и тот же по цвету в каждой точке:
+   у слова фон сдвинут на ширину значка с отступом (38 px), поэтому на глаз это одна непрерывная полоса; цикл бесшовный (сдвиг ровно на длину градиента — 240 px). */
+.aihead .aititle { flex: none; display: flex; align-items: center; gap: 12px; filter: drop-shadow(0 0 10px rgba(180, 151, 207, .4)); }
+.aititle .aispark, .aititle .aiword { background: linear-gradient(90deg, #5227FF, #FF9FFC, #B497CF, #5227FF); background-size: 240px 100%; background-repeat: repeat-x; }
+.aititle .aispark { width: 26px; height: 26px; flex: none; animation: ai-flow-icon 8s linear infinite;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.9' stroke-linejoin='round' stroke-linecap='round'><path d='M10.5 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z'/><path d='M18.2 14.8l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.9' stroke-linejoin='round' stroke-linecap='round'><path d='M10.5 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z'/><path d='M18.2 14.8l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z'/></svg>") center / contain no-repeat; }
+.aititle .aiword { -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: ai-flow-text 8s linear infinite; }
+.aihead .aibtns { margin-left: auto; }
+@keyframes ai-flow-icon { from { background-position-x: 0; } to { background-position-x: 240px; } }
+@keyframes ai-flow-text { from { background-position-x: -38px; } to { background-position-x: 202px; } }
+@media (prefers-reduced-motion: reduce) { .aititle .aispark, .aititle .aiword { animation: none; } }
+/* иконки в шапке окна ИИ (очистить, ключ, закрыть) — белые */
+.aiicon { color: #fff; }

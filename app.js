@@ -1,15 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=22";
-import * as Store from "./storage.js?v=22";
-import { startMolten } from "./molten.js?v=22";
-import { attachSpecular } from "./specular.js?v=22";
-import { animateList } from "./animlist.js?v=22";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=22";
-import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=22";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=22";
+import * as Core from "./core.js?v=23";
+import * as Store from "./storage.js?v=23";
+import { startMolten } from "./molten.js?v=23";
+import { attachSpecular, detachSpecular } from "./specular.js?v=23";
+import { animateList } from "./animlist.js?v=23";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=23";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=23";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=23";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=23";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.22";
+const APP_VERSION = "2026-11-23.23";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -1665,9 +1666,10 @@ const sheetEl = $("sheet"), sheetBox = $("sheetBox");
 
 // окно выезжает снизу и проявляется плавно (классы .show в style.css); если оно уже открыто — только обновляется
 let sheetTimer = 0, sheetAfterClose = null, sheetReturnFocus = null;
-const behindSheet = () => [$("views"), $("bar")];   // пока окно открыто, фон недоступен с клавиатуры и для чтения с экрана
+const behindSheet = () => [$("views"), $("bar"), $("aiFab")];   // пока окно открыто, фон недоступен с клавиатуры и для чтения с экрана
 function sheetOpen(build, closable) {
   sheetAfterClose = null;
+  sheetBox.classList.remove("ai");                                   // окно чата ИИ высокое — у остальных окон этого класса нет
   sheetBox.style.transition = ""; sheetBox.style.transform = "";   // след прошлого свайпа вниз
   // окно перестраивается при каждом нажатии внутри него — запоминаем, какая кнопка была в фокусе
   const btns = () => [...sheetBox.querySelectorAll("button")];
@@ -2294,7 +2296,7 @@ function setupTranslator() {
 // 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
 // 2) свайп вниз по окну («Что учить») — закрыть его.
 function setupGestures() {
-  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds";   // отсюда свайп вкладок не начинаем
+  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds, #aiFab";   // отсюда свайп вкладок не начинаем
   let st = null;
   document.addEventListener("pointerdown", (e) => {
     st = e.button === 0 && sheetEl.hidden && !e.target.closest(SKIP)
@@ -2320,7 +2322,7 @@ function setupGestures() {
   let sd = null;
   const resetBox = () => { sheetBox.style.transition = ""; sheetBox.style.transform = ""; };
   sheetBox.addEventListener("pointerdown", (e) => {
-    sd = e.button === 0 && sheetEl.dataset.closable && sheetEl.classList.contains("show") && sheetBox.scrollTop === 0
+    sd = e.button === 0 && sheetEl.dataset.closable && sheetEl.classList.contains("show") && sheetBox.scrollTop === 0 && !e.target.closest(".aimsgs, textarea, input")
       ? { id: e.pointerId, y: e.clientY, dy: 0, t: performance.now(), moved: false } : null;
   });
   sheetBox.addEventListener("pointermove", (e) => {
@@ -2354,6 +2356,403 @@ function setupGestures() {
   };
   sheetBox.addEventListener("pointerup", endSheetDrag);
   sheetBox.addEventListener("pointercancel", endSheetDrag);
+}
+
+// ---------- «ИИ-помощник»: плавающая кнопка и окно чата (логика — ai.js) ----------
+// Как у Binance: маленькая кнопка всегда на экране (её можно перетащить к любому краю), по нажатию на почти весь экран выезжает окно чата — как окно «Что учить».
+// Подключается Google Gemini: у каждого пользователя СВОЙ бесплатный ключ (один раз вставить в окне подключения). Ключ лежит в его настройках (settings.aiKey,
+// облако Телеграма) и уходит только в Google; без ключа чат не открывается — только окно подключения. Переписка хранится до закрытия приложения.
+const AI = { msgs: [], busy: false, ctl: null, token: 0, gen: 0 };
+const aiKey = () => settings().aiKey || "";
+const SVG_TRASH = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 7h14M10 7V4.8h4V7M7 7l.8 12.2h8.4L17 7M10.2 10.5v5.5M13.8 10.5v5.5"/></svg>';
+const SVG_KEY = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="7.6" cy="16.4" r="4.4"/><circle cx="7.6" cy="16.4" r="1.4"/><path d="M10.8 13.2L20.6 3.4M17.4 6.6l2.8 2.8M14.2 9.8l2.3 2.3"/></svg>';
+const SVG_X = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const SVG_PLUS = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const SVG_PDF = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4"/></svg>';
+const SVG_SEND = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+
+const openLink = (url) => { const tg = window.Telegram && window.Telegram.WebApp; if (tg && tg.openLink) tg.openLink(url); else window.open(url, "_blank", "noopener"); };
+const aiIconBtn = (svg, label, fn) => { const b = make("button", "aiicon"); b.innerHTML = svg; b.setAttribute("aria-label", label); b.addEventListener("click", fn); return b; };
+
+/** Окно ИИ: обычное окно снизу, но подгоняется под видимую область (когда выезжает клавиатура, поле ввода остаётся над ней). */
+function aiFit() {
+  if (!sheetEl.classList.contains("aiopen")) return;
+  const vv = window.visualViewport;
+  sheetEl.style.top = (vv ? vv.offsetTop : 0) + "px";
+  sheetEl.style.height = (vv ? vv.height : window.innerHeight) + "px";
+  sheetEl.style.bottom = "auto";
+}
+function aiClosed() {
+  detachSpecular("aibox");
+  AI.cleanup?.(); AI.cleanup = null;
+  sheetEl.classList.remove("aiopen");
+  sheetEl.style.top = sheetEl.style.height = sheetEl.style.bottom = "";
+  AI.token++;                                              // незаконченная проверка ключа больше ничего не откроет
+}
+function aiSheet(build) {
+  sheetOpen(build, true);
+  sheetEl.classList.add("aiopen");
+  sheetAfterClose = aiClosed;
+  sheetBox.style.touchAction = "pan-y";                    // внутри свой список сообщений — он должен листаться пальцем
+  aiFit();
+}
+
+function openAi() { if (aiKey()) openAiChat(); else openAiSetup(); }
+
+/** Окно подключения: инструкция, поле для ключа, проверка. Без ключа это единственное, что открывается. */
+function openAiSetup() {
+  const token = ++AI.token;
+  aiSheet((box) => {
+    const head = make("div", "aihead");
+    head.append(make("h2", "", aiKey() ? "Ключ ИИ" : "Подключите ИИ"), aiIconBtn(SVG_X, "Закрыть", sheetClose));
+    box.append(head,
+      make("p", "", "Здесь можно спросить про английский: правила, разницу между словами, почему ответ неправильный. Для этого нужен бесплатный ключ Google — получить его надо один раз, это пара минут."));
+    const steps = make("ol", "aisteps");
+    for (const t of ["Нажмите кнопку ниже — откроется Google AI Studio.", "Войдите в аккаунт Google и нажмите «Create API key» («Создать ключ»).", "Скопируйте ключ и вставьте его в поле ниже."]) steps.append(make("li", "", t));
+    const open = make("button", "btn wide", "Открыть Google AI Studio");
+    open.addEventListener("click", () => openLink(KEY_PAGE));
+    const field = make("input", "aikey");
+    Object.assign(field, { type: "password", placeholder: "Вставьте ключ сюда", autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: false });
+    field.setAttribute("aria-label", "Ключ Google AI Studio");
+    const msg = make("div", "aimsgerr"); msg.hidden = true;
+    const save = make("button", "btn primary wide", "Проверить и сохранить");
+    const go = async () => {
+      const key = field.value.trim();
+      if (key.length < 20) { msg.textContent = "Вставьте ключ целиком — он длинный, обычно около 40 знаков."; msg.hidden = false; return; }
+      msg.hidden = true; save.disabled = true; save.textContent = "Проверяю…";
+      try {
+        const models = await checkKey(key);
+        if (token !== AI.token) return;                    // окно закрыли, пока шла проверка
+        settings().aiKey = key; settings().aiModels = models; settings().aiModelsV = 2; settings().aiModel = null; progress.save();
+        AI.msgs = [];
+        openAiChat();
+      } catch (e) {
+        if (token !== AI.token) return;
+        msg.textContent = e.message || "Не получилось проверить ключ."; msg.hidden = false;
+        save.disabled = false; save.textContent = "Проверить и сохранить";
+      }
+    };
+    save.addEventListener("click", go);
+    field.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+    box.append(steps, open, field, msg, save,
+      make("p", "aisafe", "Ключ хранится только у вас, в вашем Телеграме, и отправляется только в Google. Вопросы тратят бесплатный лимит вашего аккаунта Google. Если Google недоступен в вашей стране, ИИ работать не будет."));
+    if (aiKey()) {
+      const back = make("button", "btn wide", "Вернуться к чату");
+      back.addEventListener("click", openAiChat);
+      const del = make("button", "btn wide aidel", "Удалить сохранённый ключ");
+      del.addEventListener("click", () => { settings().aiKey = null; settings().aiModels = null; settings().aiModel = null; progress.save(); AI.msgs = []; openAiSetup(); });
+      box.append(back, del);
+    }
+  });
+}
+
+/** Окно чата: переписка, быстрые вопросы, поле ввода. */
+function openAiChat() {
+  AI.token++;
+  aiSheet((box) => {
+    box.classList.add("ai");
+    const head = make("div", "aihead");
+    const btns = make("div", "aibtns");
+    btns.append(
+      aiIconBtn(SVG_TRASH, "Очистить переписку", () => { AI.ctl?.abort(); AI.gen++; AI.msgs = []; AI.busy = false; send.disabled = false; fill(); }),
+      aiIconBtn(SVG_KEY, "Ключ ИИ", openAiSetup),
+      aiIconBtn(SVG_X, "Закрыть", sheetClose));
+    // название ИИ, который отвечает: слева значок со «звёздочками» (как на кнопке вызова ИИ), справа слово; градиент течёт по обоим (см. .aititle в CSS)
+    const title = make("h2", "aititle"), spark = make("span", "aispark");
+    spark.setAttribute("aria-hidden", "true");
+    title.append(spark, make("span", "aiword", "Gemini"));
+    head.append(title, btns);
+    const list = make("div", "aimsgs");
+    list.setAttribute("aria-live", "polite");
+    // строка ввода как в чате Claude: одна скруглённая рамка — сверху вложения и текст, внизу слева «+» (приложить фото или PDF), справа кнопка отправки
+    const bar = make("div", "aibox");
+    const hint = make("div", "ainote"); hint.hidden = true;     // короткое сообщение над полем («слишком большой файл» и т. п.)
+    let hintTimer = 0;
+    const note = (t) => { hint.textContent = t; hint.hidden = false; clearTimeout(hintTimer); hintTimer = setTimeout(() => { hint.hidden = true; }, 3500); };
+    const files = make("div", "aifiles"); files.hidden = true;
+    const input = make("textarea");
+    Object.assign(input, { rows: 1, placeholder: "Спросите про английский…", maxLength: 1500 });
+    input.setAttribute("aria-label", "Ваш вопрос");
+    const tools = make("div", "aitools");
+    const picker = make("input"); Object.assign(picker, { type: "file", accept: "image/*,application/pdf", multiple: true, hidden: true });
+    const plus = make("button", "aiplus"); plus.innerHTML = SVG_PLUS; plus.setAttribute("aria-label", "Приложить фото или PDF");
+    plus.addEventListener("click", () => picker.click());
+    const send = make("button", "aisend"); send.innerHTML = SVG_SEND; send.setAttribute("aria-label", "Отправить");
+    // Уровень размышления: кнопка рядом с «+» показывает текущий; по нажатию над строкой ввода выезжают плашки «Быстро / Обычно / Глубоко» (в духе PillNav из React Bits:
+    // плашки раскрываются по ширине и появляются по очереди, выбранная заливается белым снизу, под ней точка-индикатор). Исходник компонента не присылали — это приближение.
+    const lvl = () => settings().aiLevel || AI_DEFAULT;
+    const levelBtn = make("button", "ailevel");
+    levelBtn.setAttribute("aria-haspopup", "listbox"); levelBtn.setAttribute("aria-expanded", "false");
+    levelBtn.innerHTML = '<i class="aidot"></i><span></span>';
+    const paintLevel = () => { const L = AI_LEVELS.find((x) => x.id === lvl()) || AI_LEVELS[0]; levelBtn.lastChild.textContent = L.label; levelBtn.setAttribute("aria-label", "Уровень размышления: " + L.label + ". Сменить"); };
+    const menu = make("div", "aimenu"); menu.hidden = true;
+    const pills = make("div", "aipills"); pills.setAttribute("role", "listbox"); pills.setAttribute("aria-label", "Уровень размышления");
+    for (const L of AI_LEVELS) {
+      const b = make("button", "aipill"); b.dataset.level = L.id; b.title = L.hint; b.setAttribute("role", "option");
+      b.innerHTML = '<span class="aifillc"></span><span class="ailabel"></span><i class="aipdot"></i>';
+      b.querySelector(".ailabel").textContent = L.label;
+      b.addEventListener("click", () => choose(L.id));
+      pills.append(b);
+    }
+    menu.append(pills);
+    const calmMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let menuOpen = false, closing = 0;
+    const markOn = () => { for (const b of pills.children) { const on = b.dataset.level === lvl(); b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on)); } };
+    const openMenu = () => {
+      clearTimeout(closing); menuOpen = true; menu.hidden = false; levelBtn.setAttribute("aria-expanded", "true");
+      for (const b of pills.children) b.classList.remove("on");              // заливка выбранной плашки запускается чуть позже — как «fill» у PillNav
+      if (calmMotion()) { markOn(); return; }
+      pills.style.width = "";
+      const w = pills.offsetWidth;
+      pills.animate([{ width: "0px", opacity: 0.2 }, { width: w + "px", opacity: 1 }], { duration: 650, easing: "cubic-bezier(.215, .61, .355, 1)" });   // раскрывается по ширине слева направо
+      [...pills.children].forEach((b, i) => b.animate([{ opacity: 0, transform: "translateX(-16px) scale(.9)" }, { opacity: 1, transform: "none" }],
+        { duration: 420, delay: 90 + i * 80, easing: "cubic-bezier(.215, .61, .355, 1)", fill: "backwards" }));
+      setTimeout(() => { if (menuOpen) markOn(); }, 380);
+    };
+    const closeMenu = () => {
+      if (!menuOpen) return;
+      menuOpen = false; levelBtn.setAttribute("aria-expanded", "false");
+      if (calmMotion()) { menu.hidden = true; return; }
+      const w = pills.offsetWidth;
+      pills.animate([{ width: w + "px", opacity: 1 }, { width: "0px", opacity: 0 }], { duration: 320, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+      closing = setTimeout(() => { menu.hidden = true; pills.getAnimations().forEach((a) => a.cancel()); }, 330);
+    };
+    const choose = (id) => {
+      settings().aiLevel = id; progress.save(); paintLevel(); markOn();       // плашка заливается, затем меню закрывается
+      setTimeout(closeMenu, calmMotion() ? 0 : 380);
+    };
+    levelBtn.addEventListener("click", () => (menuOpen ? closeMenu() : openMenu()));
+    const outside = (e) => { if (menuOpen && !menu.contains(e.target) && !levelBtn.contains(e.target)) closeMenu(); };   // нажатие в стороне закрывает меню
+    AI.cleanup?.(); box.addEventListener("pointerdown", outside); AI.cleanup = () => box.removeEventListener("pointerdown", outside);
+    paintLevel();
+    const left = make("div", "aileft"); left.append(plus, levelBtn);
+    tools.append(left, send);
+    bar.append(hint, files, input, tools, picker, menu);
+    // Когда курсор в поле ввода, по кромке рамки бегут два блика — как у карточки «Учить», но заметно тусклее (яркость 0,6); плавно проявляются и гаснут
+    let glowTimer = 0;
+    const rim = () => bar.querySelector(":scope > .specular-light");
+    input.addEventListener("focus", () => {
+      clearTimeout(glowTimer);
+      attachSpecular(bar, "aibox", { intensity: 0.6 });
+      const c = rim();
+      if (!c) return;
+      c.style.transition = "opacity .5s ease"; c.style.opacity = "0"; void c.offsetWidth; c.style.opacity = "1";
+    });
+    input.addEventListener("blur", () => {
+      const c = rim();
+      if (!c) return;
+      c.style.opacity = "0";
+      glowTimer = setTimeout(() => detachSpecular("aibox"), 520);
+    });
+    let pending = [];                                         // приложенные, но ещё не отправленные файлы: { name, mime, data, thumb }
+    const syncSend = () => send.classList.toggle("idle", !input.value.trim() && !pending.length);   // пока нечего отправлять, кнопка приглушена
+    const drawFiles = () => {
+      files.replaceChildren(); files.hidden = !pending.length; syncSend();
+      for (const f of pending) {
+        const t = make("div", "aifile");
+        if (f.thumb) { const im = make("img"); im.src = f.thumb; im.alt = f.name; t.append(im); }
+        else { const d = make("div", "aipdf"); d.innerHTML = SVG_PDF; d.append(make("span", "", f.name)); t.append(d); }
+        const x = make("button", "aifilex"); x.innerHTML = SVG_X; x.setAttribute("aria-label", "Убрать файл " + f.name);
+        x.addEventListener("click", () => { pending = pending.filter((p) => p !== f); drawFiles(); });
+        t.append(x); files.append(t);
+      }
+    };
+    picker.addEventListener("change", async () => {
+      const chosen = [...(picker.files || [])]; picker.value = "";
+      for (const file of chosen) {
+        if (pending.length >= MAX_FILES) { note("Можно приложить не больше " + MAX_FILES + " файлов"); break; }
+        try {
+          if (file.type === "application/pdf") {
+            if (file.size > MAX_PDF_BYTES) { note("PDF слишком большой (больше 6 МБ)"); continue; }
+            pending.push({ name: file.name, mime: file.type, data: await toBase64(file), thumb: "" });
+          } else {
+            const blob = await prepareImage(file);                // фото сжимается до 1600 px и 800 КБ
+            pending.push({ name: file.name || "фото.jpg", mime: "image/jpeg", data: await toBase64(blob), thumb: URL.createObjectURL(blob) });
+          }
+        } catch { note("Не получилось открыть файл " + (file.name || "")); }
+      }
+      drawFiles();
+    });
+    box.append(head, list, bar);
+
+    const toEnd = (smooth) => list.scrollTo({ top: list.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    /** Содержимое пузыря ответа ИИ из текста (с жирным и пунктами списка). */
+    const fillModel = (b, text) => {
+      b.replaceChildren();
+      for (const ln of richLines(text)) {
+        const d = make("div", ln.li ? "li" : "");
+        for (const p of ln.parts) d.append(p.b ? make("b", "", p.t) : document.createTextNode(p.t));
+        b.append(d);
+      }
+    };
+    const bubble = (role, text, atts = []) => {
+      const b = make("div", "aimsg " + role);
+      if (role === "model") fillModel(b, text);
+      else {
+        if (atts.length) {                                   // приложенные к вопросу фото и PDF — мелкими плитками над текстом
+          const row = make("div", "aiattach");
+          for (const f of atts) {
+            if (f.thumb) { const im = make("img"); im.src = f.thumb; im.alt = f.name; row.append(im); }
+            else { const d = make("div", "aipdf"); d.innerHTML = SVG_PDF; d.append(make("span", "", f.name)); row.append(d); }
+          }
+          b.append(row);
+        }
+        if (text) b.append(make("div", "aitext", text));
+      }
+      list.append(b); toEnd(true);
+      return b;
+    };
+    /** Пустая переписка: подсказка и быстрые вопросы. */
+    function fill() {
+      list.replaceChildren();
+      if (!AI.msgs.length) {
+        list.append(make("div", "aihint", "Спросите что угодно про английский: правила, разницу между словами, почему ответ оказался неправильным."));
+        const chips = make("div", "aichips");
+        const quick = ["Чем отличается Present Perfect от Past Simple?", "Когда нужны артикли a, an и the?", "Проверь моё предложение: I am agree with you"];
+        const p = cur && view === "learn" ? progress.phrases.get(cur) : null;
+        if (p) quick.unshift(`Объясни «${p.en}» и дай примеры`);
+        for (const q of quick) { const c = make("button", "aichip", q); c.addEventListener("click", () => submit(q)); chips.append(c); }
+        list.append(chips);
+      } else for (const m of AI.msgs) bubble(m.role, m.role === "user" ? m.shown : m.text, m.files);
+    }
+    async function submit(preset) {
+      const typed = (preset ?? input.value).trim();               // быстрые вопросы (preset) уходят без файлов, обычная отправка — с приложенными
+      const sent = preset === undefined ? pending : [];
+      if ((!typed && !sent.length) || AI.busy) return;
+      const text = typed || FILE_QUESTION;                         // файл есть, а вопроса нет — спрашиваем «что здесь и что делать»
+      if (!AI.msgs.length) list.replaceChildren();
+      input.value = ""; input.style.height = "";
+      if (sent.length) { pending = []; drawFiles(); } else syncSend();
+      AI.msgs.push({ role: "user", text, shown: typed, files: sent }); const mine = bubble("user", typed, sent);
+      AI.busy = true; send.disabled = true;
+      const typing = make("div", "aimsg model typing"); typing.innerHTML = "<span></span><span></span><span></span>"; list.append(typing); toEnd(true);
+      const ctl = AI.ctl = new AbortController();
+      let tick = 0;                                                // цикл «печати» ответа (останавливается при любой ошибке)
+      try {
+        // основная модель и запасные (у старых сохранённых ключей список ещё не записан — берём одну прежнюю)
+        if (!settings().aiModels || settings().aiModelsV !== 2) {   // ключ сохранён старой версией (без запасных моделей или с прежним порядком) — составляем список заново (запрос списка лимит не тратит)
+          try { settings().aiModels = await checkKey(aiKey(), { signal: ctl.signal }); settings().aiModelsV = 2; progress.save(); } catch (e) { if (e.code === "cancelled") throw e; }
+        }
+        let models = settings().aiModels || (settings().aiModel ? [settings().aiModel] : []), res;
+        // Ответ приходит потоком (кусками по мере написания), а на экране «печатается» плавно: отдельный цикл подтягивает показанный текст к полученному —
+        // не быстрее, чем читается, но и не отставая (скорость растёт, если накопилось много непоказанного). Пока текста нет — три точки.
+        const gen = ++AI.gen;
+        let live = null, full = "", shown = 0, ended = false, finishTyping;
+        const typedOut = new Promise((r) => { finishTyping = r; });
+        const soft = (t) => { if ((t.match(/\*\*/g) || []).length % 2) { const i = t.lastIndexOf("**"); return t.slice(0, i) + t.slice(i + 2); } return t; };   // недописанное «**жирное» не показываем со звёздочками
+        /** Последние несколько знаков «проявляются»: чем ближе к краю печати, тем прозрачнее — край текста не «рубится», а растворяется. */
+        const fadeTail = (root, k) => {
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+          let last = null;
+          for (let n = walker.nextNode(); n; n = walker.nextNode()) last = n;
+          if (!last || !last.nodeValue) return;
+          const t = last.nodeValue, tail = [...t].slice(-k), head = t.slice(0, t.length - tail.join("").length), ref = last.nextSibling, parent = last.parentNode;
+          last.nodeValue = head;
+          tail.forEach((ch, i) => { const sp = document.createElement("span"); sp.style.opacity = String(0.12 + 0.88 * (i / tail.length)); sp.textContent = ch; parent.insertBefore(sp, ref); });
+        };
+        const paint = () => {
+          const near = list.scrollHeight - list.scrollTop - list.clientHeight < 90;
+          fillModel(live, soft(full.slice(0, shown)));
+          if (!calmMotion() && (shown < full.length || !ended)) fadeTail(live, 10);
+          if (near) list.scrollTop = list.scrollHeight;
+        };
+        const startTyper = () => {
+          typing.remove(); live = make("div", "aimsg model"); list.append(live);
+          tick = setInterval(() => {
+            if (gen !== AI.gen || !live.isConnected) { clearInterval(tick); finishTyping(); return; }   // переписку очистили или окно перестроили
+            const backlog = full.length - shown;
+            if (backlog > 0) { shown += calmMotion() ? backlog : Math.min(backlog, Math.max(3, Math.ceil(backlog / 25))); paint(); }   // ≥ 3 знаков за кадр (~190 знаков/с), при большом остатке — быстрее
+            else if (ended) { clearInterval(tick); finishTyping(); }
+          }, 16);
+        };
+        const onText = (t) => { full = t; if (!live) startTyper(); };
+        const run = () => askWithFallback(aiKey(), models, AI.msgs, { signal: ctl.signal, level: lvl(), onText });
+        try { res = await run(); }
+        catch (e) {
+          if (e.code !== "model") throw e;                 // все модели пропали из списка — подбираем заново и пробуем ещё раз
+          models = settings().aiModels = await checkKey(aiKey(), { signal: ctl.signal }); settings().aiModelsV = 2; progress.save();
+          res = await run();
+        }
+        if (gen !== AI.gen) return;                        // пока ждали, переписку очистили
+        AI.msgs.push({ role: "model", text: res.text });
+        full = res.text; ended = true;
+        if (!live) startTyper();                           // ответ пришёл сразу целиком — всё равно печатаем плавно
+        await typedOut;
+        if (live.isConnected) {
+          fillModel(live, res.text);                       // в конце — полный текст без «обрезков» разметки
+          live.append(make("small", "aimeta", `${res.model} · ${AI_LEVELS.find((x) => x.id === lvl())?.label} · ${(res.ms / 1000).toFixed(1).replace(".", ",")} с`));   // какая модель и за сколько ответила — мелко и бледно
+          list.scrollTop = list.scrollHeight;
+        }
+      } catch (e) {
+        clearInterval(tick); typing.remove();
+        if (e.code === "cancelled") return;
+        AI.msgs.pop(); mine.remove(); input.value = typed;   // вопрос не ушёл — убираем его из переписки и возвращаем в поле (с файлами), чтобы можно было отправить ещё раз
+        if (sent.length) { pending = sent; drawFiles(); }
+        const b = bubble("err", e.message || "Что-то пошло не так. Попробуйте ещё раз.");
+        if (e.code === "badkey") b.append(" Значок ключа вверху — ввести новый.");
+        const g = googleMessage(e);                        // что именно ответил Google — мелко под нашим сообщением (помогает понять причину)
+        if (g) b.append(make("small", "aigoogle", "Google: " + g));
+      } finally { if (AI.ctl === ctl) { AI.busy = false; send.disabled = false; AI.ctl = null; } }
+    }
+    send.addEventListener("click", () => submit());
+    input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 120) + "px"; syncSend(); });
+    // на компьютере Enter отправляет, Ctrl+Enter (на Mac — Cmd+Enter) и Shift+Enter — новая строка; на телефоне Enter — новая строка, отправка кнопкой
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" || e.isComposing || touch) return;
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey || e.shiftKey) {
+        input.setRangeText("\n", input.selectionStart, input.selectionEnd, "end");   // браузер сам перенос по Ctrl+Enter не ставит
+        input.dispatchEvent(new Event("input"));
+      } else submit();
+    });
+    fill(); syncSend();
+    setTimeout(() => toEnd(false), 0);
+  });
+}
+
+/** Плавающая кнопка: стоит у левого или правого края, перетаскивается, положение запоминается (settings.aiFab = { side, y }). */
+function setupAi() {
+  const fab = $("aiFab"), SIZE = 48, EDGE = 8;
+  let fx = 0, fy = 0;
+  const place = (pos) => {
+    const p = pos || settings().aiFab || { side: "r", y: 0.52 };
+    const W = document.documentElement.clientWidth, H = window.innerHeight;
+    const barTop = $("bar").getBoundingClientRect().top || H - 90;   // выше нижней панели
+    fx = p.side === "l" ? EDGE : W - SIZE - EDGE;
+    fy = Math.min(Math.max(p.y * H, 70), barTop - SIZE - 12);
+    fab.style.transform = `translate(${fx}px, ${fy}px)`;
+    fab.hidden = false;
+  };
+  let d = null;
+  fab.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    d = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: fx, sy: fy, moved: false };
+    try { fab.setPointerCapture(e.pointerId); } catch { /* не страшно */ }
+  });
+  fab.addEventListener("pointermove", (e) => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.moved && Math.hypot(dx, dy) < 7) return;
+    d.moved = true; fab.classList.add("drag");
+    fx = d.sx + dx; fy = d.sy + dy;
+    fab.style.transform = `translate(${fx}px, ${fy}px)`;
+  });
+  const end = (e) => {
+    if (!d || e.pointerId !== d.id) return;
+    const was = d; d = null; fab.classList.remove("drag");
+    if (e.type === "pointercancel") { place(); return; }
+    if (!was.moved) { openAi(); return; }                                   // обычное нажатие
+    const W = document.documentElement.clientWidth;
+    settings().aiFab = { side: fx + SIZE / 2 < W / 2 ? "l" : "r", y: fy / window.innerHeight };   // отпустили — прижимается к ближайшему краю
+    progress.save();
+    place();
+  };
+  fab.addEventListener("pointerup", end);
+  fab.addEventListener("pointercancel", end);
+  fab.addEventListener("click", (e) => { if (e.detail === 0) openAi(); });   // с клавиатуры (Enter / пробел)
+  window.addEventListener("resize", () => place());
+  if (window.visualViewport) { window.visualViewport.addEventListener("resize", aiFit); window.visualViewport.addEventListener("scroll", aiFit); }
+  place();
 }
 
 // ---------- запуск ----------
@@ -2395,8 +2794,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=22").then((r) => r.json()),
-    fetch("data/aspect.json?v=22").then((r) => r.json()),
+    fetch("data/phrases.json?v=23").then((r) => r.json()),
+    fetch("data/aspect.json?v=23").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2446,6 +2845,7 @@ async function boot() {
   for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // блоки «Больше» и кнопки «назад»
   $("dictRow").addEventListener("click", () => { invTab = "dict"; showView("inv"); });   // «Словарь» в «Настройках» — переход в «Инвентарь → Словарь»
   setupTranslator();
+  setupAi();
   sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });
 
   // телефон: тап по пустому месту убирает клавиатуру; пока печатают, панель вкладок прячется

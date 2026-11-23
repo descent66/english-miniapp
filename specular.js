@@ -149,7 +149,7 @@ function init() {
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   gl.bindVertexArray(null);
   const spin = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;   // при «уменьшить движение» блики стоят на месте
-  return { canvas, gl, program, uniforms, vao, view: { width: 1, height: 1, ratio: 1 }, radius: 18, spot: START, spin, visible: true, button: null,
+  return { canvas, gl, program, uniforms, vao, view: { width: 1, height: 1, ratio: 1 }, radius: 18, spot: START, spin, visible: true, button: null, gain: 1,
     press: 0, raf: 0, last: 0, observer: null, visObserver: null };
 }
 
@@ -174,7 +174,7 @@ function draw(s) {
   gl.uniform2f(u.uEntry, rimX * pull * scaleX, rimY * pull * scaleY);
   gl.uniform3fv(u.uLineColor, LINE);
   gl.uniform3fv(u.uBaseColor, BASE);
-  gl.uniform1f(u.uIntensity, INTENSITY * (1 + s.press * 0.8));
+  gl.uniform1f(u.uIntensity, INTENSITY * s.gain * (1 + s.press * 0.8));
   gl.uniform2f(u.uWindow, SHINE_SIZE / 360 + s.press * 0.06, SHINE_FADE / 360 + 0.0001);
   gl.uniform1f(u.uThickness, THICKNESS);
   gl.uniform1f(u.uGlow, GLOW);
@@ -209,13 +209,16 @@ function measure(s, button) {
   draw(s);
 }
 
-/** Повесить блик на кнопку или карточку (position: relative); key — своё место ("place", "card"). Без WebGL2 ничего не делает. */
-export function attachSpecular(button, key = "default") {
+const pressHooked = new WeakSet();   // на одну кнопку «вспышку при нажатии» вешаем один раз, сколько бы раз блик ни переносили
+
+/** Повесить блик на кнопку или карточку (position: relative); key — своё место ("place", "card"). Без WebGL2 ничего не делает.
+ *  options.intensity — яркость блика (1 — как у карточки; меньше — тусклее). */
+export function attachSpecular(button, key = "default", options = {}) {
   let s = slots.get(key);
   if (!s) { s = init(); if (!s) return; slots.set(key, s); }
   s.observer?.disconnect();
   s.visObserver?.disconnect();
-  cancelAnimationFrame(s.raf); s.raf = 0; s.press = 0; s.last = 0; s.spot = START; s.button = button; s.visible = true;
+  cancelAnimationFrame(s.raf); s.raf = 0; s.press = 0; s.last = 0; s.spot = START; s.button = button; s.visible = true; s.gain = options.intensity ?? 1;
   button.prepend(s.canvas);
   s.observer = new ResizeObserver(() => { measure(s, button); wake(s); });
   s.observer.observe(button);
@@ -226,5 +229,15 @@ export function attachSpecular(button, key = "default") {
   s.visObserver.observe(button);
   measure(s, button);
   wake(s);
-  button.addEventListener("pointerdown", () => { s.press = 1; wake(s); });
+  if (!pressHooked.has(button)) { pressHooked.add(button); button.addEventListener("pointerdown", () => { if (s.button === button) { s.press = 1; wake(s); } }); }
+}
+
+/** Снять блик с места key: бег и наблюдатели останавливаются, холст убирается из страницы (сам холст остаётся в запасе — attachSpecular вернёт его). */
+export function detachSpecular(key = "default") {
+  const s = slots.get(key);
+  if (!s) return;
+  s.observer?.disconnect(); s.visObserver?.disconnect();
+  s.observer = s.visObserver = null;
+  cancelAnimationFrame(s.raf); s.raf = 0; s.last = 0; s.button = null;
+  s.canvas.remove();
 }
