@@ -1,15 +1,15 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=19";
-import * as Store from "./storage.js?v=19";
-import { startMolten } from "./molten.js?v=19";
-import { attachSpecular } from "./specular.js?v=19";
-import { animateList } from "./animlist.js?v=19";
-import { initTenses, fitBlanks } from "./tenses.js?v=19";
-import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=19";
-import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=19";
+import * as Core from "./core.js?v=20";
+import * as Store from "./storage.js?v=20";
+import { startMolten } from "./molten.js?v=20";
+import { attachSpecular } from "./specular.js?v=20";
+import { animateList } from "./animlist.js?v=20";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=20";
+import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=20";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen } from "./achievements.js?v=20";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.19";
+const APP_VERSION = "2026-11-23.20";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -660,17 +660,37 @@ function showToast({ title, description = "", actionLabel = "", icon = "", onAct
 }
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
-// порядок = «кто справа от кого» для анимации; общие, игры, повтор и прогресс — внутри «Настроек» (на панели у них своей кнопки нет)
+// порядок = «кто справа от кого» для анимации; настройки, игры, времена, повтор, прогресс и достижения — внутри «Больше» (на панели у них своей кнопки нет)
 const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach"];
 const TABS = ["learn", "inv", "tr", "more"];
 const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more" };
-const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Настройки»)
+const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Больше»)
 const tabOf = (v) => TAB_OF[v] || v;
 let view = "learn";
 let invTab = "saved";
 let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
 let swapTimer = null;
+
+// ---------- «Больше»: строка-статус в блоках и красные точки ----------
+const TENSE_COUNT = 12;
+const plural = (n, one, few, many) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; };
+
+/** Подписи под названиями блоков («5 из 32», «повторить: 7»…) и красные точки у «Повтора» и «Достижений»; вызывается при каждом открытии «Больше». */
+function renderMore() {
+  const set = (id, text) => { $(id).textContent = text; };
+  const ach = achievementStatus(progress), pool = progress.reviewPool().length, streak = progress.streak();
+  const tenses = Object.values(progress.data.tenses || {}).filter((r) => r && r.best >= MASTERED).length;
+  set("mstGames", `${GAMES.filter((g) => progress.data.flawless && progress.data.flawless[g]).length}/${GAMES.length} пройдено`);
+  set("mstProg", `серия ${streak} ${plural(streak, "день", "дня", "дней")}`);
+  set("mstAch", `${ach.filter((a) => a.date).length} из ${ach.length}`);
+  set("mstTenses", `освоено ${tenses} из ${TENSE_COUNT}`);
+  set("mstRev", pool ? `повторить: ${pool}` : "пока нет");
+  set("mstDict", `${progress.phrases.size} записей`);
+  $("dotRev").hidden = !pool || settings().dotRev === false;                            // точки можно выключить в «Настройках → Напоминания»
+  $("dotAch").hidden = !unseenAchievements(progress).length || settings().dotAch === false;
+  for (const dot of [$("dotRev"), $("dotAch")]) dot.parentElement.classList.toggle("alert", !dot.hidden);   // пока горит точка, значок блока раз в 10 с «подаёт знак» (CSS: кубок трясётся, стрелки делают круг)
+}
 
 /** Завершить переход: убрать служебные классы, оставить видимым только текущий экран. */
 function finishSwap() {
@@ -698,9 +718,14 @@ function showView(name) {
   if (name === "general") renderGeneral();
   if (name === "tenses") tenses.renderMap();
   if (name === "tlesson") tenses.renderLesson();
-  if (name === "more") { setSettingsSearchOpen(false); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // вернулись в «Настройки» — поиск закрыт   // разделы выезжают, как слова в «Закладках»
+  if (name === "more") { renderMore(); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // подписи и точки обновляются, блоки выезжают, как слова в «Закладках»
   if (name === "prog") renderProg();
-  if (name === "ach") { achOpened = false; setAchSearchOpen(false); renderAch(); }   // открыли экран — поиск закрыт, строки выезжают (как раньше)
+  if (name === "ach") {
+    announceAchievements();                                 // выданное «задним числом» тоже считается новым
+    achNew = unseenAchievements(progress);                  // полученные и ещё не просмотренные: у них галочка «выскакивает», к последнему экран сам прокручивается
+    achOpened = false; setAchSearchOpen(false); renderAch(); markAchievementsSeen(progress);
+    clearTimeout(achScrollTimer); achScrollTimer = setTimeout(scrollToNewAch, 380);   // после того как экран приехал (переход 340 мс)
+  }   // открыли экран — поиск закрыт, строки выезжают (как раньше)
   if (name === "tlesson") markExplored("tenses");
   const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) {
@@ -801,61 +826,6 @@ function invKeys(tab) {
   return progress.keysByState(tab);
 }
 
-// ---------- «Настройки»: поиск по настройкам (кнопка-лупа справа от заголовка) ----------
-// [название, куда ведёт, слова для поиска]; «куда» — экран, "dict" (Инвентарь → Словарь) или "modes" (окно «Что учить» на вкладке «Учить»).
-// Для пунктов внутри раздела третьим пунктом идёт название раздела (показывается мелко под названием).
-const SETTINGS_INDEX = [
-  ["Общие", "general", "основные настройки"],
-  ["Дневная серия", "general", "цель на день серия огонёк верных ответов", "Общие"],
-  ["Цель на день", "general", "10 20 30 верных ответов", "Общие"],
-  ["Звук при достижении цели", "general", "звук при достижении цели серия", "Общие"],
-  ["Конфетти", "general", "при достижении цели", "Общие"],
-  ["Звук", "general", "звуки включить выключить", "Общие"],
-  ["Задний фон", "general", "анимация без движения выкл фон", "Общие"],
-  ["Время на ответ", "general", "таймер секунд ползунок длина карточка", "Общие"],
-  ["Что учить", "modes", "виды слова фразовые глаголы фразы идиомы сленг пословицы", "Учить"],
-  ["Времена", "tenses", "грамматика past present future", ""],
-  ["Входной тест", "tenses", "времена тест уровень", "Времена"],
-  ["Словарь", "dict", "все слова идиомы фразы поиск", ""],
-  ["Игры", "games", "", ""],
-  ["Подставь частицу", "games", "фразовые глаголы игра", "Игры"],
-  ["Диалоги", "games", "разговор игра", "Игры"],
-  ["Прогресс", "prog", "календарь точность статистика", ""],
-  ["Достижения", "ach", "награды", ""],
-  ["Повтор", "rev", "трудные слова повторение", ""],
-];
-
-function goToSetting(where) {
-  if (where === "dict") { invTab = "dict"; showView("inv"); }
-  else if (where === "modes") { showView("learn"); openModes(); }
-  else showView(where);
-}
-
-/** Показать результаты поиска по настройкам; пустой запрос — обычный список разделов. */
-function renderSettingsSearch() {
-  const q = $("setSearch").value.trim().toLowerCase();
-  const res = $("setResults"), list = $("moreBody");
-  list.hidden = !!q;
-  res.hidden = !q;
-  if (!q) { animateList(list, { entrance: false, bottomEl: $("bar") }); return; }   // вернулись из результатов — без выезда (только вернуть прокрутку «pop» этому списку)
-  res.replaceChildren();
-  const found = SETTINGS_INDEX.filter(([title, , words]) => startsWord(title, q) || words.split(" ").some((w) => w && startsWord(w, q)));
-  if (!found.length) { res.append(emptyNote("Такой настройки нет.")); return; }
-  for (const [title, where, , section] of found) {
-    const sectionRow = [...document.querySelectorAll("#moreBody .menurow")].find((r) => r.dataset.go === where || (where === "dict" && r.id === "dictRow"));
-    const row = make("button", "item menurow");
-    const ico = make("span", "mico");
-    ico.innerHTML = (sectionRow || document.querySelector('#moreBody [data-go="general"]')).querySelector(".mico").innerHTML;
-    const name = make("span", "mtitle", title);
-    if (section) name.append(make("span", "msub", `в разделе «${section}»`));
-    row.append(ico, name);
-    row.insertAdjacentHTML("beforeend", '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>');
-    row.addEventListener("click", () => goToSetting(where));
-    res.append(row);
-  }
-  animateList(res, { entrance: false, bottomEl: $("bar") });   // при поиске строки появляются сразу, без выезда
-}
-
 const SEARCH_LUPA = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
 const SEARCH_CLOSE = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
@@ -869,9 +839,7 @@ function setSearchOpen({ btn, wrap, input, label, onClose }, open) {
   if (open) input.focus();
   else { input.value = ""; onClose(); }
 }
-const settingsSearch = { btn: $("setSearchBtn"), wrap: $("setSearchWrap"), input: $("setSearch"), label: "Поиск по настройкам", onClose: () => renderSettingsSearch() };
 const achSearch = { btn: $("achSearchBtn"), wrap: $("achSearchWrap"), input: $("achSearch"), label: "Поиск по достижениям", onClose: () => renderAch() };
-const setSettingsSearchOpen = (open) => setSearchOpen(settingsSearch, open);
 const setAchSearchOpen = (open) => setSearchOpen(achSearch, open);
 
 /**
@@ -1420,7 +1388,19 @@ function openAchievements(ids) {
   };
   if (view === "ach") { setAchSearchOpen(false); go(); return; }
   showView("ach");
+  clearTimeout(achScrollTimer);                              // вместо автопрокрутки к последнему новому — прокрутка к тем, про которые уведомление
   setTimeout(go, 380);   // после того как экран приехал (переход 340 мс) и строки появились
+}
+
+let achNew = [], achScrollTimer = 0, achIO = null;   // achNew — id достижений, которые были получены, но не просмотрены к моменту открытия экрана
+
+/** Экран «Достижения» открыт при новых достижениях: прокрутить к последнему из них (самое позднее по дню получения; при равенстве — нижнее в списке). */
+function scrollToNewAch() {
+  if (view !== "ach" || !achNew.length) return;
+  const fresh = achievementStatus(progress).filter((a) => a.date && achNew.includes(a.id)).sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
+  const last = fresh[fresh.length - 1];
+  const row = last && document.querySelector(`#achBody [data-ach="${last.id}"]`);
+  if (row) row.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 
 let achOpened = false;   // false — экран только что открыли (строки выезжают); при поиске строки появляются сразу, без выезда
@@ -1431,6 +1411,8 @@ function renderAch() {
   const matches = (a) => !q || startsWord(a.title, q) || startsWord(GROUP_TITLES[a.group], q) || a.text.split(" ").some((w) => w && startsWord(w, q));
   const body = $("achBody");
   body.replaceChildren();
+  if (achIO) { achIO.disconnect(); achIO = null; }
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sum = make("div", "item achsum");
   const bar = make("div", "track"), fill = make("i");
   fill.style.width = `${(got / list.length) * 100}%`;
@@ -1438,6 +1420,7 @@ function renderAch() {
   bar.append(fill);
   sum.append(make("b", "", `Получено ${got} из ${list.length}`), bar);
   body.append(sum);
+  attachSpecular(sum, "ach");   // два бегущих блика по кромке — как у «Входного теста» во «Временах»
   const shown = [];
   for (const [group, title] of Object.entries(GROUP_TITLES)) {
     const inGroup = list.filter((x) => x.group === group && matches(x));
@@ -1471,6 +1454,13 @@ function renderAch() {
         ck.setAttribute("aria-label", "Получено");
         ck.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
         row.append(ck);
+        if (achNew.includes(a.id) && !reduceMotion) {            // новая: галочка скрыта, пока карточка не окажется на экране, потом «выскакивает» со свечением и остаётся обычной
+          ck.classList.add("fresh");
+          achIO = achIO || new IntersectionObserver((entries) => {
+            for (const e of entries) if (e.isIntersecting && e.intersectionRatio >= 0.6) { e.target.querySelector(".achcheck").classList.add("pop"); achIO.unobserve(e.target); }
+          }, { threshold: [0.6] });
+          achIO.observe(row);
+        }
       }
       body.append(row);
     }
@@ -1785,8 +1775,13 @@ function attachThumb(seg, labels, startIdx) {
   const t = (sec) => sec / SPEED;
   const glow = make("div", "thumbglow"), thumb = make("div", "thumb");
   thumb.setAttribute("aria-hidden", "true");
-  for (const text of labels) thumb.append(make("span", "thumbcopy", text));
   const btns = [...seg.querySelectorAll(".segbtn")];
+  labels.forEach((text, i) => {                           // тёмная копия подписи для белой плашки; значок кнопки (если есть) — тоже
+    const copy = make("span", "thumbcopy", text);
+    const icon = btns[i] && btns[i].querySelector("svg");
+    if (icon) copy.prepend(icon.cloneNode(true));
+    thumb.append(copy);
+  });
   seg.append(glow, thumb);
 
   const L = { x: 0, v: 0, m: null }, R = { x: 0, v: 0, m: null };
@@ -1938,11 +1933,11 @@ function askSlider() {
   range.addEventListener("input", () => apply(Number(range.value)));
   value.textContent = `${start}s`;
   range.style.setProperty("--p", `${((start - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
-  f.append(value, range, quick);
+  f.append(value, range, quick, make("p", "asknote", "Время начнёт действовать со следующей карточки."));
   return f;
 }
 
-/** «Дневная серия»: цель дня и награда за неё. Одни и те же два раздела — в «Настройках → Общие» и во всплывающем окне у серии (⋯). */
+/** «Дневная серия»: цель дня и награда за неё. Одни и те же два раздела — в «Больше → Настройки» и во всплывающем окне у серии (⋯). */
 function streakSections() {
   const goal = make("div", "section");
   goal.append(
@@ -1958,15 +1953,19 @@ function streakSections() {
   return [goal, reward];
 }
 
-/** «Настройки → Общие»: каждая настройка — отдельная карточка (как слово в «Закладках»); варианты спрятаны и всплывают по нажатию. */
+/** «Больше → Настройки»: каждая настройка — отдельная карточка (как слово в «Закладках»); варианты спрятаны и всплывают по нажатию. */
 function renderGeneral() {
   const body = $("generalBody");
-  const card = (title, nodes) => {
+  const card = (title, nodes, icon) => {
     const id = "set" + Math.random().toString(36).slice(2, 8);
     const head = make("button", "sethead");
     head.setAttribute("aria-expanded", "false");
     head.setAttribute("aria-controls", id);
-    head.append(make("span", "setlabel", title));
+    const ico = make("span", "mico");                       // значок слева от названия настройки
+    ico.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${icon}</svg>`;
+    const left = make("span", "sethl");
+    left.append(ico, make("span", "setlabel", title));
+    head.append(left);
     head.insertAdjacentHTML("beforeend", '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>');
     const inner = make("div", "setinner");
     inner.append(...nodes);
@@ -1979,21 +1978,26 @@ function renderGeneral() {
     return c;
   };
   body.replaceChildren(
-    card("Дневная серия", streakSections()),
-    card("Звук", [field(null, ONOFF, settings().sound !== false, (v) => { settings().sound = v; progress.save(); })]),
+    card("Дневная серия", streakSections(), `<path d="${FLAME_PATH}"/>`),
+    card("Звук", [field(null, ONOFF, settings().sound !== false, (v) => { settings().sound = v; progress.save(); })],
+      '<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
     card("Задний фон", [field(null, [["anim", "Анимация"], ["still", "Без движения"], ["off", "Выкл"]], settings().bg || "anim", (v) => {
       settings().bg = v; progress.save(); applyBg();
-    })]),
-    card("Время на ответ", [askSlider()]));
+    })], '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3 3-2.5 4.5 4"/>'),
+    card("Время на ответ", [askSlider()], '<circle cx="12" cy="13.5" r="7"/><path d="M12 10v4l2.5 1.5M9.5 3.5h5"/>'),
+    card("Напоминания", [                                    // в «Больше»: точка у «Повтора» (есть что повторять) и у «Достижений» (есть новое)
+      field("Повтор", ONOFF, settings().dotRev !== false, (v) => { settings().dotRev = v; progress.save(); }),
+      field("Достижения", ONOFF, settings().dotAch !== false, (v) => { settings().dotAch = v; progress.save(); }),
+      make("p", "asknote remnote", "Напоминания — это красные точки в разделе «Больше». У «Повтора» точка горит, пока есть что повторять. У «Достижений» — когда получено новое достижение, которое вы ещё не просмотрели; она гаснет, как только вы откроете «Достижения»."),
+    ], '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'));
   $("generalNote").replaceChildren(
-    make("p", "", "Время начнёт действовать со следующей карточки. Цель дня учитывается и в календаре за прошлые дни."),
     make("p", "diag", diagText()));
   animateList(body, { entrance: true, bottomEl: $("bar") });
 }
 
 // «Инвентарь»: переключатель разделов (Закладки · Трудные · Учу · Выучено) — та же переезжающая плашка, что в «Общих»
 const invSeg = document.querySelector("#inv .seg");
-const invThumb = attachThumb(invSeg, [...invSeg.querySelectorAll(".segbtn")].map((b) => b.textContent), 0);
+const invThumb = attachThumb(invSeg, [...invSeg.querySelectorAll(".segbtn")].map((b) => b.textContent.trim()), 0);
 
 // ---------- три точки у серии: всплывающее окно с теми же настройками «Дневной серии» ----------
 function openStreakPop() {
@@ -2030,7 +2034,7 @@ function closeStreakPop() {
 function openWelcome(then) {
   sheetOpen((box) => {
     box.append(make("h2", "", "Цель на день"));
-    box.append(make("p", "", "Сколько верных ответов в день вы хотите давать? Выполнили цель — дни считаются в серию. Потом это можно изменить: Настройки → Общие."));
+    box.append(make("p", "", "Сколько верных ответов в день вы хотите давать? Выполнили цель — дни считаются в серию. Потом это можно изменить: Больше → Настройки."));
     const pick = make("div", "goalpick");
     for (const n of GOALS) {
       const b = make("button", "btn" + (n === 20 ? " primary" : ""));
@@ -2138,7 +2142,7 @@ function setupTranslator() {
 
 // ---------- жесты ----------
 // 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
-// 2) свайп вниз по окну («Настройки», «Что учить») — закрыть его.
+// 2) свайп вниз по окну («Что учить») — закрыть его.
 function setupGestures() {
   const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds";   // отсюда свайп вкладок не начинаем
   let st = null;
@@ -2241,13 +2245,14 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=19").then((r) => r.json()),
-    fetch("data/aspect.json?v=19").then((r) => r.json()),
+    fetch("data/phrases.json?v=20").then((r) => r.json()),
+    fetch("data/aspect.json?v=20").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
   Core.setAspect(aspect);
   progress = new Core.Progress(phrases, saved, Store.save);
+  initAchSeen(progress);   // что получено до обновления — считается просмотренным, красная точка только для новых
   if (Store.usingCloud) Store.save(progress.data); // если локальная копия была новее — подтянуть облако
   applyBg();
   refreshModeBtn();
@@ -2269,9 +2274,6 @@ async function boot() {
     b.addEventListener("click", () => { invTab = b.dataset.tab; renderInv(); });
   }
   $("invSearch").addEventListener("input", () => renderInv(false));
-  $("setSearchBtn").addEventListener("click", () => setSettingsSearchOpen($("setSearchWrap").hidden));
-  $("setSearch").addEventListener("input", renderSettingsSearch);
-  $("setSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setSettingsSearchOpen(false); });
   $("achSearchBtn").addEventListener("click", () => setAchSearchOpen($("achSearchWrap").hidden));
   $("achSearch").addEventListener("input", renderAch);
   $("achSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setAchSearchOpen(false); });
@@ -2288,7 +2290,7 @@ async function boot() {
 
   $("chipMore").addEventListener("click", () => { if ($("spopWrap").hidden) openStreakPop(); else closeStreakPop(); });
   $("spopWrap").addEventListener("pointerdown", (e) => { if (e.target === $("spopWrap")) closeStreakPop(); });   // тап мимо окна — закрыть
-  for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // строки «Настроек» и кнопки «назад»
+  for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // блоки «Больше» и кнопки «назад»
   $("dictRow").addEventListener("click", () => { invTab = "dict"; showView("inv"); });   // «Словарь» в «Настройках» — переход в «Инвентарь → Словарь»
   setupTranslator();
   sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });

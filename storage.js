@@ -25,6 +25,7 @@ export function pack(data, ts = Date.now()) {
   if (data.flawRun) out.w = data.flawRun;     // безупречных раундов игр подряд
   if (data.run) out.r = data.run;             // верных ответов подряд
   if (data.explored) out.x = data.explored;   // что уже пробовал («Исследователь»)
+  if (data.achSeen) out.y = data.achSeen;     // какие достижения уже просмотрены (красная точка у «Достижений»)
   return JSON.stringify(out);
 }
 
@@ -48,6 +49,7 @@ export function unpack(text) {
   if (o.w) data.flawRun = o.w;
   if (o.r) data.run = o.r;
   if (o.x) data.explored = o.x;
+  if (o.y) data.achSeen = o.y;
   return { data, ts: o.ts || 0 };
 }
 

@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=19";
-import { MASTERED } from "./tenses.js?v=19";
+import { dayKey, HARD_MISSES } from "./core.js?v=20";
+import { MASTERED } from "./tenses.js?v=20";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -113,4 +113,25 @@ export function checkAchievements(p, today = new Date()) {
 export function achievementStatus(p) {
   const got = p.data.ach || {};
   return ACHIEVEMENTS.map((a) => ({ ...a, cur: Math.min(a.value(p), a.target), date: got[a.id] || null }));
+}
+
+// Красная точка на «Достижениях»: полученное, но ещё не показанное на экране «Достижения». Список просмотренного — data.achSeen (в хранилище — ключ y).
+/** Один раз при запуске после обновления: всё, что уже получено до этого, считается просмотренным (точка нужна только новым). */
+export function initAchSeen(p) {
+  if (p.data.achSeen) return;
+  p.data.achSeen = Object.keys(p.data.ach || {});
+  p.save();
+}
+
+/** id полученных достижений, которых пользователь ещё не видел. */
+export function unseenAchievements(p) {
+  const seen = p.data.achSeen || [];
+  return Object.keys(p.data.ach || {}).filter((id) => !seen.includes(id));
+}
+
+/** Открыт экран «Достижения» — всё полученное просмотрено. */
+export function markAchievementsSeen(p) {
+  if (!unseenAchievements(p).length && p.data.achSeen) return;
+  p.data.achSeen = Object.keys(p.data.ach || {});
+  p.save();
 }

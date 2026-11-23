@@ -641,11 +641,6 @@ body.compact2 .nav #backBtn { width: 52px; }
 #moreBody[data-animated] .item:not([data-state]) { opacity: 0; }
 @media (hover: hover) { #moreBody .item:hover { filter: brightness(1.12); } }
 #moreBody .item:active { filter: brightness(.85); }
-/* «Настройки»: кнопка поиска справа от заголовка (поле открывается по нажатию), результаты — строки как у разделов */
-.tophead { position: relative; }
-.tophead .icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: #fff; }
-@media (hover: hover) { #setResults .item:hover { filter: brightness(1.12); } }
-#setResults .item:active { filter: brightness(.85); }
 .subhead #achSearchBtn { margin-left: auto; }
 .menurow .msub { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
 .searchwrap { animation: search-in .22s ease-out; }
@@ -660,7 +655,7 @@ body.compact2 .nav #backBtn { width: 52px; }
 .dkind small { font-size: 12px; font-weight: 500; opacity: .8; font-variant-numeric: tabular-nums; }
 .dkind.on { color: #0b0c12; border-color: transparent; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 14px rgba(255, 255, 255, .35); }
 /* «Достижения»: итог сверху, группы, карточки (полученные — белая иконка со свечением и зелёная галочка) */
-#achBody[data-animated] .item:not([data-state]), #setResults[data-animated] .item:not([data-state]) { opacity: 0; }
+#achBody[data-animated] .item:not([data-state]) { opacity: 0; }
 .achsum { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
 .achsum b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .achhead { margin: 8px 4px -2px; color: var(--muted); }
@@ -958,7 +953,7 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 .spop { background: linear-gradient(180deg, rgba(40, 40, 54, .985), rgba(10, 10, 16, .99)); }
 
 /* «Достижения»: заголовки групп выезжают вместе с карточками (animlist.js), до выезда скрыты */
-#achBody[data-animated] .achhead:not([data-state]), #setResults[data-animated] .achhead:not([data-state]) { opacity: 0; }
+#achBody[data-animated] .achhead:not([data-state]) { opacity: 0; }
 
 /* «Прекратить повтор» под «Проверить»: маленькая, без заливки и свечения, по центру — чтобы не спутать с главной кнопкой.
    Лежит в пустом месте под «Проверить» (пока идёт ответ, строки статуса и ответа пустые) и не добавляет карточке высоты:
@@ -974,3 +969,78 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 #trPhoto { width: 42px; height: 42px; color: #fff; }
 #trPhoto svg { width: 22px; height: 22px; }
 #trPhoto:disabled { opacity: .45; cursor: default; }
+
+/* «Время на ответ»: подсказка под кнопками секунд (раньше стояла внизу всех «Общих») */
+.asknote { margin: 6px 2px 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+/* Переводчик: мусорка не «включается» скачком, а раскрывается — ширина и прозрачность плавно растут, камера при этом сама сдвигается влево;
+   пока текста нет, мусорка свёрнута в ноль (и недоступна для нажатия и чтения с экрана — visibility прячет её после сворачивания) */
+#trClear { overflow: hidden; transition: width .3s cubic-bezier(.3, .8, .3, 1), margin-left .3s cubic-bezier(.3, .8, .3, 1), border-width .3s ease,
+  opacity .25s ease .05s, transform .35s cubic-bezier(.3, 1.3, .5, 1), visibility 0s; }
+#trClear[hidden] { display: grid !important; width: 0; margin-left: -8px; border-width: 0; opacity: 0; transform: scale(.4); visibility: hidden; pointer-events: none;
+  transition: width .3s cubic-bezier(.3, .8, .3, 1), margin-left .3s cubic-bezier(.3, .8, .3, 1), border-width .3s ease, opacity .2s ease, transform .3s ease, visibility 0s .3s; }
+@media (prefers-reduced-motion: reduce) { #trClear, #trClear[hidden] { transition-duration: .01s; transition-delay: 0s; } }
+#trClear { padding: 0; }   /* без внутренних отступов кнопка сворачивается ровно в ноль и камера стоит там же, где раньше */
+
+/* «Инвентарь»: над каждой подписью вкладки — свой значок (закладка, камень «?» в гору, закрытая книга, галочка). Кнопка и её тёмная копия
+   внутри белой плашки (.thumbcopy) устроены одинаково: значок сверху, подпись снизу, всё по центру */
+#inv .segbtn, #inv .thumbcopy { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 2px 9px; }
+#inv .segbtn svg, #inv .thumbcopy svg { flex: none; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+
+/* «Больше»: нижние блоки — три в ряд, как во «Временах» (компактно): значок 44 px, название, под ним мелкая строка-статус с данными
+   («5 из 32», «повторить: 7»). Широкий блок «Настройки» не меняется */
+#moreBody .tgrid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+#moreBody .tcell { position: relative; justify-content: center; gap: 6px; padding: 14px 4px 12px; }
+#moreBody .tcell .mico { width: 44px; height: 44px; border-radius: 14px; }
+#moreBody .tcell .mico svg { width: 24px; height: 24px; }
+#moreBody .tcell .tname { font-size: 14px; }
+#moreBody .tcell .tstat { font-size: 11.5px; line-height: 1.25; margin-top: -2px; }
+@media (max-width: 340px) { #moreBody .tcell .tname { font-size: 12px; } #moreBody .tcell .tstat { font-size: 11px; } }
+
+/* красная мигающая точка со свечением в углу блока: «Повтор» — есть что повторять, «Достижения» — есть новое, ещё не просмотренное */
+.rdot { position: absolute; top: 11px; right: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--bad);
+  box-shadow: 0 0 5px 1px rgba(255, 90, 90, .85); animation: rdot-blink 1.3s ease-in-out infinite; pointer-events: none; }
+@keyframes rdot-blink {
+  0%, 100% { opacity: .4; transform: scale(.8); box-shadow: 0 0 2px 0 rgba(255, 90, 90, .5); }
+  50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 6px 1.5px rgba(255, 90, 90, .95); }
+}
+@media (prefers-reduced-motion: reduce) { .rdot { animation: none; } }
+
+/* «Достижения»: блок «Получено N из M» — два бегущих блика по кромке (specular.js), как у «Входного теста»; текст и полоска выше холста */
+.achsum { position: relative; }
+.achsum > :not(.specular-light) { position: relative; z-index: 1; }
+
+/* «Настройки»: слева от названия каждой настройки — значок (тот же квадратик 40 px, что у блоков «Больше»), название и стрелка остаются как были */
+.sethl { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+/* «Больше»: шестерёнка у блока «Настройки» раз в цикл делает полный оборот (1,4 с) и стоит 7 с — отсчёт 7 с идёт только с конца оборота
+   (цикл 8,4 с = оборот 1,4 с + пауза 7 с; первый оборот через 0,8 с после открытия экрана) */
+@keyframes gear-turn { 0% { transform: rotate(0deg); } 16.667% { transform: rotate(360deg); } 100% { transform: rotate(360deg); } }
+#moreBody .tplace .mico svg { animation: gear-turn 8.4s cubic-bezier(.65, 0, .35, 1) .8s infinite; }
+@media (prefers-reduced-motion: reduce) { #moreBody .tplace .mico svg { animation: none; } }
+
+/* «Достижения»: у новых (ещё не просмотренных) галочка сначала скрыта, потом «выскакивает» (pop) со свечением на время анимации; в конце свечения нет — галочка обычная, как у остальных */
+.achcheck.fresh:not(.pop) svg { opacity: 0; }
+.achcheck.pop svg { animation: ck-pop .75s cubic-bezier(.22, 1.4, .4, 1) .3s both; }
+@keyframes ck-pop {
+  0% { transform: scale(.2); opacity: 0; filter: drop-shadow(0 0 0 rgba(95, 208, 138, 0)); }
+  45% { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 9px rgba(95, 208, 138, .95)); }
+  100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 0 rgba(95, 208, 138, 0)); }
+}
+
+/* «Напоминания»: пояснение внизу карточки — ниже (больше отступ от переключателей) */
+.asknote.remnote { margin-top: 20px; }
+
+/* «Больше»: пока горит красная точка (блок с классом alert), значок раз в 5 с подаёт знак: у «Достижений» кубок 2 с потряхивает влево-вправо (затухая),
+   у «Повтора» стрелки делают один круг по часовой стрелке (1,2 с); период 5 с от начала анимации, первый раз — через 0,8 с после открытия экрана
+   (проценты ключевых кадров считаются от 5 с: 2 с = 40%, 1,2 с = 24%) */
+@keyframes trophy-shake {
+  0% { transform: rotate(0deg); } 4% { transform: rotate(-13deg); } 8% { transform: rotate(13deg); } 12% { transform: rotate(-11deg); } 16% { transform: rotate(11deg); }
+  20% { transform: rotate(-8deg); } 24% { transform: rotate(8deg); } 28% { transform: rotate(-5deg); } 32% { transform: rotate(5deg); } 36% { transform: rotate(-2deg); }
+  40% { transform: rotate(0deg); } 100% { transform: rotate(0deg); }
+}
+@keyframes arrows-turn { 0% { transform: rotate(0deg); } 24% { transform: rotate(360deg); } 100% { transform: rotate(360deg); } }
+#moreBody .tcell.alert[data-go="ach"] .mico svg { transform-origin: 50% 85%; animation: trophy-shake 5s ease-in-out .8s infinite; }
+#moreBody .tcell.alert[data-go="rev"] .mico svg { animation: arrows-turn 5s cubic-bezier(.65, 0, .35, 1) .8s infinite; }
+@media (prefers-reduced-motion: reduce) { #moreBody .tcell.alert .mico svg { animation: none; } }
