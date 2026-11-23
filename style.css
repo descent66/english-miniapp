@@ -1044,3 +1044,45 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 #moreBody .tcell.alert[data-go="ach"] .mico svg { transform-origin: 50% 85%; animation: trophy-shake 5s ease-in-out .8s infinite; }
 #moreBody .tcell.alert[data-go="rev"] .mico svg { animation: arrows-turn 5s cubic-bezier(.65, 0, .35, 1) .8s infinite; }
 @media (prefers-reduced-motion: reduce) { #moreBody .tcell.alert .mico svg { animation: none; } }
+
+/* «Инвентарь»: подписи вкладок (Закладки · Трудные · Словарь · Выучено) мельче — на телефоне стояли почти край в край (14 → 12 px; на 320 px — 10,5 px); у белой плашки та же величина */
+#inv .segbtn, #inv .thumbcopy { font-size: 12px; }
+@media (max-width: 340px) { #inv .segbtn, #inv .thumbcopy { font-size: 10.5px; } }
+
+/* Подсказка: лампочка внутри поля ввода справа (стеклянная кнопка, как остальные значки карточки); открытые буквы — серым в самом поле */
+.entryrow { position: relative; }
+.entryrow #entry { padding-right: 60px; }
+.hintbtn { position: absolute; right: 10px; top: 50%; width: 40px; height: 40px; margin-top: -20px; border: 1px solid var(--line); border-radius: 14px;
+  background: rgba(255, 255, 255, .06); color: var(--muted); display: grid; place-items: center; cursor: pointer; transition: opacity .25s ease, transform .15s ease; }
+.hintbtn:active { transform: scale(.92); color: var(--fg); }
+.hintbtn.spent { opacity: .35; }
+#entry::placeholder { color: rgba(255, 255, 255, .5); letter-spacing: .16em; }
+
+/* «Прогресс → Слабые слова» */
+.weakhead { margin: 10px 4px -4px; color: var(--muted); font-size: 14px; }
+.weaknote { color: var(--muted); font-size: 13px; text-align: center; padding: 0 8px; }
+#progBody .empty { padding: 18px 10px 8px; }
+
+/* Смена карточки и ответ плавные: высота карточки закреплена (lockCardHeight в app.js, замер без переходов), а «Проверить» и «Показать ответ»
+   при скрытии не исчезают скачком, а сворачиваются (как мусорка в переводчике) */
+.measuring, .measuring * { transition: none !important; }
+#checkBtn { max-height: 90px; overflow: hidden; transition: max-height .3s cubic-bezier(.3, .8, .3, 1), margin-top .3s cubic-bezier(.3, .8, .3, 1),
+  padding .3s ease, border-width .3s ease, opacity .25s ease, visibility 0s; }
+#checkBtn[hidden] { display: inline-grid !important; max-height: 0; margin-top: -12px; padding-top: 0; padding-bottom: 0; border-width: 0; opacity: 0;
+  visibility: hidden; pointer-events: none; transition: max-height .3s cubic-bezier(.3, .8, .3, 1), margin-top .3s cubic-bezier(.3, .8, .3, 1), padding .3s ease,
+  border-width .3s ease, opacity .2s ease, visibility 0s .3s; }
+.nav #showBtn { max-width: 240px; overflow: hidden; transition: max-width .3s cubic-bezier(.3, .8, .3, 1), padding .3s ease, margin-left .3s cubic-bezier(.3, .8, .3, 1),
+  border-width .3s ease, opacity .25s ease, visibility 0s; }
+.nav #showBtn[hidden] { display: inline-grid !important; max-width: 0; padding-left: 0; padding-right: 0; margin-left: -8px; border-width: 0; opacity: 0;
+  visibility: hidden; pointer-events: none; transition: max-width .3s cubic-bezier(.3, .8, .3, 1), padding .3s ease, margin-left .3s cubic-bezier(.3, .8, .3, 1),
+  border-width .3s ease, opacity .2s ease, visibility 0s .3s; }
+
+
+/* Таймер: длина полоски меняется плавно в обе стороны. Раньше надпись росла скачком до своей естественной ширины («Дальше 0:05» длиннее «0:27»), и правый конец полоски
+   «телепортировался»; теперь ширина надписи задана явно и анимируется (min-width не годился: он не мешает тексту быть шире). При смене фазы заливка идёт медленнее,
+   (проявление таймера по прозрачности убрано по просьбе пользователя) */
+#countdown, .timer #countdown { min-width: 0; width: 36px; overflow: hidden; white-space: nowrap;
+  transition: width .3s cubic-bezier(.3, .8, .3, 1), color 1s ease, text-shadow 1s ease; }
+.timer.next #countdown { min-width: 0; width: 94px; }
+.timer.phasing .track i { transition: width .5s cubic-bezier(.22, 1, .36, 1), box-shadow 1s ease; }
+@media (prefers-reduced-motion: reduce) { #countdown, .timer #countdown { transition-duration: .01s; } }

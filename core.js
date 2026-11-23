@@ -284,6 +284,12 @@ export class Progress {
     });
   }
 
+  /** Только в Mini App (в core.py нет). «Слабые слова»: не выучены и ошибок не меньше HARD_MISSES; больше ошибок — выше, при равенстве по алфавиту. */
+  weakCards() {
+    return this.hardCards().filter((k) => (this.cards[k].misses || 0) >= HARD_MISSES)
+      .sort((a, b) => this.cards[b].misses - this.cards[a].misses || (a < b ? -1 : a > b ? 1 : 0));
+  }
+
   /** Что берёт сессия «Повтор»: «учу» со сроком, который уже настал, и «трудные». */
   reviewPool(now = nowSec()) {
     const set = new Set(this.hardCards());
@@ -368,6 +374,16 @@ export class Progress {
     for (const key of this.phrases.keys()) counts[this.state(key)] += 1;
     return counts;
   }
+}
+
+/** Только в Mini App (в core.py нет). Подсказка к ответу: у каждого слова открыты первые `level` букв, остальные — «_»
+ *  (последняя буква слова не открывается; пояснение в скобках отбрасывается, знаки препинания остаются). «income», 2 → «in____». */
+export function hintMask(answer, level) {
+  return answer.replace(/\([^)]*\)/g, " ").trim().split(/\s+/).map((word) => {
+    const open = Math.min(level, [...word].filter((c) => /\p{L}/u.test(c)).length - 1);
+    let n = 0;
+    return [...word].map((c) => (!/\p{L}/u.test(c) || n++ < open ? c : "_")).join("");
+  }).join(" ");
 }
 
 /** Только в Mini App (в core.py нет). За сколько секунд до конца таймер ответа краснеет, зависит от его длины:

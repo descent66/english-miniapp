@@ -1,15 +1,15 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=20";
-import * as Store from "./storage.js?v=20";
-import { startMolten } from "./molten.js?v=20";
-import { attachSpecular } from "./specular.js?v=20";
-import { animateList } from "./animlist.js?v=20";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=20";
-import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=20";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen } from "./achievements.js?v=20";
+import * as Core from "./core.js?v=21";
+import * as Store from "./storage.js?v=21";
+import { startMolten } from "./molten.js?v=21";
+import { attachSpecular } from "./specular.js?v=21";
+import { animateList } from "./animlist.js?v=21";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=21";
+import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=21";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen } from "./achievements.js?v=21";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.20";
+const APP_VERSION = "2026-11-23.21";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -30,7 +30,7 @@ const el = {
   tag: $("tag"), prompt: $("prompt"), entry: $("entry"), status: $("status"), answer: $("answer"),
   example: $("example"), countdown: $("countdown"), timerFill: $("timerFill"), timerBox: document.querySelector(".timer"), goalNum: $("goalNum"), goalFill: $("goalFill"),
   goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"), mode: $("modeBtn"),
-  check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"),
+  check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"), hintBtn: $("hintBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
   gamesBody: $("gamesBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
 };
@@ -171,6 +171,7 @@ function checkKeyboard() {
   fit();
   const typing = document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName);
   document.body.classList.toggle("kbd", touch && typing && h < maxViewH - 120);
+  if (cur !== null) lockCardHeight();   // размер экрана изменился — высота свежей карточки другая
 }
 
 // ---------- состояние ----------
@@ -205,7 +206,14 @@ function setStatus(text, kind = "") {
 // ---------- таймер ----------
 // Две фазы: "ask" — минута на ответ; потом (или после ответа) "next" — 10 секунд
 // показываем правильный ответ и пример, затем приходит новая фраза.
+let phasingTimer = 0;
 function schedule(seconds, ph) {
+  // смена фазы (новая карточка ↔ ответ): заливка меняет длину неспешно (класс phasing); проявления по прозрачности нет (пользователь убрал)
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && el.timerBox.offsetParent) {
+    el.timerBox.classList.add("phasing");
+    clearTimeout(phasingTimer);
+    phasingTimer = setTimeout(() => el.timerBox.classList.remove("phasing"), 550);
+  }
   phase = ph;
   phaseMs = seconds * 1000;
   nextAt = Date.now() + phaseMs;
@@ -259,7 +267,7 @@ function nextCard() {
   let key;
   if (session) {
     if (session.finished) { schedule(askSec(), "ask"); return; }
-    const pool = progress.reviewPool().filter((k) => !session.seen.includes(k));
+    const pool = (session.pool || progress.reviewPool()).filter((k) => !session.seen.includes(k));
     if (session.done >= session.total || !pool.length) { finishSession(); return; }
     key = pool[Math.floor(Math.random() * pool.length)];
     session.seen.push(key);
@@ -291,12 +299,45 @@ function setIdle(text) {
   el.example.textContent = "";
   el.entry.value = "";
   el.entry.readOnly = true;
-  el.check.hidden = el.show.hidden = true;
+  el.check.hidden = el.show.hidden = el.hintBtn.hidden = true;
   showActions();
+}
+
+// Подсказка: каждое нажатие лампочки открывает у каждого слова ответа ещё одну букву (до HINT_MAX); показывается серым в пустом поле ввода.
+// На счёт ответа не влияет. Только в Mini App.
+const HINT_MAX = 3;
+let hintLevel = 0;
+function onHint() {
+  if (cur === null || revealed || hintLevel >= HINT_MAX) return;
+  const p = progress.phrases.get(cur);
+  el.entry.placeholder = Core.hintMask(direction === "en2ru" ? p.ru[0] : p.en, ++hintLevel);
+  el.hintBtn.classList.toggle("spent", hintLevel >= HINT_MAX);
 }
 
 /** Кнопка «Прекратить повтор» под «Проверить» — только пока идёт сессия повтора. */
 const syncSessBtn = () => { $("endSessBtn").hidden = !(session && !session.finished); };
+
+/** «Pop», как у строк списков: узлы по очереди всплывают (прозрачность 0→1, снизу вверх, лёгкое увеличение). Скрытые узлы и скрытая вкладка пропускаются. */
+function popIn(nodes, delay = 0) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  nodes.filter((n) => n && !n.hidden && n.offsetParent).forEach((n, i) => n.animate(
+    [{ opacity: 0, transform: "translateY(12px) scale(.92)" }, { opacity: 1, transform: "none" }],
+    { duration: 380, delay: delay + i * 50, easing: "cubic-bezier(.22, 1.25, .4, 1)", fill: "backwards" }));
+}
+
+/** Высота карточки не меняется между «вопросом» и «ответом» (иначе низ карточки прыгает): запоминаем высоту свежей карточки и держим её как min-height.
+ *  Замер без переходов (класс measuring). Вызывается на каждой новой карточке и при смене размера экрана/клавиатуры. */
+let cardH = 0;
+function lockCardHeight() {
+  const glass = document.querySelector("#learn .glass");
+  if (!glass.offsetParent) return;
+  if (revealed) { glass.style.minHeight = ""; return; }   // на ответе свежую высоту не замерить — снимаем замок до следующей карточки
+  glass.style.minHeight = "";
+  glass.classList.add("measuring");
+  cardH = glass.offsetHeight;
+  glass.classList.remove("measuring");
+  glass.style.minHeight = cardH + "px";
+}
 
 function show(key, dir, isRevealed) {
   cur = key; direction = dir; revealed = false;
@@ -304,7 +345,7 @@ function show(key, dir, isRevealed) {
   const p = progress.phrases.get(key);
   const state = progress.state(key);
   const pills = [];
-  if (session && !session.finished) pills.push([`Повтор ${session.done + 1}/${session.total}`, "sess"]);
+  if (session && !session.finished) pills.push([`${session.pool ? "Слабые" : "Повтор"} ${session.done + 1}/${session.total}`, "sess"]);
   const kind = TYPE_RU[p.type] || p.type;
   pills.push([kind[0].toUpperCase() + kind.slice(1), ""], [p.level, "lvl"], [dir === "en2ru" ? "EN → RU" : "RU → EN", "mode"]);
   if (state === "learning") pills.push(["↻", "rep"]);
@@ -314,6 +355,9 @@ function show(key, dir, isRevealed) {
   el.entry.readOnly = false;
   el.entry.value = "";
   el.entry.className = "";
+  el.entry.placeholder = "";
+  hintLevel = 0;
+  el.hintBtn.classList.remove("spent");
   setStatus("");
   el.answer.textContent = "";
   el.example.textContent = "";
@@ -322,10 +366,13 @@ function show(key, dir, isRevealed) {
   if (isRevealed) {
     reveal(null);
   } else {
-    el.check.hidden = el.show.hidden = false;
+    el.check.hidden = el.show.hidden = el.hintBtn.hidden = false;
     if (!touch || keepFocus) el.entry.focus({ preventScroll: true });
     schedule(askSec(), "ask");
   }
+  if (isRevealed && cardH) document.querySelector("#learn .glass").style.minHeight = cardH + "px";   // «Назад»: та же высота, что у свежих карточек
+  else lockCardHeight();
+  popIn([el.tag, el.prompt, document.querySelector("#learn .entryrow"), el.check]);
 }
 
 function onEnter() {
@@ -366,9 +413,10 @@ function reveal(ok) {
   }
   el.example.textContent = `${p.example_en}\n${p.example_ru}`;
   el.entry.readOnly = true; // не disabled: так на телефоне не закрывается клавиатура
-  el.check.hidden = el.show.hidden = true;
+  el.check.hidden = el.show.hidden = el.hintBtn.hidden = true;
+  el.entry.placeholder = "";
 
-  if (ok === null) { setStatus(""); return; }
+  if (ok === null) { setStatus(""); popIn([el.answer, el.example]); return; }
   el.entry.className = ok ? "ok" : "bad";
   const before = progress.state(cur);
   const state = progress.record(cur, ok);
@@ -394,6 +442,7 @@ function reveal(ok) {
   // верный на повторении — оценка, которая сдвигает срок следующей проверки
   if ((before === "unseen" || before === "new") && ok) showActions(el.known);
   else if (before === "learning" && ok && state === "learning") showActions(el.easy, el.normal, el.hard);
+  popIn([el.status, el.answer, el.example, ...actionBtns]);
 }
 
 function onRate(rating) {
@@ -753,7 +802,7 @@ function emptyNote(text) { return make("div", "empty", text); }
 const SIDE = {
   hard: (c) => (c.misses ? `ошибок: ${c.misses}` : "трудно"),
   mastered: () => "выучено",
-  dict: (c) => ({ new: "видел", learning: "учу", mastered: "выучено", known: "знал" })[c?.state] || "",   // у ещё не показанных записи в прогрессе нет
+  dict: (c) => ({ new: "Видел", learning: "Учу", mastered: "Выучено", known: "Знал" })[c?.state] || "",   // у ещё не показанных записи в прогрессе нет
 };
 
 /** Список фраз: в закладках — крестик «убрать», в остальных — подпись справа. */
@@ -1253,7 +1302,7 @@ function renderRev() {
       [["Продолжить", true, () => showView("learn")], ["Закончить повтор", false, endSession]]));
   } else if (session) {
     body.append(panel("Готово!", `Верных ответов: ${session.correct} из ${session.done}.`,
-      [["Ещё раз", true, startReview], ["К обычным карточкам", false, endSession]]));
+      [["Ещё раз", true, session.pool ? startWeak : startReview], ["К обычным карточкам", false, endSession]]));
   } else {
     const hard = progress.hardCards().length;
     const pool = progress.reviewPool().length;
@@ -1264,14 +1313,17 @@ function renderRev() {
   }
 }
 
-function startReview() {
-  const pool = progress.reviewPool();
+/** keys — свой набор карточек (слабые слова); без него сессия берёт обычный пул повтора. */
+function startSession(keys) {
+  const pool = keys || progress.reviewPool();
   if (!pool.length) return;
-  session = { total: Math.min(SESSION_SIZE, pool.length), done: 0, correct: 0, seen: [], finished: false };
+  session = { total: Math.min(SESSION_SIZE, pool.length), done: 0, correct: 0, seen: [], finished: false, pool: keys };
   markExplored("rev");
   showView("learn");
   nextCard();
 }
+const startReview = () => startSession(null);
+const startWeak = () => startSession(progress.weakCards().slice(0, SESSION_SIZE));
 
 function finishSession() {
   session.finished = true;
@@ -1343,6 +1395,19 @@ function renderProg() {
   }
   cal.append(head, grid, make("p", "", `Белым отмечены дни, когда выполнена цель (${progress.goal()} верных ответов).`));
   body.append(cal);
+
+  // «Слабые слова»: где ошибок больше всего (5 первых) и кнопка короткой тренировки по ним
+  const weak = progress.weakCards();
+  body.append(make("div", "weakhead", "Слабые слова"));
+  if (!weak.length) {
+    body.append(emptyNote(`Таких слов пока нет.\nСюда попадают слова, в которых\nвы ошиблись ${Core.HARD_MISSES} раза и больше.`));
+  } else {
+    appendRows(body, weak.slice(0, 5), "hard");
+    if (weak.length > 5) body.append(make("div", "weaknote", `Показаны 5 из ${weak.length}. В тренировку войдут до ${SESSION_SIZE} самых слабых.`));
+    const go = make("button", "btn wide primary", "Потренировать");
+    go.addEventListener("click", startWeak);
+    body.append(go);
+  }
 
   body.append(make("div", "stats",
     `Трудных слов: ${progress.hardCards().length}\n\n` +
@@ -2245,8 +2310,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=20").then((r) => r.json()),
-    fetch("data/aspect.json?v=20").then((r) => r.json()),
+    fetch("data/phrases.json?v=21").then((r) => r.json()),
+    fetch("data/aspect.json?v=21").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2262,6 +2327,8 @@ async function boot() {
   el.check.addEventListener("click", submit);
   $("endSessBtn").addEventListener("click", endSession);
   el.show.addEventListener("click", giveUp);
+  el.hintBtn.addEventListener("mousedown", (e) => e.preventDefault());   // нажатие не снимает фокус с поля и не закрывает клавиатуру
+  el.hintBtn.addEventListener("click", onHint);
   el.back.addEventListener("click", () => { play("fill"); back(); });
   el.next.addEventListener("click", () => { play("next"); nextCard(); }); // звук «Дальше» — только по клику
   el.known.addEventListener("click", onKnown);

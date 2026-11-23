@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=20";
-import { MASTERED } from "./tenses.js?v=20";
+import { dayKey, HARD_MISSES } from "./core.js?v=21";
+import { MASTERED } from "./tenses.js?v=21";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -59,6 +59,10 @@ export const ACHIEVEMENTS = [
     id: `tense${name}`, group: "tenses", title: `Все времена ${name}`, target: ids.length,
     text: `Освоить 4 времени группы ${name}`, value: (p) => mastered(p, ids) })),
   { id: "tenseAll", group: "tenses", title: "Все 12 времён", text: "Освоить все 12 времён", target: ALL_TENSES.length, value: (p) => mastered(p, ALL_TENSES) },
+  ...Object.entries(TENSES).map(([name, ids]) => ({   // тест времени состоит из 10 вопросов, поэтому best = 100 — это 10 из 10
+    id: `perfect${name}`, group: "tenses", title: { Past: "Прошлое без ошибок", Present: "Настоящее без ошибок", Future: "Будущее без ошибок" }[name],
+    text: `Пройти тест любого времени группы ${name} на 10 из 10`, target: 1,
+    value: (p) => (ids.some((id) => (p.data.tenses?.[id]?.best || 0) >= 100) ? 1 : 0) })),
   ...[[10, "Первый десяток"], [30, "Тридцать слов"], [50, "Полсотни"], [100, "Сотня слов"]]
     .map(([n, title]) => ({ id: `words${n}`, group: "words", title, text: `${n} слов во вкладке «Выучено»`, target: n,
       value: (p) => learned(p).length })),

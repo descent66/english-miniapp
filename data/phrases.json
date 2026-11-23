@@ -18915,5 +18915,2142 @@
   "example_ru": "Подожди, я не улавливаю мысль. Объяснишь ещё раз?",
   "type": "conversational",
   "level": "B2"
+ },
+ {
+  "en": "Break the ice",
+  "en_alt": [],
+  "ru": [
+   "Разрядить обстановку",
+   "Растопить лёд"
+  ],
+  "example_en": "He told a joke to break the ice.",
+  "example_ru": "Он рассказал шутку, чтобы разрядить обстановку.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Let sleeping dogs lie",
+  "en_alt": [],
+  "ru": [
+   "Не буди лихо, пока оно тихо",
+   "Не трогать то, что лучше не трогать"
+  ],
+  "example_en": "I wanted to ask about it, but I decided to let sleeping dogs lie.",
+  "example_ru": "Я хотел спросить об этом, но решил не будить лихо, пока оно тихо.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Hit the nail on the head",
+  "en_alt": [],
+  "ru": [
+   "Попасть в точку",
+   "Попасть в самую точку"
+  ],
+  "example_en": "You hit the nail on the head — that's exactly the problem.",
+  "example_ru": "Ты попал в точку — именно в этом и проблема.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Bark up the wrong tree",
+  "en_alt": [
+   "barking up the wrong tree"
+  ],
+  "ru": [
+   "Обращаться не по адресу",
+   "Идти по ложному следу"
+  ],
+  "example_en": "If you think I took it, you're barking up the wrong tree.",
+  "example_ru": "Если ты думаешь, что это я взял, ты обращаешься не по адресу.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Bite off more than you can chew",
+  "en_alt": [],
+  "ru": [
+   "Взять на себя слишком много",
+   "Замахнуться на слишком большое"
+  ],
+  "example_en": "I think I bit off more than I can chew with three jobs.",
+  "example_ru": "Кажется, я взял на себя слишком много, устроившись на три работы.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "By the book",
+  "en_alt": [],
+  "ru": [
+   "Строго по правилам",
+   "По инструкции"
+  ],
+  "example_en": "Our manager does everything by the book.",
+  "example_ru": "Наш начальник всё делает строго по правилам.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Get out of hand",
+  "en_alt": [],
+  "ru": [
+   "Выйти из-под контроля"
+  ],
+  "example_en": "The party got out of hand around midnight.",
+  "example_ru": "Вечеринка вышла из-под контроля около полуночи.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Give someone a hand",
+  "en_alt": [
+   "lend a hand",
+   "give me a hand"
+  ],
+  "ru": [
+   "Помочь (с делом)",
+   "Подсобить"
+  ],
+  "example_en": "Can you give me a hand with these boxes?",
+  "example_ru": "Поможешь мне с этими коробками?",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Go with the flow",
+  "en_alt": [],
+  "ru": [
+   "Плыть по течению",
+   "Не напрягаться и принимать всё как есть"
+  ],
+  "example_en": "I don't plan much — I just go with the flow.",
+  "example_ru": "Я мало что планирую — просто плыву по течению.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "In hot water",
+  "en_alt": [],
+  "ru": [
+   "В неприятностях",
+   "В переделке"
+  ],
+  "example_en": "He's in hot water with his boss again.",
+  "example_ru": "У него снова неприятности с начальником.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Jump the gun",
+  "en_alt": [],
+  "ru": [
+   "Поторопиться (раньше времени)",
+   "Поспешить с действиями"
+  ],
+  "example_en": "Don't jump the gun — wait for the results first.",
+  "example_ru": "Не торопись — сначала дождись результатов.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Keep your chin up",
+  "en_alt": [],
+  "ru": [
+   "Не вешать нос",
+   "Держаться молодцом"
+  ],
+  "example_en": "Keep your chin up — things will get better.",
+  "example_ru": "Не вешай нос — всё наладится.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Last but not least",
+  "en_alt": [],
+  "ru": [
+   "И последнее, но не менее важное"
+  ],
+  "example_en": "Last but not least, I'd like to thank my family.",
+  "example_ru": "И последнее, но не менее важное: я хочу поблагодарить свою семью.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Miss the boat",
+  "en_alt": [],
+  "ru": [
+   "Упустить шанс",
+   "Упустить возможность"
+  ],
+  "example_en": "If you don't apply now, you'll miss the boat.",
+  "example_ru": "Если не подашь заявку сейчас, упустишь шанс.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "On the ball",
+  "en_alt": [],
+  "ru": [
+   "Быть на высоте (работать чётко)",
+   "Быстро соображать"
+  ],
+  "example_en": "Our new assistant is really on the ball.",
+  "example_ru": "Наш новый помощник действительно на высоте.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Once and for all",
+  "en_alt": [],
+  "ru": [
+   "Раз и навсегда"
+  ],
+  "example_en": "Let's settle this once and for all.",
+  "example_ru": "Давай решим это раз и навсегда.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Pay through the nose",
+  "en_alt": [],
+  "ru": [
+   "Платить втридорога",
+   "Переплачивать"
+  ],
+  "example_en": "We paid through the nose for a hotel room.",
+  "example_ru": "Мы заплатили за номер в отеле втридорога.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Take a rain check",
+  "en_alt": [
+   "rain check"
+  ],
+  "ru": [
+   "Перенести на другой раз"
+  ],
+  "example_en": "Can I take a rain check on dinner tonight?",
+  "example_ru": "Можно перенести сегодняшний ужин на другой раз?",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Run out of steam",
+  "en_alt": [],
+  "ru": [
+   "Выдохнуться",
+   "Потерять запал"
+  ],
+  "example_en": "I started strong but ran out of steam by week three.",
+  "example_ru": "Я начал бодро, но к третьей неделе выдохся.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Save the day",
+  "en_alt": [],
+  "ru": [
+   "Спасти положение"
+  ],
+  "example_en": "Your idea saved the day.",
+  "example_ru": "Твоя идея спасла положение.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Have second thoughts",
+  "en_alt": [
+   "second thoughts"
+  ],
+  "ru": [
+   "Начать сомневаться",
+   "Передумывать"
+  ],
+  "example_en": "I'm having second thoughts about moving.",
+  "example_ru": "Я начинаю сомневаться насчёт переезда.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Shoot the breeze",
+  "en_alt": [],
+  "ru": [
+   "Болтать ни о чём",
+   "Трепаться"
+  ],
+  "example_en": "We sat on the porch and shot the breeze.",
+  "example_ru": "Мы сидели на крыльце и болтали ни о чём.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Steal the show",
+  "en_alt": [],
+  "ru": [
+   "Затмить всех",
+   "Стать звездой вечера"
+  ],
+  "example_en": "The little dog stole the show at the wedding.",
+  "example_ru": "Маленькая собачка затмила всех на свадьбе.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Under pressure",
+  "en_alt": [],
+  "ru": [
+   "Под давлением",
+   "В условиях стресса"
+  ],
+  "example_en": "He works well under pressure.",
+  "example_ru": "Он хорошо работает под давлением.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Up in the air",
+  "en_alt": [],
+  "ru": [
+   "Пока не решено",
+   "Под вопросом"
+  ],
+  "example_en": "Our vacation plans are still up in the air.",
+  "example_ru": "Наши планы на отпуск пока не решены.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Wrap your head around",
+  "en_alt": [
+   "wrap my head around"
+  ],
+  "ru": [
+   "Уложить в голове (идею)",
+   "Осознать (что-то сложное)"
+  ],
+  "example_en": "I can't wrap my head around this math problem.",
+  "example_ru": "Я никак не могу разобраться в этой математической задаче.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "A blessing in disguise",
+  "en_alt": [],
+  "ru": [
+   "Скрытое благо",
+   "Нет худа без добра"
+  ],
+  "example_en": "Losing that job was a blessing in disguise.",
+  "example_ru": "Потеря той работы оказалась скрытым благом.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "At the end of the day",
+  "en_alt": [],
+  "ru": [
+   "В конечном счёте",
+   "Если разобраться"
+  ],
+  "example_en": "At the end of the day, it's your decision.",
+  "example_ru": "В конечном счёте это твоё решение.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Bend over backwards",
+  "en_alt": [],
+  "ru": [
+   "Лезть из кожи вон"
+  ],
+  "example_en": "They bent over backwards to make us feel welcome.",
+  "example_ru": "Они лезли из кожи вон, чтобы мы чувствовали себя желанными гостями.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Come rain or shine",
+  "en_alt": [],
+  "ru": [
+   "В любую погоду",
+   "Несмотря ни на что"
+  ],
+  "example_en": "I go for a run every morning, come rain or shine.",
+  "example_ru": "Я бегаю каждое утро в любую погоду.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Face the music",
+  "en_alt": [],
+  "ru": [
+   "Отвечать за свои поступки",
+   "Расплачиваться за содеянное"
+  ],
+  "example_en": "He broke the window, so now he has to face the music.",
+  "example_ru": "Он разбил окно, так что теперь ему придётся отвечать за это.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Fall into place",
+  "en_alt": [],
+  "ru": [
+   "Всё встаёт на свои места",
+   "Складываться (само собой)"
+  ],
+  "example_en": "After the interview, everything began to fall into place.",
+  "example_ru": "После собеседования всё начало вставать на свои места.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Get the ball rolling",
+  "en_alt": [],
+  "ru": [
+   "Запустить процесс",
+   "Сдвинуть дело с мёртвой точки"
+  ],
+  "example_en": "Let's get the ball rolling with a quick meeting.",
+  "example_ru": "Давайте сдвинем дело с мёртвой точки коротким совещанием.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Have a lot on your plate",
+  "en_alt": [
+   "have a lot on my plate"
+  ],
+  "ru": [
+   "Быть перегруженным делами",
+   "Иметь много забот"
+  ],
+  "example_en": "I can't help you now — I have a lot on my plate.",
+  "example_ru": "Я не могу помочь тебе сейчас — у меня полно дел.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Head over heels",
+  "en_alt": [],
+  "ru": [
+   "По уши влюблённый",
+   "Без памяти влюблённый"
+  ],
+  "example_en": "She's head over heels in love with him.",
+  "example_ru": "Она по уши в него влюблена.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "In the long run",
+  "en_alt": [],
+  "ru": [
+   "В долгосрочной перспективе",
+   "В перспективе"
+  ],
+  "example_en": "Saving money pays off in the long run.",
+  "example_ru": "Экономия денег окупается в долгосрочной перспективе.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Look on the bright side",
+  "en_alt": [],
+  "ru": [
+   "Смотреть на вещи позитивно",
+   "Видеть светлую сторону"
+  ],
+  "example_en": "Look on the bright side — at least nobody got hurt.",
+  "example_ru": "Смотри на вещи позитивно: по крайней мере, никто не пострадал.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Make a scene",
+  "en_alt": [],
+  "ru": [
+   "Устроить сцену",
+   "Устроить скандал"
+  ],
+  "example_en": "Please don't make a scene in the restaurant.",
+  "example_ru": "Пожалуйста, не устраивай сцену в ресторане.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "No strings attached",
+  "en_alt": [],
+  "ru": [
+   "Без каких-либо условий",
+   "Без обязательств"
+  ],
+  "example_en": "It's a free gift, no strings attached.",
+  "example_ru": "Это бесплатный подарок, без каких-либо условий.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "On the house",
+  "en_alt": [],
+  "ru": [
+   "За счёт заведения",
+   "Бесплатно (от заведения)"
+  ],
+  "example_en": "The dessert is on the house.",
+  "example_ru": "Десерт за счёт заведения.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Out of the question",
+  "en_alt": [],
+  "ru": [
+   "Исключено",
+   "Об этом не может быть и речи"
+  ],
+  "example_en": "Going out tonight is out of the question.",
+  "example_ru": "Выходить куда-то сегодня вечером исключено.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Play hard to get",
+  "en_alt": [],
+  "ru": [
+   "Набивать себе цену",
+   "Строить из себя недотрогу"
+  ],
+  "example_en": "She's just playing hard to get.",
+  "example_ru": "Она просто набивает себе цену.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Pull an all-nighter",
+  "en_alt": [
+   "all-nighter"
+  ],
+  "ru": [
+   "Не спать всю ночь (за работой)",
+   "Просидеть до утра"
+  ],
+  "example_en": "I pulled an all-nighter to finish my paper.",
+  "example_ru": "Я не спал всю ночь, чтобы дописать работу.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Put your foot down",
+  "en_alt": [
+   "put my foot down"
+  ],
+  "ru": [
+   "Проявить твёрдость",
+   "Стукнуть кулаком по столу"
+  ],
+  "example_en": "My mom put her foot down about the curfew.",
+  "example_ru": "Мама проявила твёрдость насчёт времени возвращения домой.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "The bottom line",
+  "en_alt": [],
+  "ru": [
+   "Суть дела",
+   "Главный итог"
+  ],
+  "example_en": "The bottom line is we need more time.",
+  "example_ru": "Суть дела в том, что нам нужно больше времени.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "To make matters worse",
+  "en_alt": [],
+  "ru": [
+   "В довершение всего",
+   "Как назло"
+  ],
+  "example_en": "It started raining, and to make matters worse, we forgot the umbrellas.",
+  "example_ru": "Начался дождь, и, как назло, мы забыли зонты.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Walk on eggshells",
+  "en_alt": [],
+  "ru": [
+   "Ходить на цыпочках (боясь задеть)",
+   "Бояться лишний раз сказать"
+  ],
+  "example_en": "Everyone walks on eggshells around him.",
+  "example_ru": "Рядом с ним все ходят на цыпочках.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Word of mouth",
+  "en_alt": [],
+  "ru": [
+   "Сарафанное радио",
+   "Молва"
+  ],
+  "example_en": "The restaurant became popular through word of mouth.",
+  "example_ru": "Ресторан стал популярным благодаря сарафанному радио.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "By heart",
+  "en_alt": [
+   "learn by heart"
+  ],
+  "ru": [
+   "Наизусть"
+  ],
+  "example_en": "I know this song by heart.",
+  "example_ru": "Я знаю эту песню наизусть.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Fish out of water",
+  "en_alt": [],
+  "ru": [
+   "Не в своей тарелке",
+   "Как рыба на суше"
+  ],
+  "example_en": "At the party I felt like a fish out of water.",
+  "example_ru": "На вечеринке я чувствовал себя не в своей тарелке.",
+  "type": "idiom",
+  "level": "B1"
+ },
+ {
+  "en": "Cat got your tongue?",
+  "en_alt": [
+   "cat got your tongue",
+   "has the cat got your tongue"
+  ],
+  "ru": [
+   "Язык проглотил?",
+   "Воды в рот набрал?"
+  ],
+  "example_en": "Why aren't you answering? Cat got your tongue?",
+  "example_ru": "Почему ты не отвечаешь? Язык проглотил?",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Elephant in the room",
+  "en_alt": [],
+  "ru": [
+   "Очевидная проблема, о которой молчат",
+   "Слон в комнате"
+  ],
+  "example_en": "Nobody mentioned the budget, but it was the elephant in the room.",
+  "example_ru": "Никто не упомянул бюджет, хотя это была очевидная проблема, о которой все молчали.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Add insult to injury",
+  "en_alt": [],
+  "ru": [
+   "Усугубить обиду",
+   "Нанести ещё и оскорбление"
+  ],
+  "example_en": "He forgot my birthday, and to add insult to injury, he laughed about it.",
+  "example_ru": "Он забыл про мой день рождения, а в довершение ещё и посмеялся над этим.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Read between the lines",
+  "en_alt": [],
+  "ru": [
+   "Читать между строк"
+  ],
+  "example_en": "If you read between the lines, she's not happy.",
+  "example_ru": "Если читать между строк, она недовольна.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Throw someone under the bus",
+  "en_alt": [],
+  "ru": [
+   "Подставить кого-то",
+   "Сдать кого-то ради своей выгоды"
+  ],
+  "example_en": "He threw his teammate under the bus to save himself.",
+  "example_ru": "Он подставил товарища по команде, чтобы спасти себя.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Hold your horses",
+  "en_alt": [],
+  "ru": [
+   "Придержи коней",
+   "Не горячись"
+  ],
+  "example_en": "Hold your horses — we haven't decided yet.",
+  "example_ru": "Придержи коней — мы ещё ничего не решили.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Take the bull by the horns",
+  "en_alt": [],
+  "ru": [
+   "Взять быка за рога"
+  ],
+  "example_en": "It's time to take the bull by the horns and fix this.",
+  "example_ru": "Пора взять быка за рога и исправить это.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Pass the buck",
+  "en_alt": [],
+  "ru": [
+   "Перекладывать ответственность",
+   "Спихивать вину"
+  ],
+  "example_en": "Stop passing the buck and admit your mistake.",
+  "example_ru": "Хватит перекладывать ответственность — признай свою ошибку.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Skeleton in the closet",
+  "en_alt": [
+   "skeleton in the cupboard"
+  ],
+  "ru": [
+   "Скелет в шкафу",
+   "Тайный позорный секрет"
+  ],
+  "example_en": "Every family has a skeleton in the closet.",
+  "example_ru": "В каждой семье есть скелет в шкафу.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Rock the boat",
+  "en_alt": [],
+  "ru": [
+   "Раскачивать лодку",
+   "Нарушать спокойствие"
+  ],
+  "example_en": "Everything is going well, so don't rock the boat.",
+  "example_ru": "Всё идёт хорошо, так что не раскачивай лодку.",
+  "type": "idiom",
+  "level": "B2"
+ },
+ {
+  "en": "Drop by",
+  "en_alt": [
+   "stop by"
+  ],
+  "ru": [
+   "Заглянуть (в гости)",
+   "Зайти ненадолго"
+  ],
+  "example_en": "Drop by anytime — we're home all weekend.",
+  "example_ru": "Заглядывай в любое время — мы дома все выходные.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Cut back on",
+  "en_alt": [],
+  "ru": [
+   "Сокращать (расходы, потребление)",
+   "Урезать"
+  ],
+  "example_en": "I'm trying to cut back on sugar.",
+  "example_ru": "Я пытаюсь сократить потребление сахара.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Fit in",
+  "en_alt": [],
+  "ru": [
+   "Вписаться (в коллектив)",
+   "Влиться"
+  ],
+  "example_en": "It took him a while to fit in at his new school.",
+  "example_ru": "Ему потребовалось время, чтобы освоиться в новой школе.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Go through",
+  "en_alt": [],
+  "ru": [
+   "Пережить (трудное время)",
+   "Пройти через"
+  ],
+  "example_en": "She went through a lot last year.",
+  "example_ru": "В прошлом году ей многое пришлось пережить.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Hand over",
+  "en_alt": [],
+  "ru": [
+   "Передавать (из рук в руки)",
+   "Отдавать (вещь, власть)"
+  ],
+  "example_en": "Please hand over your keys.",
+  "example_ru": "Пожалуйста, передайте ваши ключи.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Hold on to",
+  "en_alt": [],
+  "ru": [
+   "Держаться за",
+   "Сохранять"
+  ],
+  "example_en": "Hold on to the railing.",
+  "example_ru": "Держись за перила.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Make up for",
+  "en_alt": [],
+  "ru": [
+   "Компенсировать",
+   "Загладить (вину)"
+  ],
+  "example_en": "I'll make up for it by cooking dinner.",
+  "example_ru": "Я компенсирую это тем, что приготовлю ужин.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Pass on",
+  "en_alt": [],
+  "ru": [
+   "Передать (информацию дальше)",
+   "Отказаться (от предложения)"
+  ],
+  "example_en": "Can you pass on the message to Tom?",
+  "example_ru": "Можешь передать сообщение Тому?",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Pull up",
+  "en_alt": [],
+  "ru": [
+   "Подъехать (о машине)",
+   "Подвинуть (стул)"
+  ],
+  "example_en": "A taxi pulled up in front of the hotel.",
+  "example_ru": "К отелю подъехало такси.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Put together",
+  "en_alt": [],
+  "ru": [
+   "Собрать (из частей)",
+   "Составить"
+  ],
+  "example_en": "It took an hour to put the shelf together.",
+  "example_ru": "Чтобы собрать полку, потребовался час.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Run through",
+  "en_alt": [],
+  "ru": [
+   "Пробежаться по (материалу)",
+   "Быстро повторить"
+  ],
+  "example_en": "Let's run through the plan once more.",
+  "example_ru": "Давайте ещё раз пробежимся по плану.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Set aside",
+  "en_alt": [],
+  "ru": [
+   "Отложить (про запас)",
+   "Выделить (время, деньги)"
+  ],
+  "example_en": "I set aside $50 each month.",
+  "example_ru": "Я откладываю по 50 долларов каждый месяц.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Take after",
+  "en_alt": [],
+  "ru": [
+   "Быть похожим (на родителя)",
+   "Пойти в (маму, папу)"
+  ],
+  "example_en": "She really takes after her mother.",
+  "example_ru": "Она очень похожа на свою маму.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Turn in",
+  "en_alt": [],
+  "ru": [
+   "Лечь спать (разг.)",
+   "Сдать (в полицию, начальству)"
+  ],
+  "example_en": "I'm exhausted — I'm going to turn in early.",
+  "example_ru": "Я без сил — пойду пораньше лягу спать.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Zoom in",
+  "en_alt": [],
+  "ru": [
+   "Приблизить (изображение)",
+   "Увеличить масштаб"
+  ],
+  "example_en": "Zoom in on the map to see the street.",
+  "example_ru": "Увеличь масштаб карты, чтобы увидеть улицу.",
+  "type": "phrasal verb",
+  "level": "B1"
+ },
+ {
+  "en": "Back down",
+  "en_alt": [],
+  "ru": [
+   "Пойти на попятную",
+   "Уступить"
+  ],
+  "example_en": "He refused to back down during the argument.",
+  "example_ru": "Он отказался идти на попятную во время спора.",
+  "type": "phrasal verb",
+  "level": "B2"
+ },
+ {
+  "en": "Brush up on",
+  "en_alt": [],
+  "ru": [
+   "Освежить знания",
+   "Подтянуть (навык)"
+  ],
+  "example_en": "I need to brush up on my Spanish before the trip.",
+  "example_ru": "Мне нужно освежить испанский перед поездкой.",
+  "type": "phrasal verb",
+  "level": "B2"
+ },
+ {
+  "en": "Come down with",
+  "en_alt": [],
+  "ru": [
+   "Заболеть (простудой, гриппом)",
+   "Слечь (с болезнью)"
+  ],
+  "example_en": "I think I'm coming down with a cold.",
+  "example_ru": "Кажется, я простужаюсь.",
+  "type": "phrasal verb",
+  "level": "B2"
+ },
+ {
+  "en": "Bring about",
+  "en_alt": [],
+  "ru": [
+   "Привести к (изменениям)",
+   "Вызвать"
+  ],
+  "example_en": "The new law brought about big changes.",
+  "example_ru": "Новый закон привёл к большим переменам.",
+  "type": "phrasal verb",
+  "level": "B2"
+ },
+ {
+  "en": "Phase out",
+  "en_alt": [],
+  "ru": [
+   "Постепенно прекращать",
+   "Выводить из обращения"
+  ],
+  "example_en": "The company is phasing out paper bags.",
+  "example_ru": "Компания постепенно отказывается от бумажных пакетов.",
+  "type": "phrasal verb",
+  "level": "B2"
+ },
+ {
+  "en": "Where there's smoke, there's fire",
+  "en_alt": [
+   "where there is smoke there is fire"
+  ],
+  "ru": [
+   "Нет дыма без огня"
+  ],
+  "example_en": "People say he lied, and where there's smoke, there's fire.",
+  "example_ru": "Говорят, он соврал, а нет дыма без огня.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Don't cry over spilled milk",
+  "en_alt": [],
+  "ru": [
+   "Слезами горю не поможешь",
+   "Что сделано, то сделано"
+  ],
+  "example_en": "I failed the test, but I won't cry over spilled milk.",
+  "example_ru": "Я не сдал тест, но что сделано, то сделано.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Every dog has its day",
+  "en_alt": [],
+  "ru": [
+   "Будет и на нашей улице праздник",
+   "У каждого будет свой звёздный час"
+  ],
+  "example_en": "Don't be sad. Every dog has its day.",
+  "example_ru": "Не грусти. И на твоей улице будет праздник.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Fortune favors the bold",
+  "en_alt": [
+   "fortune favours the bold"
+  ],
+  "ru": [
+   "Смелым судьба помогает",
+   "Смелость города берёт"
+  ],
+  "example_en": "Just ask her out! Fortune favors the bold.",
+  "example_ru": "Просто пригласи её на свидание! Смелым судьба помогает.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "A picture is worth a thousand words",
+  "en_alt": [],
+  "ru": [
+   "Лучше один раз увидеть, чем сто раз услышать"
+  ],
+  "example_en": "Look at this photo. A picture is worth a thousand words.",
+  "example_ru": "Посмотри на это фото. Лучше один раз увидеть, чем сто раз услышать.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Two wrongs don't make a right",
+  "en_alt": [],
+  "ru": [
+   "Зло злом не исправишь",
+   "Нельзя отвечать злом на зло"
+  ],
+  "example_en": "Hitting him back won't help. Two wrongs don't make a right.",
+  "example_ru": "Ударить его в ответ не поможет. Зло злом не исправишь.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Haste makes waste",
+  "en_alt": [],
+  "ru": [
+   "Поспешишь — людей насмешишь"
+  ],
+  "example_en": "Slow down and check your work. Haste makes waste.",
+  "example_ru": "Не торопись и проверь работу. Поспешишь — людей насмешишь.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Live and learn",
+  "en_alt": [],
+  "ru": [
+   "Век живи — век учись",
+   "На ошибках учатся"
+  ],
+  "example_en": "I trusted the wrong person. Oh well, live and learn.",
+  "example_ru": "Я доверился не тому человеку. Ну что ж, век живи — век учись.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Strike while the iron is hot",
+  "en_alt": [],
+  "ru": [
+   "Куй железо, пока горячо"
+  ],
+  "example_en": "They liked your idea. Strike while the iron is hot!",
+  "example_ru": "Им понравилась твоя идея. Куй железо, пока горячо!",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "Patience is a virtue",
+  "en_alt": [],
+  "ru": [
+   "Терпение — это добродетель",
+   "Терпение — добродетель"
+  ],
+  "example_en": "I know you're tired of waiting, but patience is a virtue.",
+  "example_ru": "Я знаю, ты устал ждать, но терпение — это добродетель.",
+  "type": "proverb",
+  "level": "B1"
+ },
+ {
+  "en": "See you around",
+  "en_alt": [],
+  "ru": [
+   "Ещё увидимся",
+   "Увидимся"
+  ],
+  "example_en": "Nice talking to you. See you around!",
+  "example_ru": "Приятно было поговорить. Ещё увидимся!",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "Nice to meet you",
+  "en_alt": [],
+  "ru": [
+   "Приятно познакомиться"
+  ],
+  "example_en": "Hi, I'm Anna. — Nice to meet you.",
+  "example_ru": "Привет, я Анна. — Приятно познакомиться.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "Have a good one",
+  "en_alt": [],
+  "ru": [
+   "Хорошего тебе дня",
+   "Всего хорошего"
+  ],
+  "example_en": "Thanks for your help. Have a good one!",
+  "example_ru": "Спасибо за помощь. Хорошего дня!",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "I'm sorry to hear that",
+  "en_alt": [],
+  "ru": [
+   "Мне жаль это слышать"
+  ],
+  "example_en": "My dog is sick. — I'm sorry to hear that.",
+  "example_ru": "Моя собака заболела. — Мне жаль это слышать.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "What do you think?",
+  "en_alt": [],
+  "ru": [
+   "Что ты об этом думаешь?",
+   "Как тебе?"
+  ],
+  "example_en": "I painted the room blue. What do you think?",
+  "example_ru": "Я покрасил комнату в синий цвет. Как тебе?",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "Can I help you?",
+  "en_alt": [],
+  "ru": [
+   "Могу я вам помочь?",
+   "Вам помочь?"
+  ],
+  "example_en": "Can I help you? — Yes, I'm looking for a gift.",
+  "example_ru": "Вам помочь? — Да, я ищу подарок.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "I don't get it",
+  "en_alt": [],
+  "ru": [
+   "Я не понимаю",
+   "Не врубаюсь"
+  ],
+  "example_en": "Why is that funny? I don't get it.",
+  "example_ru": "Что тут смешного? Я не понимаю.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "I'm just looking",
+  "en_alt": [],
+  "ru": [
+   "Я просто смотрю"
+  ],
+  "example_en": "Can I help you? — No thanks, I'm just looking.",
+  "example_ru": "Вам помочь? — Нет, спасибо, я просто смотрю.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "How much is it?",
+  "en_alt": [],
+  "ru": [
+   "Сколько это стоит?"
+  ],
+  "example_en": "How much is it? — Ten dollars.",
+  "example_ru": "Сколько это стоит? — Десять долларов.",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "Could you repeat that?",
+  "en_alt": [],
+  "ru": [
+   "Не могли бы вы повторить?",
+   "Повторите, пожалуйста"
+  ],
+  "example_en": "Sorry, could you repeat that?",
+  "example_ru": "Извините, не могли бы вы повторить?",
+  "type": "conversational",
+  "level": "A2"
+ },
+ {
+  "en": "What a coincidence!",
+  "en_alt": [],
+  "ru": [
+   "Какое совпадение!"
+  ],
+  "example_en": "You're from Boston too? What a coincidence!",
+  "example_ru": "Ты тоже из Бостона? Какое совпадение!",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I'm looking forward to it",
+  "en_alt": [],
+  "ru": [
+   "Я жду этого с нетерпением"
+  ],
+  "example_en": "The concert is on Friday. — I'm looking forward to it.",
+  "example_ru": "Концерт в пятницу. — Жду этого с нетерпением.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "Let's get started",
+  "en_alt": [],
+  "ru": [
+   "Давайте начнём",
+   "Приступим"
+  ],
+  "example_en": "Everyone's here, so let's get started.",
+  "example_ru": "Все на месте, давайте начнём.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "What's on your mind?",
+  "en_alt": [],
+  "ru": [
+   "О чём ты думаешь?",
+   "Что тебя беспокоит?"
+  ],
+  "example_en": "You look quiet. What's on your mind?",
+  "example_ru": "Ты молчишь. О чём думаешь?",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "Don't worry about it",
+  "en_alt": [],
+  "ru": [
+   "Не бери в голову"
+  ],
+  "example_en": "Sorry I broke your mug. — Don't worry about it.",
+  "example_ru": "Прости, что разбил твою кружку. — Не бери в голову.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I'm not sure what to do",
+  "en_alt": [],
+  "ru": [
+   "Я не знаю, что делать"
+  ],
+  "example_en": "He's upset, and I'm not sure what to do.",
+  "example_ru": "Он расстроен, а я не знаю, что делать.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "Could you give me a ride?",
+  "en_alt": [],
+  "ru": [
+   "Подвезёшь меня?",
+   "Не мог бы ты меня подвезти?"
+  ],
+  "example_en": "My car broke down. Could you give me a ride to work?",
+  "example_ru": "Моя машина сломалась. Подвезёшь меня на работу?",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "It's no use",
+  "en_alt": [],
+  "ru": [
+   "Бесполезно",
+   "Нет смысла"
+  ],
+  "example_en": "It's no use arguing with him.",
+  "example_ru": "С ним спорить бесполезно.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "That's not what I meant",
+  "en_alt": [],
+  "ru": [
+   "Я не это имел в виду"
+  ],
+  "example_en": "I didn't say you were wrong. That's not what I meant.",
+  "example_ru": "Я не говорил, что ты неправ. Я не это имел в виду.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I'm running out of time",
+  "en_alt": [],
+  "ru": [
+   "У меня заканчивается время"
+  ],
+  "example_en": "Hurry up! I'm running out of time.",
+  "example_ru": "Поторопись! У меня заканчивается время.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "Whatever you say",
+  "en_alt": [],
+  "ru": [
+   "Как скажешь"
+  ],
+  "example_en": "Let's watch the other movie. — Whatever you say.",
+  "example_ru": "Давай посмотрим другой фильм. — Как скажешь.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I'll let you go",
+  "en_alt": [],
+  "ru": [
+   "Не буду тебя задерживать"
+  ],
+  "example_en": "I know you're busy, so I'll let you go.",
+  "example_ru": "Я знаю, что ты занят, так что не буду тебя задерживать.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "How have you been?",
+  "en_alt": [],
+  "ru": [
+   "Как ты поживаешь?",
+   "Как дела в последнее время?"
+  ],
+  "example_en": "Hey, it's been ages! How have you been?",
+  "example_ru": "Привет, сто лет не виделись! Как ты поживаешь?",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "Say hi for me",
+  "en_alt": [
+   "say hi to her for me",
+   "tell her I said hi"
+  ],
+  "ru": [
+   "Передавай привет"
+  ],
+  "example_en": "I'm seeing your sister tomorrow. — Say hi for me.",
+  "example_ru": "Завтра увижу твою сестру. — Передавай ей привет.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I'll be right there",
+  "en_alt": [],
+  "ru": [
+   "Сейчас буду",
+   "Уже иду"
+  ],
+  "example_en": "Dinner's ready! — I'll be right there.",
+  "example_ru": "Ужин готов! — Сейчас буду.",
+  "type": "conversational",
+  "level": "B1"
+ },
+ {
+  "en": "I see where you're coming from",
+  "en_alt": [],
+  "ru": [
+   "Я понимаю твою точку зрения"
+  ],
+  "example_en": "I see where you're coming from, but I disagree.",
+  "example_ru": "Я понимаю твою точку зрения, но не согласен.",
+  "type": "conversational",
+  "level": "B2"
+ },
+ {
+  "en": "Let's not jump to conclusions",
+  "en_alt": [],
+  "ru": [
+   "Не будем делать поспешных выводов"
+  ],
+  "example_en": "He's late, but let's not jump to conclusions.",
+  "example_ru": "Он опаздывает, но не будем делать поспешных выводов.",
+  "type": "conversational",
+  "level": "B2"
+ },
+ {
+  "en": "It goes without saying",
+  "en_alt": [],
+  "ru": [
+   "Само собой разумеется"
+  ],
+  "example_en": "It goes without saying that you can call me anytime.",
+  "example_ru": "Само собой разумеется, что ты можешь позвонить мне в любое время.",
+  "type": "conversational",
+  "level": "B2"
+ },
+ {
+  "en": "Don't take it personally",
+  "en_alt": [],
+  "ru": [
+   "Не принимай это на свой счёт"
+  ],
+  "example_en": "He's rude to everyone, so don't take it personally.",
+  "example_ru": "Он груб со всеми, так что не принимай это на свой счёт.",
+  "type": "conversational",
+  "level": "B2"
+ },
+ {
+  "en": "I'm at a loss for words",
+  "en_alt": [],
+  "ru": [
+   "У меня нет слов",
+   "Я не нахожу слов"
+  ],
+  "example_en": "After such a gift, I'm at a loss for words.",
+  "example_ru": "После такого подарка у меня нет слов.",
+  "type": "conversational",
+  "level": "B2"
+ },
+ {
+  "en": "Chore",
+  "en_alt": [],
+  "ru": [
+   "Домашняя обязанность",
+   "Рутинное дело"
+  ],
+  "example_en": "Doing the dishes is my least favorite chore.",
+  "example_ru": "Мыть посуду — моя самая нелюбимая домашняя обязанность.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "домашнее дело",
+   "обязанность",
+   "работа по дому",
+   "хозяйственное дело"
+  ]
+ },
+ {
+  "en": "Errand",
+  "en_alt": [],
+  "ru": [
+   "Поручение (сходить куда-то)",
+   "Мелкое дело вне дома"
+  ],
+  "example_en": "I have to run a few errands after work.",
+  "example_ru": "После работы мне нужно сделать пару дел.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "сходить по делам",
+   "мелкое поручение"
+  ]
+ },
+ {
+  "en": "Crowded",
+  "en_alt": [
+   "packed"
+  ],
+  "ru": [
+   "Многолюдный",
+   "Переполненный"
+  ],
+  "example_en": "The subway was too crowded this morning.",
+  "example_ru": "Утром метро было слишком переполнено.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "людный",
+   "битком",
+   "набитый",
+   "запруженный"
+  ]
+ },
+ {
+  "en": "Cozy",
+  "en_alt": [],
+  "ru": [
+   "Уютный"
+  ],
+  "example_en": "We spent a cozy evening by the fireplace.",
+  "example_ru": "Мы провели уютный вечер у камина.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "уютно",
+   "тёплый и домашний",
+   "домашний",
+   "уютное место"
+  ]
+ },
+ {
+  "en": "Dizzy",
+  "en_alt": [],
+  "ru": [
+   "Голова кружится",
+   "Испытывать головокружение"
+  ],
+  "example_en": "I stood up too fast and felt dizzy.",
+  "example_ru": "Я слишком резко встал, и у меня закружилась голова.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "кружится голова",
+   "с кружащейся головой"
+  ]
+ },
+ {
+  "en": "Grateful",
+  "en_alt": [
+   "thankful"
+  ],
+  "ru": [
+   "Благодарный"
+  ],
+  "example_en": "I'm so grateful for your help.",
+  "example_ru": "Я очень благодарен тебе за помощь.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "признательный",
+   "благодарен",
+   "признателен"
+  ]
+ },
+ {
+  "en": "Overwhelmed",
+  "en_alt": [],
+  "ru": [
+   "Перегруженный (делами, эмоциями)",
+   "Захлёстнутый"
+  ],
+  "example_en": "I feel overwhelmed with so much work.",
+  "example_ru": "Я чувствую, что не справляюсь с таким количеством работы.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "заваленный",
+   "не справляющийся",
+   "задавленный делами"
+  ]
+ },
+ {
+  "en": "Convenient",
+  "en_alt": [
+   "handy"
+  ],
+  "ru": [
+   "Удобный (по расположению или времени)"
+  ],
+  "example_en": "The new bus stop is very convenient for me.",
+  "example_ru": "Новая остановка очень удобна для меня.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "удобно",
+   "удобно расположенный"
+  ]
+ },
+ {
+  "en": "Fluent",
+  "en_alt": [],
+  "ru": [
+   "Свободно говорящий",
+   "Беглый (о речи)"
+  ],
+  "example_en": "She is fluent in three languages.",
+  "example_ru": "Она свободно говорит на трёх языках.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "владеющий свободно",
+   "бегло",
+   "уверенно говорящий"
+  ]
+ },
+ {
+  "en": "Shift",
+  "en_alt": [],
+  "ru": [
+   "Смена (на работе)",
+   "Сдвиг"
+  ],
+  "example_en": "I work the night shift on weekends.",
+  "example_ru": "По выходным я работаю в ночную смену.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "рабочая смена",
+   "перемена",
+   "изменение"
+  ]
+ },
+ {
+  "en": "Bake",
+  "en_alt": [],
+  "ru": [
+   "Печь (в духовке)"
+  ],
+  "example_en": "She bakes bread every Sunday.",
+  "example_ru": "Она печёт хлеб каждое воскресенье.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "выпекать",
+   "испечь",
+   "запекать"
+  ]
+ },
+ {
+  "en": "Pour",
+  "en_alt": [],
+  "ru": [
+   "Наливать",
+   "Лить"
+  ],
+  "example_en": "Can you pour me some water?",
+  "example_ru": "Можешь налить мне воды?",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "налить",
+   "разливать",
+   "литься",
+   "сыпать",
+   "хлестать (о дожде)"
+  ]
+ },
+ {
+  "en": "Wipe",
+  "en_alt": [],
+  "ru": [
+   "Вытирать",
+   "Протирать"
+  ],
+  "example_en": "Wipe the table before dinner.",
+  "example_ru": "Протри стол перед ужином.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "вытереть",
+   "протереть",
+   "обтирать"
+  ]
+ },
+ {
+  "en": "Prefer",
+  "en_alt": [],
+  "ru": [
+   "Предпочитать"
+  ],
+  "example_en": "I prefer tea to coffee.",
+  "example_ru": "Я предпочитаю чай кофе.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "предпочесть",
+   "отдавать предпочтение",
+   "любить больше",
+   "предпочту"
+  ]
+ },
+ {
+  "en": "Spend",
+  "en_alt": [],
+  "ru": [
+   "Тратить (деньги)",
+   "Проводить (время)"
+  ],
+  "example_en": "I spent all my money on shoes.",
+  "example_ru": "Я потратил все деньги на обувь.",
+  "type": "word",
+  "level": "B1",
+  "ru_alt": [
+   "потратить",
+   "проводить время",
+   "провести",
+   "расходовать",
+   "тратить время"
+  ]
+ },
+ {
+  "en": "Frustrated",
+  "en_alt": [],
+  "ru": [
+   "Расстроенный (из-за неудач)",
+   "Раздосадованный"
+  ],
+  "example_en": "I'm so frustrated — my computer keeps crashing.",
+  "example_ru": "Я так раздосадован — мой компьютер постоянно виснет.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "разочарованный",
+   "раздражённый",
+   "досадующий"
+  ]
+ },
+ {
+  "en": "Thrilled",
+  "en_alt": [
+   "delighted"
+  ],
+  "ru": [
+   "В восторге",
+   "Очень рад"
+  ],
+  "example_en": "She was thrilled to get the job.",
+  "example_ru": "Она была в восторге от того, что получила работу.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "в восхищении",
+   "счастлив",
+   "обрадованный"
+  ]
+ },
+ {
+  "en": "Reckless",
+  "en_alt": [],
+  "ru": [
+   "Безрассудный",
+   "Опрометчивый"
+  ],
+  "example_en": "Reckless driving can cost lives.",
+  "example_ru": "Безрассудная езда может стоить жизни.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "неосторожный",
+   "безответственный",
+   "отчаянный",
+   "легкомысленный"
+  ]
+ },
+ {
+  "en": "Gloomy",
+  "en_alt": [
+   "dreary"
+  ],
+  "ru": [
+   "Мрачный",
+   "Унылый"
+  ],
+  "example_en": "It was a gloomy day, so we stayed in.",
+  "example_ru": "День был унылый, поэтому мы остались дома.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "пасмурный",
+   "хмурый",
+   "мрачно",
+   "тоскливый",
+   "подавленный"
+  ]
+ },
+ {
+  "en": "Cautious",
+  "en_alt": [],
+  "ru": [
+   "Осторожный (осмотрительный)",
+   "Предусмотрительный"
+  ],
+  "example_en": "He's cautious with money and never takes risks.",
+  "example_ru": "Он осторожен с деньгами и никогда не рискует.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "осмотрительный",
+   "настороженный",
+   "не рискующий"
+  ]
+ },
+ {
+  "en": "Ambitious",
+  "en_alt": [],
+  "ru": [
+   "Амбициозный",
+   "Честолюбивый"
+  ],
+  "example_en": "She's an ambitious young lawyer.",
+  "example_ru": "Она амбициозный молодой юрист.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "целеустремлённый",
+   "стремящийся к успеху",
+   "с большими планами"
+  ]
+ },
+ {
+  "en": "Overlook",
+  "en_alt": [],
+  "ru": [
+   "Не заметить",
+   "Упустить из виду"
+  ],
+  "example_en": "I overlooked a mistake in the report.",
+  "example_ru": "Я не заметил ошибку в отчёте.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "проглядеть",
+   "пропустить",
+   "недосмотреть",
+   "закрыть глаза на"
+  ]
+ },
+ {
+  "en": "Undermine",
+  "en_alt": [],
+  "ru": [
+   "Подрывать (доверие, уверенность)"
+  ],
+  "example_en": "Constant criticism can undermine your confidence.",
+  "example_ru": "Постоянная критика может подорвать твою уверенность.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "подорвать",
+   "ослаблять",
+   "расшатывать",
+   "подтачивать"
+  ]
+ },
+ {
+  "en": "Reassure",
+  "en_alt": [],
+  "ru": [
+   "Успокаивать (словами)",
+   "Заверять"
+  ],
+  "example_en": "The doctor reassured her that it wasn't serious.",
+  "example_ru": "Врач заверил её, что ничего серьёзного нет.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "успокоить",
+   "ободрять",
+   "вселять уверенность",
+   "уверять"
+  ]
+ },
+ {
+  "en": "Tolerate",
+  "en_alt": [],
+  "ru": [
+   "Терпеть (мириться)",
+   "Допускать"
+  ],
+  "example_en": "I can't tolerate rude behavior.",
+  "example_ru": "Я не терплю грубого поведения.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "мириться",
+   "выносить",
+   "потерпеть",
+   "терпимо относиться",
+   "переносить"
+  ]
+ },
+ {
+  "en": "Delay",
+  "en_alt": [],
+  "ru": [
+   "Задерживать (рейс, процесс)",
+   "Откладывать (на потом)"
+  ],
+  "example_en": "The flight was delayed by two hours.",
+  "example_ru": "Рейс задержали на два часа.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "задержка",
+   "отложить",
+   "затягивать",
+   "задержать",
+   "промедление"
+  ]
+ },
+ {
+  "en": "Setback",
+  "en_alt": [],
+  "ru": [
+   "Неудача (откат назад)",
+   "Препятствие"
+  ],
+  "example_en": "Losing the contract was a serious setback.",
+  "example_ru": "Потеря контракта стала серьёзной неудачей.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "помеха",
+   "откат",
+   "затруднение"
+  ]
+ },
+ {
+  "en": "Drawback",
+  "en_alt": [],
+  "ru": [
+   "Недостаток",
+   "Минус"
+  ],
+  "example_en": "The main drawback is the price.",
+  "example_ru": "Главный недостаток — цена.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "изъян",
+   "слабая сторона",
+   "отрицательная сторона",
+   "недочёт",
+   "неудобство"
+  ]
+ },
+ {
+  "en": "Breakthrough",
+  "en_alt": [],
+  "ru": [
+   "Прорыв",
+   "Крупное достижение"
+  ],
+  "example_en": "Scientists announced a breakthrough in cancer research.",
+  "example_ru": "Учёные объявили о прорыве в исследованиях рака.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "важное открытие",
+   "скачок",
+   "переломный момент"
+  ]
+ },
+ {
+  "en": "Misunderstanding",
+  "en_alt": [],
+  "ru": [
+   "Недоразумение",
+   "Непонимание"
+  ],
+  "example_en": "It was just a misunderstanding — nobody's angry.",
+  "example_ru": "Это просто недоразумение — никто не злится.",
+  "type": "word",
+  "level": "B2",
+  "ru_alt": [
+   "недопонимание",
+   "путаница",
+   "ошибка в понимании"
+  ]
+ },
+ {
+  "en": "Dope",
+  "en_alt": [
+   "awesome"
+  ],
+  "ru": [
+   "Крутой",
+   "Классный"
+  ],
+  "example_en": "That's a dope jacket!",
+  "example_ru": "Это классная куртка!",
+  "type": "slang",
+  "level": "B1",
+  "ru_alt": [
+   "огонь",
+   "мощный",
+   "супер",
+   "отпадный"
+  ]
+ },
+ {
+  "en": "Lit",
+  "en_alt": [],
+  "ru": [
+   "Огонь (о вечеринке, песне)",
+   "Зажигательный"
+  ],
+  "example_en": "The party last night was lit!",
+  "example_ru": "Вечеринка вчера была огонь!",
+  "type": "slang",
+  "level": "B1",
+  "ru_alt": [
+   "супер",
+   "отпад",
+   "классно",
+   "зажигает"
+  ]
+ },
+ {
+  "en": "Ace",
+  "en_alt": [
+   "ace it"
+  ],
+  "ru": [
+   "Сдать на отлично",
+   "Блестяще справиться"
+  ],
+  "example_en": "I think I aced the test!",
+  "example_ru": "Кажется, я сдал тест на отлично!",
+  "type": "slang",
+  "level": "B1",
+  "ru_alt": [
+   "отлично сдать",
+   "сдать блестяще",
+   "справиться на пять"
+  ]
+ },
+ {
+  "en": "Dibs",
+  "en_alt": [
+   "I call dibs"
+  ],
+  "ru": [
+   "Чур моё",
+   "Чур, я первый"
+  ],
+  "example_en": "Dibs on the last slice of pizza!",
+  "example_ru": "Чур, последний кусок пиццы мой!",
+  "type": "slang",
+  "level": "B1",
+  "ru_alt": [
+   "чур",
+   "чур я",
+   "чур мне",
+   "чур мой"
+  ]
+ },
+ {
+  "en": "Chow down",
+  "en_alt": [
+   "chow"
+  ],
+  "ru": [
+   "Налегать на еду",
+   "Поесть от души"
+  ],
+  "example_en": "We chowed down on pizza after the game.",
+  "example_ru": "После игры мы налегли на пиццу.",
+  "type": "slang",
+  "level": "B1"
+ },
+ {
+  "en": "No cap",
+  "en_alt": [],
+  "ru": [
+   "Без вранья",
+   "Честно, без преувеличений"
+  ],
+  "example_en": "That was the best burger ever, no cap.",
+  "example_ru": "Это был лучший бургер в жизни, без вранья.",
+  "type": "slang",
+  "level": "B2"
+ },
+ {
+  "en": "Throw shade",
+  "en_alt": [
+   "throwing shade"
+  ],
+  "ru": [
+   "Язвить в чей-то адрес",
+   "Подкалывать (исподтишка)"
+  ],
+  "example_en": "She's always throwing shade at her coworkers.",
+  "example_ru": "Она вечно язвит в адрес коллег.",
+  "type": "slang",
+  "level": "B2"
+ },
+ {
+  "en": "Spill the tea",
+  "en_alt": [],
+  "ru": [
+   "Рассказать сплетни",
+   "Поделиться свежими новостями о ком-то"
+  ],
+  "example_en": "Come on, spill the tea! What happened?",
+  "example_ru": "Давай, рассказывай сплетни! Что случилось?",
+  "type": "slang",
+  "level": "B2"
+ },
+ {
+  "en": "Hangry",
+  "en_alt": [],
+  "ru": [
+   "Злой от голода"
+  ],
+  "example_en": "Don't talk to me until I eat — I'm hangry.",
+  "example_ru": "Не говори со мной, пока я не поем: я злой от голода.",
+  "type": "slang",
+  "level": "B2",
+  "ru_alt": [
+   "голодный и злой",
+   "раздражённый от голода",
+   "злюка от голода"
+  ]
+ },
+ {
+  "en": "FOMO",
+  "en_alt": [
+   "fear of missing out"
+  ],
+  "ru": [
+   "Страх что-то упустить",
+   "Боязнь пропустить событие"
+  ],
+  "example_en": "I went to the party out of pure FOMO.",
+  "example_ru": "Я пошёл на вечеринку просто из страха что-то упустить.",
+  "type": "slang",
+  "level": "B2",
+  "ru_alt": [
+   "страх пропустить",
+   "боязнь упустить"
+  ]
  }
 ]
