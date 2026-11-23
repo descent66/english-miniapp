@@ -2,7 +2,7 @@
 // Данные — data/tenses.json (их делает miniapp_tests/make_tenses.py). Прогресс по временам — progress.data.tenses:
 // { id: { best: лучший результат теста в %, last: последний результат, n: сколько раз проходили, place: 1/0 — итог входного теста } }.
 // Логика ответов строгая (не «похоже на»): в грамматике «has lived» и «have lived» — разные ответы.
-import { normalize } from "./core.js?v=14";
+import { normalize } from "./core.js?v=15";
 
 const ORDER = ["ps", "pc", "pas", "pp", "pac", "fs", "pap", "pcc", "fc", "fp", "pacc", "fpc"];   // в каком порядке советуем учить
 const GROUPS = [["past", "Past"], ["present", "Present"], ["future", "Future"]];
@@ -11,6 +11,31 @@ const SENTENCE = { "+": "Утверждение", "−": "Отрицание", "
 const MASTERED = 80;     // от этого результата теста время считается освоенным
 const ROUND = 10;        // вопросов в обычном тесте
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+
+/**
+ * Выровнять надпись в пропуске («пилюле») по самим буквам: расстояние от верхней границы до верха букв и от низа букв до нижней границы —
+ * одинаковые (у слов с хвостиками вроде «up» и без них «out» центр свой, поэтому считается для каждого слова отдельно).
+ */
+export function fitBlanks(root) {
+  const cv = fitBlanks.cv || (fitBlanks.cv = document.createElement("canvas").getContext("2d"));
+  for (const b of root.querySelectorAll(".blank")) {
+    const inner = b.firstElementChild;
+    if (!inner) continue;
+    inner.style.top = "0px";
+    b.style.animation = "none";                       // замер без анимации масштаба
+    const cs = getComputedStyle(inner);
+    cv.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const m = cv.measureText(inner.textContent);
+    const probe = document.createElement("i");        // точка на базовой линии строки
+    probe.style.cssText = "display:inline-block;width:0;height:0";
+    inner.append(probe);
+    const base = probe.getBoundingClientRect().bottom, box = b.getBoundingClientRect();
+    probe.remove();
+    const d = ((base - m.actualBoundingBoxAscent - box.top) - (box.bottom - (base + m.actualBoundingBoxDescent))) / 2;   // >0 — буквы ниже середины
+    inner.style.top = `${(-d).toFixed(2)}px`;
+    b.style.animation = "";
+  }
+}
 
 export function initTenses(ctx) {
   const { make, play, $, getProgress, version, shuffle, animateList, showView, touchOnly } = ctx;
@@ -132,7 +157,9 @@ export function initTenses(ctx) {
   function sentence(q, fill, cls) {
     const [a, b] = q.split("___");
     const s = make("div", "qsentence");
-    s.append(a, make("span", "blank" + (cls ? " " + cls : ""), fill || "?"), b);
+    const blank = make("span", "blank" + (cls ? " " + cls : ""));
+    blank.append(make("span", "binner", fill || "?"));
+    s.append(a, blank, b);
     return s;
   }
 
@@ -190,6 +217,7 @@ export function initTenses(ctx) {
       box.append(next);
     }
     body.append(box);
+    fitBlanks(body);
     if (entry && !answered && !touchOnly()) entry.focus();
   }
 
@@ -249,6 +277,7 @@ export function initTenses(ctx) {
       box.append(lesson, map);
     }
     body.append(box);
+    fitBlanks(body);
     window.scrollTo(0, 0);
   }
 

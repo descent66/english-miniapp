@@ -1,12 +1,12 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=14";
-import * as Store from "./storage.js?v=14";
-import { startMolten } from "./molten.js?v=14";
-import { animateList } from "./animlist.js?v=14";
-import { initTenses } from "./tenses.js?v=14";
+import * as Core from "./core.js?v=15";
+import * as Store from "./storage.js?v=15";
+import { startMolten } from "./molten.js?v=15";
+import { animateList } from "./animlist.js?v=15";
+import { initTenses, fitBlanks } from "./tenses.js?v=15";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.14";
+const APP_VERSION = "2026-11-23.15";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -755,8 +755,33 @@ async function startGame(mode) {
 function sentence(item, fill, cls) {
   const [a, b] = item.gap.split("___");
   const s = make("div", "qsentence");
-  s.append(a, make("span", "blank" + (cls ? " " + cls : ""), fill || "?"), b);
+  const blank = make("span", "blank" + (cls ? " " + cls : ""));
+  blank.append(make("span", "binner", fill || "?"));
+  s.append(a, blank, b);
   return s;
+}
+
+/** Значения фразовых глаголов из базы: «hang around» → «Слоняться» (для объяснения неверного ответа в игре). */
+let pvMeanings = null;
+function pvMeaning(en) {
+  if (!pvMeanings) {
+    pvMeanings = new Map();
+    for (const p of progress.phrases.values()) if (p.type === "phrasal verb") pvMeanings.set(p.en.toLowerCase(), p.ru[0]);
+  }
+  return pvMeanings.get(en.toLowerCase()) || null;
+}
+const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+
+/** Почему ответ неверен: другой настоящий фразовый глагол с другим смыслом, либо частица здесь не подходит; пустой ответ — просто подсказка. */
+function whyWrong(item, picked) {
+  const right = item.en.toLowerCase(), verb = right.split(" ")[0], meaning = lowerFirst(item.pv_ru);
+  if (!picked) return `Здесь нужна частица «${item.answer}»: ${right} — ${meaning}.`;
+  const other = `${verb} ${picked}`;
+  if (item.ex.includes(picked)) {
+    const m = pvMeaning(other);
+    return `«${other}»${m ? " — " + lowerFirst(m) + "," : " —"} это другой фразовый глагол. Здесь по смыслу нужно «${right}» — ${meaning}.`;
+  }
+  return `«${other}» здесь не подходит по смыслу. Правильно: «${right}» — ${meaning}.`;
 }
 
 function renderGames() {
@@ -831,7 +856,7 @@ function renderGames() {
   }
   if (answered) {
     card.append(make("div", "qfeedback " + (ok ? "ok" : "bad"), ok ? "Верно!" : `Неверно. Правильно: «${item.answer}»`));
-    if (game.note) card.append(make("div", "qnote muted", game.note));
+    if (!ok) card.append(make("div", "qnote muted", whyWrong(item, game.picked)));   // почему неверно — как в уроках «Времён»
     const last = game.i + 1 >= game.items.length;
     const next = make("button", "btn primary wide", last ? "Результат" : "Дальше");
     next.addEventListener("click", () => {
@@ -842,6 +867,7 @@ function renderGames() {
     card.append(next);
   }
   body.append(card);
+  fitBlanks(body);
   if (entry && !answered && !touchOnly()) entry.focus();   // на компьютере сразу можно печатать; на телефоне клавиатуру вызывает нажатие
 }
 
@@ -866,9 +892,6 @@ function submitTyped(raw) {
   const text = raw.trim().toLowerCase().replace(/\s+/g, " ");
   const item = game.items[game.i];
   if (!text) { answerGame(""); return; }            // «Проверить» с пустым полем = «не знаю»: считается ошибкой, как в обычных карточках
-  if (text !== item.answer && item.ex.includes(text)) {
-    game.note = `«${text}» с этим глаголом тоже встречается, но здесь по смыслу нужно «${item.answer}».`;
-  }
   answerGame(text);
 }
 
@@ -1277,7 +1300,7 @@ function attachReveal(head, panel, inner, items) {
 /**
  * Белая «плашка» выбора, которая переезжает между вариантами. Перенос анимации RubberSegment (React Bits) на обычный JS, без Motion:
  * при нажатии плашка растягивается (stretch 15%, 0.19 с, ease-out) и «приземляется» пружиной (0.3 с, bounce 0): передний край приходит
- * первым, задний догоняет с лёгким «сжатием» на 3 px и расслабляется (0.16 с); скорость 1.15. Тёмный текст внутри плашки рисует копия
+ * первым, задний догоняет без отскока и сжатия (в оригинале есть «сжатие» на 3 px — по просьбе убрано); скорость 1.15. Тёмный текст внутри плашки рисует копия
  * подписей, обрезанная по плашке (clip-path), поэтому цвет букв меняется ровно по мере проезда. При «уменьшить движение» плашка прыгает.
  * Не перенесено: перетаскивание плашки пальцем (резиновые края, бросок) — по просьбе только анимация.
  */
@@ -1293,7 +1316,7 @@ const EASE_THUMB = cubicBezier(0.23, 1, 0.32, 1);
 
 function attachThumb(seg, labels, startIdx) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const STRETCH = 0.15, SQUASH = 3, SPEED = 1.15, DILATE = 0.19, HANDOFF = 0.15, INSET = 4;
+  const STRETCH = 0.15, SPEED = 1.15, DILATE = 0.19, HANDOFF = 0.15, INSET = 4;
   const t = (sec) => sec / SPEED;
   const glow = make("div", "thumbglow"), thumb = make("div", "thumb");
   thumb.setAttribute("aria-hidden", "true");
@@ -1352,14 +1375,15 @@ function attachThumb(seg, labels, startIdx) {
     wake();
   };
 
-  /** Приземление: передний край приходит первым, задний — со «сжатием» на 3 px, затем расслабляется. */
+  /** Приземление: передний край приходит первым, задний доезжает следом (без отскока). */
   const land = (to) => {
-    const b = slots[to], g = ++gen;
+    const b = slots[to];
+    ++gen;
     if (!b) return;
     const dir = Math.sign((b.l + b.r) / 2 - (L.x + R.x) / 2) || 1;
     const [lead, leadTo, trail, trailTo] = dir > 0 ? [R, b.r, L, b.l] : [L, b.l, R, b.r];
     spring(lead, leadTo, t(0.3));
-    spring(trail, trailTo + dir * SQUASH, t(0.3), () => { if (gen === g) spring(trail, trailTo, t(0.16)); });
+    spring(trail, trailTo, t(0.3));                       // без «сжатия» и отскока в конце: края просто доезжают до места
   };
 
   new ResizeObserver(() => { measure(); jump(idx); }).observe(seg);   // сработает и когда экран станет видимым
@@ -1587,12 +1611,9 @@ async function boot() {
     // на телефоне — на весь экран, как у других мини-приложений; кнопки «закрыть» и «…» тогда рисует сам Телеграм
     // поверх страницы, а серия 🔥 переезжает в верхнюю полосу между ними
     const applyFullscreen = () => {
-      const fs = !!tg.isFullscreen, chip = $("streakChip"), top = $("topbar");
-      document.body.classList.toggle("fs", fs);
-      top.hidden = !fs;
-      const more = $("chipMore");
-      if (fs) top.append(chip, more);
-      else document.querySelector(".hdr").append(chip, more);
+      // серия и «⋯» остаются в шапке рядом с целью дня (как на компьютере), а не в верхней полосе с кнопками Телеграма;
+      // верхняя полоса просто пустая — место под «Закрыть» и «…» Телеграма оставляет отступ экрана (body.fs .view)
+      document.body.classList.toggle("fs", !!tg.isFullscreen);
     };
     const refit = () => { applyFullscreen(); fit(); };
     tg.onEvent("fullscreenChanged", refit);
@@ -1613,8 +1634,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=14").then((r) => r.json()),
-    fetch("data/aspect.json?v=14").then((r) => r.json()),
+    fetch("data/phrases.json?v=15").then((r) => r.json()),
+    fetch("data/aspect.json?v=15").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

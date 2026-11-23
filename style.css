@@ -1,5 +1,10 @@
-@font-face { font-family: "Inter"; font-weight: 500; font-style: normal; font-display: swap; src: url("fonts/Inter-Medium.woff2") format("woff2"); }
-@font-face { font-family: "Inter"; font-weight: 600; font-style: normal; font-display: swap; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-style: normal; font-display: swap; src: url("fonts/Inter-Medium.woff2") format("woff2"); ascent-override: 88%; descent-override: 33%; line-gap-override: 0%; }
+@font-face { font-family: "Inter"; font-weight: 600; font-style: normal; font-display: swap; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); ascent-override: 88%; descent-override: 33%; line-gap-override: 0%; }
+/* Inter: метрики по умолчанию (ascent 96.9%, descent 24.1%) ставят строчные буквы ниже середины строки. Сумма та же (121%), но базовая линия
+   поднята на ~9% размера шрифта: середина высоты строчных (x-height) теперь точно по центру кнопок, «пилюль» и карточек. Для цифр и заглавных
+   (они, наоборот, оказались бы выше центра) — второе имя шрифта «Inter Fig» с обычными метриками. */
+@font-face { font-family: "Inter Fig"; font-weight: 500; font-style: normal; font-display: swap; src: url("fonts/Inter-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Inter Fig"; font-weight: 600; font-style: normal; font-display: swap; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); }
 :root {
   --bg: #05060d; --fg: #f4f6ff; --muted: #8e93ad; --line: rgba(255, 255, 255, .09);
   --bar-gap: calc(max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)) * .5 + 2px);
@@ -734,3 +739,22 @@ body.compact2 #favBtn, body.compact2 #modeBtn { width: 36px; height: 36px; borde
 #inv .segbtn.on { background: none; box-shadow: none; color: var(--muted); }
 #inv .thumbcopy { padding: 11px 2px; font-size: 14px; }
 @media (max-width: 340px) { #inv .thumbcopy { font-size: 13px; } }
+
+/* верный ответ появляется зелёным: пропуск «вспыхивает» (из размытия, с лёгким перелётом), правильный вариант подпрыгивает; в «Играх» и «Временах» */
+@keyframes ans-in {
+  0% { opacity: 0; transform: scale(.55); filter: blur(5px); box-shadow: 0 0 0 rgba(95, 208, 138, 0); }
+  60% { opacity: 1; transform: scale(1.1); filter: blur(0); box-shadow: 0 0 28px rgba(95, 208, 138, .7); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); box-shadow: 0 0 14px rgba(95, 208, 138, .35); }
+}
+@keyframes ans-pop { 0% { transform: scale(.94); } 55% { transform: scale(1.04); } 100% { transform: scale(1); } }
+.blank.ok { animation: ans-in .6s cubic-bezier(.22, 1, .36, 1) both; }
+.gameopts .btn.ok, .topts .btn.ok { animation: ans-pop .5s cubic-bezier(.22, 1, .36, 1); }
+.twrong .blank.ok { animation: none; }
+@media (prefers-reduced-motion: reduce) { .blank.ok, .gameopts .btn.ok, .topts .btn.ok { animation: none; } }
+
+/* цифры и заглавные — шрифт с обычными метриками (см. выше), чтобы они не «уехали» вверх */
+.goaltext b, .chip b, #countdown, .tpct, .tile > b, .cal .d, .gamescore, .pill.lvl {
+  font-family: "Inter Fig", Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+
+/* надпись в пропуске сдвигается на пару пикселей скриптом fitBlanks (tenses.js), чтобы отступы сверху и снизу были равны */
+.blank .binner { position: relative; }
