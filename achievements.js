@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=21";
-import { MASTERED } from "./tenses.js?v=21";
+import { dayKey, HARD_MISSES } from "./core.js?v=22";
+import { MASTERED } from "./tenses.js?v=22";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -137,5 +137,27 @@ export function unseenAchievements(p) {
 export function markAchievementsSeen(p) {
   if (!unseenAchievements(p).length && p.data.achSeen) return;
   p.data.achSeen = Object.keys(p.data.ach || {});
+  p.save();
+}
+
+// «Прогресс»: снимок «серия и точность» на момент последнего захода на экран «Прогресс» — data.progSeen = { s, a } (в хранилище — ключ z).
+// Красная точка у «Прогресса» горит, пока серия выше, чем была при том заходе; на экране — стрелка и разница.
+/** Один раз после обновления: снимок = текущее состояние (точки и стрелок для старого прогресса нет). */
+export function initProgSeen(p) {
+  if (p.data.progSeen) return;
+  p.data.progSeen = { s: p.streak(), a: p.accuracy() };
+  p.save();
+}
+
+/** Что изменилось с прошлого захода в «Прогресс»: streak — на сколько дней серии (может быть < 0), acc — на сколько процентов точности (null — сравнить не с чем). */
+export function progressChange(p) {
+  const seen = p.data.progSeen || { s: p.streak(), a: p.accuracy() };
+  const a = p.accuracy();
+  return { streak: p.streak() - seen.s, acc: a !== null && seen.a != null ? a - seen.a : null };
+}
+
+/** Заход в «Прогресс» состоялся — запомнить текущие серию и точность. */
+export function markProgressSeen(p) {
+  p.data.progSeen = { s: p.streak(), a: p.accuracy() };
   p.save();
 }

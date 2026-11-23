@@ -1,15 +1,15 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=21";
-import * as Store from "./storage.js?v=21";
-import { startMolten } from "./molten.js?v=21";
-import { attachSpecular } from "./specular.js?v=21";
-import { animateList } from "./animlist.js?v=21";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=21";
-import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=21";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen } from "./achievements.js?v=21";
+import * as Core from "./core.js?v=22";
+import * as Store from "./storage.js?v=22";
+import { startMolten } from "./molten.js?v=22";
+import { attachSpecular } from "./specular.js?v=22";
+import { animateList } from "./animlist.js?v=22";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=22";
+import { translate, recognizeText, guessDir, TranslateError, MAX_CHARS } from "./translator.js?v=22";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=22";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.21";
+const APP_VERSION = "2026-11-23.22";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -272,12 +272,12 @@ function nextCard() {
     key = pool[Math.floor(Math.random() * pool.length)];
     session.seen.push(key);
   } else {
-    key = progress.pick(recent(), undefined, allowedTypes());
+    key = progress.pick(recent(), undefined, allowedTypes(), allowedLevels());
   }
   if (key === null) {
     cur = null;
     schedule(askSec(), "ask");
-    setIdle(allowedTypes() ? "В выбранных видах всё выучено 🎉" : "Все фразы выучены 🎉");
+    setIdle(!filterOn() ? "Все фразы выучены 🎉" : [...progress.phrases.values()].some(fits) ? "В выбранном всё выучено 🎉" : "Таких карточек нет — измените выбор в «Что учить»");
     return;
   }
   progress.data.recent = [...recent(), key].slice(-Core.RECENT_SKIP);
@@ -738,7 +738,8 @@ function renderMore() {
   set("mstDict", `${progress.phrases.size} записей`);
   $("dotRev").hidden = !pool || settings().dotRev === false;                            // точки можно выключить в «Настройках → Напоминания»
   $("dotAch").hidden = !unseenAchievements(progress).length || settings().dotAch === false;
-  for (const dot of [$("dotRev"), $("dotAch")]) dot.parentElement.classList.toggle("alert", !dot.hidden);   // пока горит точка, значок блока раз в 10 с «подаёт знак» (CSS: кубок трясётся, стрелки делают круг)
+  $("dotProg").hidden = progressChange(progress).streak <= 0 || settings().dotProg === false;   // серия выросла с прошлого захода в «Прогресс»
+  for (const dot of [$("dotRev"), $("dotAch"), $("dotProg")]) dot.parentElement.classList.toggle("alert", !dot.hidden);   // пока горит точка, значок блока раз в 10 с «подаёт знак» (CSS: кубок трясётся, стрелки делают круг)
 }
 
 /** Завершить переход: убрать служебные классы, оставить видимым только текущий экран. */
@@ -768,7 +769,7 @@ function showView(name) {
   if (name === "tenses") tenses.renderMap();
   if (name === "tlesson") tenses.renderLesson();
   if (name === "more") { renderMore(); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // подписи и точки обновляются, блоки выезжают, как слова в «Закладках»
-  if (name === "prog") renderProg();
+  if (name === "prog") { progChange = progressChange(progress); renderProg(true); markProgressSeen(progress); clearTimeout(chipTimer); chipTimer = setTimeout(hideChips, 3000); }   // стрелки показывают, что изменилось с прошлого захода; потом снимок обновляется
   if (name === "ach") {
     announceAchievements();                                 // выданное «задним числом» тоже считается новым
     achNew = unseenAchievements(progress);                  // полученные и ещё не просмотренные: у них галочка «выскакивает», к последнему экран сам прокручивается
@@ -818,7 +819,9 @@ function appendRows(body, keys, kind) {
   for (const key of keys) {
     const row = make("div", "item");
     const txt = make("div", "txt");
-    txt.append(make("div", "en", key), make("div", "ru", progress.phrases.get(key).ru.slice(0, 2).join(" / ")));
+    const en = make("div", "en", key);
+    if (kind === "dict") en.append(" ", make("span", "dlvl", progress.phrases.get(key).level));   // уровень A2/B1/B2 — мелко и бледно после слова
+    txt.append(en, make("div", "ru", progress.phrases.get(key).ru.slice(0, 2).join(" / ")));
     row.append(txt);
     if (kind === "saved") {
       const rm = make("button", "rm");
@@ -1342,7 +1345,40 @@ function endSession() {
 }
 
 // --- Прогресс: цифры и календарь ---
-function renderProg() {
+/** Что изменилось с прошлого захода в «Прогресс» (считается в showView; при перелистывании календаря остаётся тем же, но без анимации). */
+let progChange = { streak: 0, acc: null };
+
+/** Через 3 секунды после захода «таблетки» с изменениями плавно исчезают (и при перелистывании календаря уже не возвращаются). */
+let chipTimer = 0;
+function hideChips() {
+  progChange = { streak: 0, acc: null };
+  for (const c of document.querySelectorAll("#progBody .tile > .delta")) {
+    c.classList.add("out");
+    setTimeout(() => c.remove(), 500);
+  }
+}
+
+/** Маленькая «таблетка» в углу плитки: зелёная стрелка вверх и «+N» или красная вниз и «−N». */
+function deltaChip(d, unit, animate) {
+  const chip = make("i", "delta " + (d > 0 ? "up" : "down") + (animate ? " go" : ""));
+  chip.innerHTML = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2.2M2.6 5.4L6 2l3.4 3.4"/></svg>';
+  chip.append(`${d > 0 ? "+" : "−"}${Math.abs(d)}${unit}`);
+  return chip;
+}
+
+/** Число плитки плавно «досчитывает» от прежнего значения до нового. */
+function countTo(node, from, to, fmt, ms = 900) {
+  const t0 = performance.now();
+  node.textContent = fmt(from);
+  const step = (now) => {
+    const k = Math.min(1, (now - t0) / ms), e = 1 - (1 - k) ** 3;
+    node.textContent = fmt(Math.round(from + (to - from) * e));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function renderProg(animate = false) {
   const body = el.progBody;
   body.replaceChildren();
   const acc = progress.accuracy(), s = progress.stats();
@@ -1351,16 +1387,26 @@ function renderProg() {
   const tiles = make("div", "tiles");
   const streak = progress.streak();
   // у каждой плитки: главный текст по центру, подпись ниже, а позади — большой полупрозрачный анимированный значок
-  for (const [num, label, gold, icon, cls] of [
+  for (const [i, [num, label, gold, icon, cls]] of [
     [`${Math.min(progress.todayCorrect(), progress.goal())}/${progress.goal()}`, "сегодня", false, calendarSvg(), "calicon"],
     [String(streak), streak % 10 === 1 && streak % 100 !== 11 ? "день подряд" : "дней подряд", done, FLAME,
       "flamebg" + (streak > 0 ? " on" : "")],
     [acc !== null ? `${acc}%` : "—", "точность", false, TARGET, "targeticon"],
-  ]) {
+  ].entries()) {
     const tile = make("div", "tile" + (gold ? " gold" : ""));
     const bg = make("span", "bgicon " + cls);
     bg.innerHTML = icon;
-    tile.append(bg, make("b", "", num), make("span", "lbl", label));
+    const big = make("b", "", num);
+    tile.append(bg, big, make("span", "lbl", label));
+    // что изменилось с прошлого захода: серия — на сколько дней (число «досчитывает» до нового), точность — на сколько процентов
+    const ch = i === 1 ? progChange.streak : i === 2 ? progChange.acc : 0;
+    if (ch) {
+      tile.append(deltaChip(ch, i === 2 ? "%" : "", animate));
+      if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const now = i === 1 ? streak : acc;
+        countTo(big, now - ch, now, i === 2 ? (v) => `${v}%` : String);
+      }
+    }
     tiles.append(tile);
   }
   body.append(tiles);
@@ -1663,6 +1709,20 @@ const KINDS = [
   ["idiom", "Идиомы"], ["slang", "Сленг"], ["proverb", "Пословицы"],
 ];
 
+const LEVELS = ["A2", "B1", "B2"];   // A1 в базе нет
+
+/** Набор выбранных уровней или null, если выбраны все (тогда уровень не фильтруется). */
+function allowedLevels() {
+  const l = settings().levels;
+  if (!Array.isArray(l)) return null;
+  const set = new Set(l.filter((x) => LEVELS.includes(x)));
+  return set.size && set.size < LEVELS.length ? set : null;
+}
+
+const filterOn = () => !!(allowedTypes() || allowedLevels());
+/** Подходит ли запись под выбранные виды и уровни. */
+const fits = (p) => (!allowedTypes() || allowedTypes().has(p.type)) && (!allowedLevels() || allowedLevels().has(p.level));
+
 /** Набор выбранных видов или null, если выбраны все (тогда ничего не фильтруется). */
 function allowedTypes() {
   const k = settings().kinds;
@@ -1672,47 +1732,63 @@ function allowedTypes() {
 }
 
 const refreshModeBtn = () => {
-  el.mode.classList.toggle("on", !!allowedTypes());
-  el.mode.setAttribute("aria-pressed", String(!!allowedTypes()));
+  el.mode.classList.toggle("on", filterOn());
+  el.mode.setAttribute("aria-pressed", String(filterOn()));
 };
 
 /** После закрытия окна выбора: если текущая карточка не подходит (или карточек не было) — взять новую. */
 function applyModes() {
   refreshModeBtn();
   if (session) return;                          // сессия «Повтор» живёт по своим правилам
-  const a = allowedTypes();
-  if (!cur || (a && !a.has(progress.phrases.get(cur)?.type))) nextCard();
+  if (!cur || !fits(progress.phrases.get(cur) || {})) nextCard();
 }
 
 function openModes() {
-  const counts = {};
-  for (const p of progress.phrases.values()) counts[p.type] = (counts[p.type] || 0) + 1;
-  const everyone = () => new Set(KINDS.map(([v]) => v));
-  const sel = allowedTypes() || everyone();
-  const save = (set) => {
-    settings().kinds = set.size === KINDS.length ? null : [...set];
+  const everyKind = () => new Set(KINDS.map(([v]) => v)), everyLevel = () => new Set(LEVELS);
+  const kindSel = allowedTypes() || everyKind(), levelSel = allowedLevels() || everyLevel();
+  const kindsAll = kindSel.size === KINDS.length, levelsAll = levelSel.size === LEVELS.length;
+  // числа на кнопках учитывают второй фильтр: сколько записей этого вида при выбранных уровнях и наоборот
+  const kindCount = {}, levelCount = {};
+  for (const p of progress.phrases.values()) {
+    if (levelSel.has(p.level)) kindCount[p.type] = (kindCount[p.type] || 0) + 1;
+    if (kindSel.has(p.type)) levelCount[p.level] = (levelCount[p.level] || 0) + 1;
+  }
+  const save = (kinds, levels) => {
+    const s = settings();
+    s.kinds = kinds.size === KINDS.length ? null : [...kinds];
+    s.levels = levels.size === LEVELS.length ? null : [...levels];
     progress.save(); refreshModeBtn(); markExplored("mode"); openModes();
   };
-  sheetOpen((box) => {
-    box.append(make("h2", "", "Что учить"));
-    box.append(make("p", "", "Выберите один или несколько видов. Новые карточки и повторения будут только из выбранных."));
-    const grid = make("div", "kindgrid");
-    const all = make("button", "btn all" + (sel.size === KINDS.length ? " on" : ""), "Все виды");
-    all.setAttribute("aria-pressed", String(sel.size === KINDS.length));
-    all.addEventListener("click", () => save(everyone()));
+  /** Блок кнопок: «Все …» и по одной на значение; из «Все» выбор начинается с нуля, хотя бы одно значение остаётся выбранным. */
+  const group = (title, allLabel, items, sel, isAll, counts, cls, apply) => {
+    const wrap = make("div", "kindsec");
+    wrap.append(make("div", "kindlabel", title));
+    const grid = make("div", "kindgrid" + cls);
+    const all = make("button", "btn all" + (isAll ? " on" : ""), allLabel);
+    all.setAttribute("aria-pressed", String(isAll));
+    all.addEventListener("click", () => apply(new Set(items.map(([v]) => v))));
     grid.append(all);
-    for (const [value, label] of KINDS) {
-      const b = make("button", "btn" + (sel.size < KINDS.length && sel.has(value) ? " on" : ""));
-      b.setAttribute("aria-pressed", String(sel.size < KINDS.length && sel.has(value)));
+    for (const [value, label] of items) {
+      const on = !isAll && sel.has(value);
+      const b = make("button", "btn" + (on ? " on" : ""));
+      b.setAttribute("aria-pressed", String(on));
       b.append(label, make("small", "", String(counts[value] || 0)));
       b.addEventListener("click", () => {
-        const next = new Set(sel.size === KINDS.length ? [] : sel);   // из «Все виды» выбор начинается с нуля
+        const next = new Set(isAll ? [] : sel);
         if (next.has(value)) next.delete(value); else next.add(value);
-        if (next.size) save(next);                                    // хотя бы один вид остаётся выбранным
+        if (next.size) apply(next);
       });
       grid.append(b);
     }
-    box.append(grid);
+    wrap.append(grid);
+    return wrap;
+  };
+  sheetOpen((box) => {
+    box.append(make("h2", "", "Что учить"));
+    box.append(make("p", "", "Выберите виды и уровни, можно по нескольку. Карточки будут только из выбранных."));
+    box.append(group("Виды", "Все виды", KINDS, kindSel, kindsAll, kindCount, "", (k) => save(k, levelSel)));
+    box.append(group("Уровень", "Все уровни", LEVELS.map((l) => [l, l]), levelSel, levelsAll, levelCount, " levels", (l) => save(kindSel, l)));
+    box.append(make("p", "levelnote", "A2 — попроще, B1 — средний, B2 — выше среднего."));
     const done = make("button", "btn primary wide", "Готово");
     done.addEventListener("click", sheetClose);
     box.append(done);
@@ -2053,7 +2129,8 @@ function renderGeneral() {
     card("Напоминания", [                                    // в «Больше»: точка у «Повтора» (есть что повторять) и у «Достижений» (есть новое)
       field("Повтор", ONOFF, settings().dotRev !== false, (v) => { settings().dotRev = v; progress.save(); }),
       field("Достижения", ONOFF, settings().dotAch !== false, (v) => { settings().dotAch = v; progress.save(); }),
-      make("p", "asknote remnote", "Напоминания — это красные точки в разделе «Больше». У «Повтора» точка горит, пока есть что повторять. У «Достижений» — когда получено новое достижение, которое вы ещё не просмотрели; она гаснет, как только вы откроете «Достижения»."),
+      field("Прогресс", ONOFF, settings().dotProg !== false, (v) => { settings().dotProg = v; progress.save(); }),
+      make("p", "asknote remnote", "Напоминания — это красные точки в разделе «Больше». У «Повтора» точка горит, пока есть что повторять. У «Достижений» — когда получено новое достижение, которое вы ещё не просмотрели; она гаснет, как только вы откроете «Достижения». У «Прогресса» — когда ваша серия выросла с прошлого захода в «Прогресс»; она гаснет, как только вы его откроете."),
     ], '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'));
   $("generalNote").replaceChildren(
     make("p", "diag", diagText()));
@@ -2166,12 +2243,20 @@ function setupTranslator() {
   input.setAttribute("maxlength", String(MAX_CHARS));
   input.addEventListener("input", schedule);
   clear.addEventListener("click", () => { input.value = ""; schedule(); input.focus(); });
+  // подсказки («Введите текст…» в поле и «Перевод появится здесь») при смене языков не меняются скачком, а плавно проявляются:
+  // подсказка в поле на миг становится прозрачной (класс phhide) и возвращается через CSS-переход; подсказка результата перезапускает свою анимацию (display: none → обратно)
+  const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const hintsOut = () => { if (calm()) return; input.classList.add("phhide"); res.style.display = "none"; };
+  const hintsIn = () => { if (calm()) return; void input.offsetWidth; input.classList.remove("phhide"); res.style.display = ""; };
+  let swapTurns = 0;
   $("trSwap").addEventListener("click", () => {
     const had = res.textContent;
     dir = dir === "ru" ? "en" : "ru";
+    const arrows = $("trSwap").querySelector("svg");   // стрелки поворачиваются на пол-оборота при каждом нажатии и остаются так (значок симметричный — выглядит так же, но «поменялись местами»)
+    swapTurns += 1; arrows.style.transform = `rotate(${swapTurns * 180}deg)`;
     if (had && err.hidden) input.value = had;    // готовый перевод становится новым текстом — сразу переводим обратно
     done = "";
-    refresh(); stop();
+    hintsOut(); refresh(); stop(); hintsIn();
     if (input.value.trim()) { setStatus(true); run(); } else { showResult(""); setStatus(false); }
   });
   // Перевод по фото: кнопка-камера открывает обычное окно телефона (камера / галерея), снимок читает посредник, текст попадает в поле и переводится сам
@@ -2310,14 +2395,15 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=21").then((r) => r.json()),
-    fetch("data/aspect.json?v=21").then((r) => r.json()),
+    fetch("data/phrases.json?v=22").then((r) => r.json()),
+    fetch("data/aspect.json?v=22").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
   Core.setAspect(aspect);
   progress = new Core.Progress(phrases, saved, Store.save);
   initAchSeen(progress);   // что получено до обновления — считается просмотренным, красная точка только для новых
+  initProgSeen(progress);  // то же для «Прогресса»: сравниваем с состоянием на момент первого запуска
   if (Store.usingCloud) Store.save(progress.data); // если локальная копия была новее — подтянуть облако
   applyBg();
   refreshModeBtn();

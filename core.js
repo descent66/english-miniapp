@@ -190,12 +190,14 @@ export class Progress {
   }
 
   // --- выбор следующей карточки ---
-  /** types — необязательный набор видов (Set строк phrase.type): режим «что учить». null = все виды. */
-  pick(recent = [], now = nowSec(), types = null) {
+  /** types — необязательный набор видов (Set строк phrase.type): режим «что учить». null = все виды.
+   *  levels — необязательный набор уровней (Set строк phrase.level: "A2", "B1", "B2"); null = все. Только в core.js (в core.py нет). */
+  pick(recent = [], now = nowSec(), types = null, levels = null) {
     const skip = new Set(recent.slice(-RECENT_SKIP));
     const dueLearning = [], dueNew = [], unseen = [], waiting = [];
     for (const key of this.phrases.keys()) {
       if (types && !types.has(this.phrases.get(key).type)) continue;
+      if (levels && !levels.has(this.phrases.get(key).level)) continue;
       const st = this.state(key);
       if (st === "mastered" || st === "known") continue;
       const c = this.cards[key];
