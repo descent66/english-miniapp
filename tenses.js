@@ -2,7 +2,8 @@
 // Данные — data/tenses.json (их делает miniapp_tests/make_tenses.py). Прогресс по временам — progress.data.tenses:
 // { id: { best: лучший результат теста в %, last: последний результат, n: сколько раз проходили, place: 1/0 — итог входного теста } }.
 // Логика ответов строгая (не «похоже на»): в грамматике «has lived» и «have lived» — разные ответы.
-import { normalize } from "./core.js?v=17";
+import { normalize } from "./core.js?v=18";
+import { attachSpecular } from "./specular.js?v=18";
 
 const ORDER = ["ps", "pc", "pas", "pp", "pac", "fs", "pap", "pcc", "fc", "fp", "pacc", "fpc"];   // в каком порядке советуем учить
 const GROUPS = [["past", "Past"], ["present", "Present"], ["future", "Future"]];
@@ -95,6 +96,7 @@ export function initTenses(ctx) {
     body.replaceChildren(place, cols, grid,
       make("p", "tnote", `Кольцо — ваш лучший результат в тесте. От ${MASTERED}% время считается освоенным.`));
     animateList(body, { entrance: true, bottomEl: $("bar") });
+    attachSpecular(place, "place");   // блик по кромке «Входного теста» (перенос SpecularButton)
   }
 
   // ---------- урок ----------

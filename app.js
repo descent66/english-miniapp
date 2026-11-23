@@ -1,14 +1,15 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=17";
-import * as Store from "./storage.js?v=17";
-import { startMolten } from "./molten.js?v=17";
-import { animateList } from "./animlist.js?v=17";
-import { initTenses, fitBlanks } from "./tenses.js?v=17";
-import { translate, TranslateError, MAX_CHARS } from "./translator.js?v=17";
-import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=17";
+import * as Core from "./core.js?v=18";
+import * as Store from "./storage.js?v=18";
+import { startMolten } from "./molten.js?v=18";
+import { attachSpecular } from "./specular.js?v=18";
+import { animateList } from "./animlist.js?v=18";
+import { initTenses, fitBlanks } from "./tenses.js?v=18";
+import { translate, TranslateError, MAX_CHARS } from "./translator.js?v=18";
+import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=18";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.17";
+const APP_VERSION = "2026-11-23.18";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -215,9 +216,9 @@ function updateCountdown() {
   if (!Number.isFinite(nextAt)) { el.countdown.textContent = ""; el.timerFill.style.width = "0%"; el.timerBox.classList.remove("urgent"); return; }
   const msLeft = Math.max(0, nextAt - Date.now());
   const left = Math.round(msLeft / 1000);
-  el.countdown.textContent = phase === "ask"
-    ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
-    : `дальше ${left} с`;
+  const clock = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+  el.countdown.textContent = phase === "ask" ? clock : `Дальше ${clock}`;
+  el.timerBox.classList.toggle("next", phase !== "ask");   // после ответа надпись длиннее — рамка под неё шире (плавно), до ответа узкая: текст вплотную к полоске
   el.timerFill.style.width = `${Math.min(100, (msLeft / phaseMs) * 100)}%`;
   el.timerBox.classList.toggle("urgent", phase === "ask" && msLeft <= redLead(phaseMs / 1000) * 1000);   // последние секунды до показа ответа (зависят от длины таймера) — таймер плавно краснеет
 }
@@ -294,13 +295,18 @@ function setIdle(text) {
   showActions();
 }
 
+/** Кнопка «Прекратить повтор» под «Проверить» — только пока идёт сессия повтора. */
+const syncSessBtn = () => { $("endSessBtn").hidden = !(session && !session.finished); };
+
 function show(key, dir, isRevealed) {
   cur = key; direction = dir; revealed = false;
+  syncSessBtn();
   const p = progress.phrases.get(key);
   const state = progress.state(key);
   const pills = [];
   if (session && !session.finished) pills.push([`Повтор ${session.done + 1}/${session.total}`, "sess"]);
-  pills.push([TYPE_RU[p.type] || p.type, ""], [p.level, "lvl"], [dir === "en2ru" ? "EN → RU" : "RU → EN", "mode"]);
+  const kind = TYPE_RU[p.type] || p.type;
+  pills.push([kind[0].toUpperCase() + kind.slice(1), ""], [p.level, "lvl"], [dir === "en2ru" ? "EN → RU" : "RU → EN", "mode"]);
   if (state === "learning") pills.push(["↻", "rep"]);
   el.tag.replaceChildren(...pills.map(([text, cls]) => make("span", "pill " + cls, text)));
   el.tag.title = state === "learning" ? "повторение" : "";
@@ -729,8 +735,13 @@ const SIDE = {
 function renderList(body, keys, kind, emptyText) {
   body.replaceChildren();
   if (!keys.length) { body.append(emptyNote(emptyText)); return; }
-  const LIMIT = kind === "dict" ? Infinity : 300;   // словарь показывает всё
-  for (const key of keys.slice(0, LIMIT)) {
+  const LIMIT = kind === "dict" ? dictShown : 300;   // словарь показывает всё, но порциями: 1040 анимированных строк разом перегружали телефон
+  appendRows(body, keys.slice(0, LIMIT), kind);
+  if (kind !== "dict" && keys.length > LIMIT) body.append(emptyNote(`Показано ${LIMIT} из ${keys.length}. Уточните поиск.`));
+}
+
+function appendRows(body, keys, kind) {
+  for (const key of keys) {
     const row = make("div", "item");
     const txt = make("div", "txt");
     txt.append(make("div", "en", key), make("div", "ru", progress.phrases.get(key).ru.slice(0, 2).join(" / ")));
@@ -757,8 +768,19 @@ function renderList(body, keys, kind, emptyText) {
     }
     body.append(row);
   }
-  if (keys.length > LIMIT) body.append(emptyNote(`Показано ${LIMIT} из ${keys.length}. Уточните поиск.`));
 }
+
+const DICT_PAGE = 60;    // сколько строк словаря рисуется за раз
+let dictShown = DICT_PAGE, dictKeys = [];
+/** Словарь: когда прокрутка подошла к низу списка — дорисовать следующую порцию строк (уже показанные не трогаем). */
+function loadMoreDict() {
+  if (invTab !== "dict" || dictShown >= dictKeys.length || !el.invBody.offsetParent) return;
+  if (window.innerHeight + window.scrollY < document.documentElement.scrollHeight - 900) return;
+  appendRows(el.invBody, dictKeys.slice(dictShown, dictShown + DICT_PAGE), "dict");
+  dictShown += DICT_PAGE;
+  animateList(el.invBody, { entrance: false, bottomEl: $("bar") });
+}
+window.addEventListener("scroll", loadMoreDict, { passive: true });
 
 // --- Инвентарь: закладки, трудные, словарь (вся база по алфавиту), выученные; везде поиск ---
 const INV_EMPTY = {
@@ -944,6 +966,7 @@ function renderInv(animate = true) {
   const q = $("invSearch").value.trim().toLowerCase();
   let keys = invKeys(invTab);
   if (q) keys = keys.filter((k) => startsWord(k, q) || progress.phrases.get(k).ru.some((r) => startsWord(r, q)));
+  dictKeys = keys; dictShown = DICT_PAGE;
   renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
   animateList(el.invBody, { entrance: animate, bottomEl: $("bar") });
 }
@@ -953,7 +976,10 @@ function renderInv(animate = true) {
 // Данные (data/pv_game.json) делает miniapp_tests/make_pv_game.py из примеров базы; в раунде — 10 случайных вопросов.
 // Игра не влияет на прогресс, цель дня и серию.
 const VER = new URL(import.meta.url).searchParams.get("v") || "0";
-const GAME_ROUND = 10;
+const ROUND_MIN = 3, ROUND_MAX = 20, ROUND_DEFAULT = 10;
+const FLAWLESS_MIN = 10;   // «без ошибок» и «Хет-трик» считаются только за раунды от 10 вопросов (иначе 3 вопроса — слишком легко)
+/** Сколько вопросов в раунде этой игры ("pv" / "dlg") — выбирается ползунком перед игрой, хранится в settings.rounds. */
+const roundSize = (g) => Math.min(ROUND_MAX, Math.max(ROUND_MIN, Number(settings().rounds?.[g]) || ROUND_DEFAULT));
 let pvData = null;      // данные игры, загружаются при первом запуске
 let game = null;        // идущий раунд: { items, i, right, picked, options }
 
@@ -981,7 +1007,7 @@ function gameOptions(item) {
 /** mode: "choose" — выбрать из 4 вариантов, "type" — вписать частицу самому. */
 async function startGame(mode) {
   if (!pvData) pvData = await fetch(`data/pv_game.json?v=${VER}`).then((r) => r.json());
-  const items = shuffle(pvData).slice(0, GAME_ROUND);
+  const items = shuffle(pvData).slice(0, roundSize("pv"));
   game = { mode, items, i: 0, right: 0, picked: null, note: "", options: gameOptions(items[0]) };
   markExplored("pv");
   renderGames();
@@ -1037,7 +1063,7 @@ function gameTop() {
 let dlgData = null;
 async function startDialogs() {
   if (!dlgData) dlgData = await fetch(`data/dialogs.json?v=${VER}`).then((r) => r.json());
-  const items = shuffle(dlgData).slice(0, GAME_ROUND);
+  const items = shuffle(dlgData).slice(0, roundSize("dlg"));
   game = { kind: "dlg", items, i: 0, right: 0, picked: null, opts: shuffle(items[0].o) };
   markExplored("dlg");
   renderGames();
@@ -1093,22 +1119,47 @@ function renderDialog(body) {
   if (fb) fb.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 
+/** Ползунок «сколько вопросов в раунде» (3–20) перед игрой g; text(n) — подпись над ним. Значение сохраняется сразу, как «Время на ответ». */
+function roundField(g, text) {
+  const f = make("div", "field askfield");
+  const meta = make("div", "gamemeta");
+  const range = make("input");
+  Object.assign(range, { type: "range", min: ROUND_MIN, max: ROUND_MAX, step: 1, value: roundSize(g) });
+  range.setAttribute("aria-label", "Вопросов в раунде");
+  const show = () => {
+    const n = Number(range.value);
+    meta.textContent = text(n);
+    range.style.setProperty("--p", `${((n - ROUND_MIN) / (ROUND_MAX - ROUND_MIN)) * 100}%`);
+  };
+  range.addEventListener("input", () => {
+    show();
+    const s = settings();
+    if (!s.rounds) s.rounds = {};
+    s.rounds[g] = Number(range.value);
+    progress.save();
+  });
+  show();
+  f.append(meta, range);
+  return f;
+}
+
 function renderGames() {
   const body = el.gamesBody;
   body.replaceChildren();
   if (!game) {
     const n = [...progress.phrases.values()].filter((p) => p.type === "phrasal verb" && p.en.includes(" ")).length;
+    const few = (k) => k === 3 || k === 4;   // 3–4 → «вопроса», «диалога»; 5–20 → «вопросов», «диалогов»
     const dcard = make("div", "gamecard");
     dcard.append(make("h2", "", "Диалоги"),
       make("p", "", "Короткий разговор из жизни: выберите реплику, которую сказал бы носитель. Например, на «Thanks a lot!» — «No problem!»"),
-      make("div", "gamemeta", `${GAME_ROUND} диалогов за раунд`));
+      roundField("dlg", (k) => `${k} ${few(k) ? "диалога" : "диалогов"} за раунд`));
     const dplay = make("button", "btn wide primary", "Играть");
     dplay.addEventListener("click", () => { dplay.disabled = true; startDialogs().catch(() => { dplay.disabled = false; }); });
     dcard.append(dplay);
     const card = make("div", "gamecard");
     card.append(make("h2", "", "Подставь частицу"),
       make("p", "", "Фразовые глаголы: впишите нужный предлог в предложение, например «I'm looking ___ my keys» → for."),
-      make("div", "gamemeta", `${GAME_ROUND} вопросов за раунд · ${n} глаголов в игре`));
+      roundField("pv", (k) => `${k} ${few(k) ? "вопроса" : "вопросов"} за раунд · ${n} глаголов в игре`));
     const modes = [["choose", "Выбрать из 4 вариантов", "primary"], ["type", "Вписать самому", ""]];
     const btns = modes.map(([mode, label, cls]) => {
       const b = make("button", ("btn wide " + cls).trim(), label);
@@ -1122,11 +1173,12 @@ function renderGames() {
   if (game.i >= game.items.length) {                       // итоги
     if (!game.counted) {                                   // экран итогов перерисовывается — раунд считаем один раз
       game.counted = true;
-      recordRound(progress, game.kind === "dlg" ? "dlg" : "pv", game.right === game.items.length);
+      if (game.items.length >= FLAWLESS_MIN) recordRound(progress, game.kind === "dlg" ? "dlg" : "pv", game.right === game.items.length);   // короткие раунды достижения «без ошибок» не дают
       announceAchievements();
     }
     const card = make("div", "gamecard");
-    const tail = game.right >= 9 ? "Отлично!" : game.right >= 7 ? "Хороший результат" : game.right >= 5 ? "Неплохо, но стоит повторить" : "Есть над чем поработать";
+    const share = game.right / game.items.length;   // доля верных (раунд может быть от 3 до 20 вопросов)
+    const tail = share >= 0.9 ? "Отлично!" : share >= 0.7 ? "Хороший результат" : share >= 0.5 ? "Неплохо, но стоит повторить" : "Есть над чем поработать";
     card.append(make("h2", "", "Результат"), make("div", "gamescore", `${game.right} из ${game.items.length}`), make("p", "", tail));
     const again = make("button", "btn primary wide", "Ещё раз");
     again.addEventListener("click", () => { const { kind, mode } = game; game = null; if (kind === "dlg") startDialogs(); else startGame(mode); });
@@ -1255,6 +1307,7 @@ function startReview() {
 
 function finishSession() {
   session.finished = true;
+  syncSessBtn();
   cur = null;
   schedule(askSec(), "ask");
   setIdle("Повтор закончен");
@@ -1263,6 +1316,7 @@ function finishSession() {
 
 function endSession() {
   session = null;
+  syncSessBtn();
   showView("learn");
   nextCard();
 }
@@ -1850,20 +1904,38 @@ function askSlider() {
   const start = Math.min(ASK_MAX, Math.max(ASK_MIN, settings().ask || ASK_DEFAULT));
   Object.assign(range, { type: "range", min: ASK_MIN, max: ASK_MAX, step: 1, value: start });
   range.setAttribute("aria-label", "Время на ответ, секунд");
-  const quick = segRow(ASK_PRESETS.map((n) => [n, n + "s"]), start, (n) => { range.value = n; apply(n); play("set"); });
+  const quick = segRow(ASK_PRESETS.map((n) => [n, n + "s"]), start, (n) => { apply(n, true); play("set"); });
   quick.setAttribute("role", "group");
   quick.setAttribute("aria-label", "Быстро выбрать время на ответ");
   const thumb = attachThumb(quick, ASK_PRESETS.map((n) => n + "s"), ASK_PRESETS.indexOf(start));   // нет в списке — плашки нет
-  const apply = (n) => {                                   // показать, сохранить, подсветить подходящую быструю кнопку
+  const place = (v) => {                                   // ползунок и его заливка стоят на значении v (можно дробном)
+    range.value = v;
+    range.style.setProperty("--p", `${((v - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
+  };
+  let glideRaf = 0;
+  /** Плавно довезти ползунок до значения n (кнопки 15s…60s): ~0,4 с, замедление к концу; step="any" — чтобы шёл не целыми секундами, а непрерывно. */
+  const glide = (n) => {
+    cancelAnimationFrame(glideRaf);
+    const from = Number(range.value), t0 = performance.now(), dur = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 400;
+    range.step = "any";
+    const run = (now) => {
+      const p = dur ? Math.min(1, (now - t0) / dur) : 1;
+      place(from + (n - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) glideRaf = requestAnimationFrame(run);
+      else { range.step = 1; place(n); }
+    };
+    glideRaf = requestAnimationFrame(run);
+  };
+  const apply = (n, smooth = false) => {                   // показать, сохранить, подсветить подходящую быструю кнопку
     value.textContent = `${n}s`;
-    range.style.setProperty("--p", `${((n - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
+    if (smooth) glide(n);
+    else { cancelAnimationFrame(glideRaf); range.step = 1; place(n); }
     settings().ask = n; progress.save();
     const at = ASK_PRESETS.indexOf(n);
     [...quick.querySelectorAll(".segbtn")].forEach((b, k) => { b.classList.toggle("on", k === at); b.setAttribute("aria-pressed", String(k === at)); });
     thumb.go(at);
   };
   range.addEventListener("input", () => apply(Number(range.value)));
-  range.addEventListener("change", () => play("set"));
   value.textContent = `${start}s`;
   range.style.setProperty("--p", `${((start - ASK_MIN) / (ASK_MAX - ASK_MIN)) * 100}%`);
   f.append(value, range, quick);
@@ -2112,6 +2184,7 @@ function setupGestures() {
 
 // ---------- запуск ----------
 async function boot() {
+  attachSpecular(document.querySelector("#learn .glass"), "card");   // два блика бегут по кромке карточки (specular.js)
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) {
     tg.ready();
@@ -2148,8 +2221,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=17").then((r) => r.json()),
-    fetch("data/aspect.json?v=17").then((r) => r.json()),
+    fetch("data/phrases.json?v=18").then((r) => r.json()),
+    fetch("data/aspect.json?v=18").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2162,6 +2235,7 @@ async function boot() {
   setupGestures();
 
   el.check.addEventListener("click", submit);
+  $("endSessBtn").addEventListener("click", endSession);
   el.show.addEventListener("click", giveUp);
   el.back.addEventListener("click", () => { play("fill"); back(); });
   el.next.addEventListener("click", () => { play("next"); nextCard(); }); // звук «Дальше» — только по клику

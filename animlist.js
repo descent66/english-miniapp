@@ -19,7 +19,7 @@ let current = null;     // управление прошлым списком (�
 export function animateList(body, { entrance = true, bottomEl = null } = {}) {
   current?.stop();
   current = null;
-  const items = [...body.querySelectorAll(".item")];
+  const items = [...body.querySelectorAll(".item, .achhead")];   // .achhead — заголовки групп в «Достижениях»: выезжают так же, как карточки
   if (!items.length) { body.removeAttribute("data-animated"); return; }
 
   const mode = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "fade" : "pop";

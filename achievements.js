@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=17";
-import { MASTERED } from "./tenses.js?v=17";
+import { dayKey, HARD_MISSES } from "./core.js?v=18";
+import { MASTERED } from "./tenses.js?v=18";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -50,9 +50,9 @@ export const ACHIEVEMENTS = [
   ...[[100, "Сто верных"], [500, "Пятьсот верных"], [777, "Счастливые 777"], [1000, "Тысяча верных"]]
     .map(([n, title]) => ({ id: `correct${n}`, group: "answers", title, text: `${n} верных ответов за всё время`, target: n, value: totalCorrect })),
   { id: "run10", group: "answers", title: "Десять подряд", text: "10 верных ответов подряд без ошибок", target: 10, value: (p) => p.data.run || 0 },
-  { id: "flawlessPv", group: "games", title: "Частица без ошибок", text: "Пройти раунд «Подставь частицу» без ошибок", target: 1, value: (p) => (p.data.flawless?.pv ? 1 : 0) },
-  { id: "flawlessDlg", group: "games", title: "Диалоги без ошибок", text: "Пройти раунд «Диалоги» без ошибок", target: 1, value: (p) => (p.data.flawless?.dlg ? 1 : 0) },
-  { id: "flawRun3", group: "games", title: "Хет-трик", text: "Пройти без ошибок 3 раунда игр подряд", target: 3, value: (p) => p.data.flawRun || 0 },
+  { id: "flawlessPv", group: "games", title: "Частица без ошибок", text: "Пройти раунд «Подставь частицу» без ошибок (от 10 вопросов)", target: 1, value: (p) => (p.data.flawless?.pv ? 1 : 0) },
+  { id: "flawlessDlg", group: "games", title: "Диалоги без ошибок", text: "Пройти раунд «Диалоги» без ошибок (от 10 вопросов)", target: 1, value: (p) => (p.data.flawless?.dlg ? 1 : 0) },
+  { id: "flawRun3", group: "games", title: "Хет-трик", text: "Пройти без ошибок 3 раунда игр подряд (от 10 вопросов)", target: 3, value: (p) => p.data.flawRun || 0 },
   { id: "tensePlace", group: "tenses", title: "Входной тест", text: "Пройти входной тест «Времён»", target: 1,
     value: (p) => (ALL_TENSES.some((id) => p.data.tenses?.[id]?.place !== undefined) ? 1 : 0) },
   ...Object.entries(TENSES).map(([name, ids]) => ({
