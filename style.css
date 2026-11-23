@@ -202,30 +202,34 @@ input { -webkit-user-select: text; user-select: text; }
 }
 body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
 
+/* «фитиль» идёт по нижней кромке карточки и загибается вверх по скруглённым углам (внутренняя тень повторяет контур);
+   сжимается справа налево размером маски (в оригинале — scaleX, но он «сплющивал» бы дугу). Слева полоса сплошная, справа мягко тает. */
 .swipe-toast__fuse {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: var(--st-fuse-h);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--st-fuse) 18%, transparent) 9%,
-    color-mix(in srgb, var(--st-fuse) 50%, transparent) 18%,
-    color-mix(in srgb, var(--st-fuse) 84%, transparent) 28%,
-    var(--st-fuse) 38%,
-    var(--st-fuse) 62%,
-    color-mix(in srgb, var(--st-fuse) 84%, transparent) 72%,
-    color-mix(in srgb, var(--st-fuse) 50%, transparent) 82%,
-    color-mix(in srgb, var(--st-fuse) 18%, transparent) 91%,
-    transparent 100%
-  );
-  transform-origin: left center;
+  inset: 0;
+  border-radius: calc(var(--st-radius) - 1px);   /* внутри кромки в 1px */
+  box-shadow: inset 0 calc(-1 * var(--st-fuse-h)) 0 0 var(--st-fuse);
+  -webkit-mask: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%) left center / 100% 100% no-repeat;
+  mask: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%) left center / 100% 100% no-repeat;
   pointer-events: none;
 }
 
+/* большой полупрозрачный значок позади текста уведомления (как значки на плитках «Прогресса»: непрозрачность 23%, по центру) */
+.swipe-toast__bg { position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; opacity: .23; pointer-events: none; z-index: 0; }
+.swipe-toast__bg svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.swipe-toast__body { position: relative; z-index: 1; }
+.folder .front { transform-box: view-box; transform-origin: 12px 20px; animation: folder-front 3.2s ease-in-out infinite; }
+.folder .paper { animation: folder-paper 3.2s ease-in-out infinite; }
+@keyframes folder-front { 0%, 15%, 85%, 100% { transform: scaleY(1); } 35%, 65% { transform: scaleY(.76); } }
+@keyframes folder-paper { 0%, 15%, 85%, 100% { transform: translateY(0); } 35%, 65% { transform: translateY(-3.2px); } }
+.trophy { transform-box: view-box; transform-origin: 12px 20px; animation: trophy-hop 2.6s ease-in-out infinite; }
+.trophy .shine { animation: trophy-shine 2.6s ease-in-out infinite; }
+@keyframes trophy-hop { 0%, 60%, 100% { transform: translateY(0) scale(1); } 22% { transform: translateY(-1.6px) scale(1.05); } }
+@keyframes trophy-shine { 0%, 100% { opacity: .35; } 25% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .swipe-toast__bg * , .swipe-toast__bg svg { animation: none !important; } }
+
 .swipe-toast[data-fuse='none'] .swipe-toast__fuse { opacity: 0; }
+
 
 @media (prefers-reduced-motion: reduce) {
   .swipe-toast__lift {
@@ -332,6 +336,7 @@ body.compact2 .swipe-toast .swipe-toast__action { height: 40px; }
 .nav { gap: 8px; }
 .nav .btn { padding-left: 14px; padding-right: 14px; }
 .nav #nextBtn { padding-left: 10px; padding-right: 10px; }
+#checkBtn { margin-top: 8px; }   /* «Проверить» чуть ниже поля ответа */
 .nav #showBtn { font-size: 17px; }
 
 /* шапка: цель дня и серия */
@@ -451,6 +456,24 @@ body.compact2 #modeBtn { width: 40px; height: 40px; border-radius: 14px; }
 .gameentry:focus { border-color: #fff; box-shadow: inset 0 2px 8px rgba(0, 0, 0, .4), 0 0 0 3px rgba(255, 255, 255, .22); }
 .gameentry.ok { border-color: var(--ok); }
 .gameentry.bad { border-color: var(--bad); }
+/* «Диалоги»: пузыри реплик, 4 ответа столбиком, плашка «Запомните» */
+.chat { display: flex; flex-direction: column; gap: 8px; }
+.bubble { max-width: 88%; padding: 10px 15px; border-radius: 20px 20px 20px 6px; font-size: 17px; line-height: 1.35; align-self: flex-start;
+  background: rgba(255, 255, 255, .08); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.bubble.me { align-self: flex-end; border-radius: 20px 20px 6px 20px; background: rgba(255, 255, 255, .15); }
+.bubble small { display: block; margin-top: 3px; font-size: 13px; line-height: 1.3; }
+.bubble.gap { border: 1.5px dashed rgba(255, 255, 255, .5); color: rgba(255, 255, 255, .6); }
+.bubble.gap.ok { border-style: solid; border-color: var(--ok); color: var(--ok); box-shadow: 0 0 14px rgba(95, 208, 138, .35); }
+.bubble.gap.ok small { color: inherit; opacity: .75; }
+.dlgopts { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.dlgopts .btn { padding: 14px 16px; font-size: 17px; line-height: 1.3; white-space: normal; text-align: center; }
+.dlgopts .btn:disabled { cursor: default; }
+.dlgopts .btn.ok { border-color: rgba(95, 208, 138, .9); color: #eafff1;
+  background: linear-gradient(180deg, rgba(95, 208, 138, .38), rgba(95, 208, 138, .16)); box-shadow: 0 0 18px rgba(95, 208, 138, .4); }
+.dlgopts .btn.bad { border-color: rgba(255, 123, 123, .9); color: #ffecec;
+  background: linear-gradient(180deg, rgba(255, 123, 123, .34), rgba(255, 123, 123, .14)); box-shadow: 0 0 18px rgba(255, 123, 123, .35); }
+.qkey { font-size: 15px; line-height: 1.4; padding: 11px 14px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line); }
+.qkey b { font-weight: 600; }
 .qnote { font-size: 14px; line-height: 1.4; }
 .qfeedback { font-size: 17px; font-weight: 600; }
 .qfeedback.ok { color: var(--ok); text-shadow: 0 0 12px rgba(95, 208, 138, .5); }
@@ -608,6 +631,41 @@ body.compact2 .nav #backBtn { width: 52px; }
 #moreBody[data-animated] .item:not([data-state]) { opacity: 0; }
 @media (hover: hover) { #moreBody .item:hover { filter: brightness(1.12); } }
 #moreBody .item:active { filter: brightness(.85); }
+/* «Настройки»: кнопка поиска справа от заголовка (поле открывается по нажатию), результаты — строки как у разделов */
+.tophead { position: relative; }
+.tophead .icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: #fff; }
+.menurow .msub { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.searchwrap { animation: search-in .22s ease-out; }
+@keyframes search-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .searchwrap { animation: none; } }
+/* «Словарь»: ряд фильтров по виду записи (прокручивается вбок, выбранный — белый, как активные кнопки) */
+/* запас по краям (padding) нужен, чтобы свечение выбранного фильтра не обрезалось «квадратом» краем прокручиваемого ряда; margin его компенсирует, и кнопки стоят там же, где стояли */
+.dkinds { position: relative; display: flex; gap: 8px; overflow-x: auto; margin: -12px -16px; padding: 14px 16px; scrollbar-width: none; }
+.dkinds::-webkit-scrollbar { display: none; }
+.dkind { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  color: var(--muted); background: rgba(255, 255, 255, .06); border: 1px solid var(--line); cursor: pointer; white-space: nowrap; }
+.dkind small { font-size: 12px; font-weight: 500; opacity: .8; font-variant-numeric: tabular-nums; }
+.dkind.on { color: #0b0c12; border-color: transparent; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 14px rgba(255, 255, 255, .35); }
+/* «Достижения»: итог сверху, группы, карточки (полученные — белая иконка со свечением и зелёная галочка) */
+#achBody[data-animated] .item:not([data-state]) { opacity: 0; }
+.achsum { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
+.achsum b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.achhead { margin: 8px 4px -2px; color: var(--muted); }
+.ach .mico { color: var(--muted); }
+.ach.got .mico { color: #fff; background: rgba(255, 255, 255, .16); box-shadow: 0 0 14px rgba(255, 255, 255, .28); }
+.ach .txt .en { font-size: 17px; }
+.achprog { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.achprog .track { flex: 1; height: 5px; }
+.achprog span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 4.2em; text-align: right; }   /* полоски одной длины */
+.achdate { font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* после нажатия на уведомление: карточка достижения мягко вспыхивает белой кромкой */
+.ach.flash { animation: ach-flash 2s ease-out; }
+@keyframes ach-flash {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); border-color: var(--line); }
+  18%, 55% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 0 0 1px rgba(255, 255, 255, .8), 0 0 26px rgba(255, 255, 255, .35); border-color: rgba(255, 255, 255, .8); }
+}
+@media (prefers-reduced-motion: reduce) { .ach.flash { animation: none; border-color: rgba(255, 255, 255, .8); } }
+.achcheck { flex: none; display: grid; place-items: center; color: var(--ok); }
 /* верх раздела внутри «Настроек»: кнопка «назад» и заголовок */
 .subhead { display: flex; align-items: center; gap: 12px; margin: 4px 0 2px; }
 .subhead h1 { margin: 0; }
@@ -748,9 +806,9 @@ body.compact2 #favBtn, body.compact2 #modeBtn { width: 36px; height: 36px; borde
 }
 @keyframes ans-pop { 0% { transform: scale(.94); } 55% { transform: scale(1.04); } 100% { transform: scale(1); } }
 .blank.ok { animation: ans-in .6s cubic-bezier(.22, 1, .36, 1) both; }
-.gameopts .btn.ok, .topts .btn.ok { animation: ans-pop .5s cubic-bezier(.22, 1, .36, 1); }
+.gameopts .btn.ok, .dlgopts .btn.ok, .topts .btn.ok { animation: ans-pop .5s cubic-bezier(.22, 1, .36, 1); }
 .twrong .blank.ok { animation: none; }
-@media (prefers-reduced-motion: reduce) { .blank.ok, .gameopts .btn.ok, .topts .btn.ok { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .blank.ok, .gameopts .btn.ok, .dlgopts .btn.ok, .topts .btn.ok { animation: none; } }
 
 /* цифры и заглавные — шрифт с обычными метриками (см. выше), чтобы они не «уехали» вверх */
 .goaltext b, .chip b, #countdown, .tpct, .tile > b, .cal .d, .gamescore, .pill.lvl {
@@ -758,3 +816,6 @@ body.compact2 #favBtn, body.compact2 #modeBtn { width: 36px; height: 36px; borde
 
 /* надпись в пропуске сдвигается на пару пикселей скриптом fitBlanks (tenses.js), чтобы отступы сверху и снизу были равны */
 .blank .binner { position: relative; }
+
+/* «Инвентарь»: ТЕКСТ вкладок (Закладки · Трудные · Словарь · Выучено) на 2 px ниже исходного; высота кнопок и белая плашка не меняются (верхний отступ +2, нижний -2) */
+#inv .segbtn, #inv .thumbcopy { padding: 13px 2px 9px; }

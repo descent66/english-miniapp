@@ -1,12 +1,13 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=15";
-import * as Store from "./storage.js?v=15";
-import { startMolten } from "./molten.js?v=15";
-import { animateList } from "./animlist.js?v=15";
-import { initTenses, fitBlanks } from "./tenses.js?v=15";
+import * as Core from "./core.js?v=16";
+import * as Store from "./storage.js?v=16";
+import { startMolten } from "./molten.js?v=16";
+import { animateList } from "./animlist.js?v=16";
+import { initTenses, fitBlanks } from "./tenses.js?v=16";
+import { GROUP_TITLES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus } from "./achievements.js?v=16";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-23.15";
+const APP_VERSION = "2026-11-23.16";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -56,6 +57,22 @@ const TARGET = `<svg class="ico target" viewBox="0 0 24 24" width="26" height="2
   </g>
 </svg>`;
 
+// ---------- значки позади текста уведомлений (как огонёк/мишень/календарь на плитках «Прогресса») ----------
+/** 📁 «Добавлено в закладки»: папка приоткрывается, из неё выглядывает листок. */
+const FOLDER = `<svg class="folder" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M2.5 6.7a2 2 0 0 1 2-2h4.6l2 2.2h8.4a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2z" fill="#e39a12" stroke="none"/>
+  <rect class="paper" x="5.2" y="7.6" width="13.6" height="9" rx="1.2" fill="#f4f5f7" stroke="none"/>
+  <path class="front" d="M2.5 11.3a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2z" fill="#ffc933" stroke="none"/>
+</svg>`;
+/** 🏆 «Новое достижение»: серебристый кубок слегка подпрыгивает и блестит. */
+const TROPHY = `<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M7.2 5.2H4.4v1.8a3.6 3.6 0 0 0 3.6 3.6M16.8 5.2h2.8v1.8a3.6 3.6 0 0 1-3.6 3.6" fill="none" stroke="#c9ccd4" stroke-width="1.6"/>
+  <path d="M7 3.6h10v5.4a5 5 0 0 1-10 0z" fill="#e7e9ee" stroke="none"/>
+  <path d="M10.6 13.8h2.8V17h-2.8z" fill="#c9ccd4" stroke="none"/>
+  <rect x="7.6" y="17" width="8.8" height="3" rx="1.2" fill="#e7e9ee" stroke="none"/>
+  <path class="shine" d="M9.4 5.2v3.6" stroke="#fff" stroke-width="1.4" fill="none"/>
+</svg>`;
+
 /** Отрывной календарь: верхний листок (вчера) отлетает, под ним сегодняшний. */
 function calendarSvg() {
   const day = new Date().getDate(), prev = new Date(Date.now() - 864e5).getDate();
@@ -78,7 +95,7 @@ function calendarSvg() {
 // 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
 const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound" };
 const sounds = {};
-for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set"]) {
+for (const n of ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald"]) {   // herald — новое достижение
   const a = new Audio(`sounds/${SOUND_FILE[n] || n}.wav`);
   a.preload = "auto";
   sounds[n] = a;
@@ -312,8 +329,10 @@ function reveal(ok) {
   const state = progress.record(cur, ok);
   if (session && !session.finished) { session.done += 1; session.correct += ok ? 1 : 0; }
   const todayBefore = progress.todayCorrect();
+  recordAnswer(progress, ok);
   progress.logAnswer(ok);
   updateGoal();
+  announceAchievements();
   if (ok && todayBefore < progress.goal() && progress.todayCorrect() >= progress.goal()) celebrate();
   if (state === "mastered") {
     setStatus(`Верно! ${Core.NEEDED_STREAK} подряд — фраза выучена навсегда`, "ok");
@@ -365,7 +384,7 @@ function toggleFav() {
     const key = cur;
     const kind = TOAST_KIND[progress.phrases.get(key)?.type] || "Фраза";
     showToast({
-      title: "Добавлено в закладки", description: `${kind} в «Закладках»`, actionLabel: "Отменить",
+      title: "Добавлено в закладки", description: `${kind} в «Закладках»`, actionLabel: "Отменить", icon: FOLDER, duration: ST.duration * 1.5,   // 3 с
       onAction: () => { progress.toggleFav(key); play("unstar"); refreshFav(true); },
     });
   } else {
@@ -410,11 +429,11 @@ function runSpring(from, to, duration, bounce, v0, onTick, onDone) {
 
 function hideToast(why = "programmatic") { toast?.close(why); }
 
-function showToast({ title, description = "", actionLabel = "", onAction, onClose, duration = ST.duration }) {
+function showToast({ title, description = "", actionLabel = "", icon = "", onAction, onTap, onClose, duration = ST.duration }) {
   toast?.destroy();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let phase = "open", leaving = false, drag = null, pendingClose = null, closeTimer = 0;
-  let stopSpring = null, fadeAnim = null, burn = null, lastInput = "pointer", y = 0;
+  let stopSpring = null, fadeAnim = null, burn = null, lastInput = "pointer", y = 0, wasDragged = false;
   const flags = { hover: false, interacting: false, focus: false, hidden: document.hidden };
 
   // --- разметка (как в SwipeToast.jsx) ---
@@ -428,6 +447,12 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
   card.setAttribute("aria-live", "polite");
   card.setAttribute("aria-atomic", "true");
   card.tabIndex = 0;
+  if (icon) {                                   // большой полупрозрачный значок позади текста
+    const bg = make("span", "swipe-toast__bg");
+    bg.setAttribute("aria-hidden", "true");
+    bg.innerHTML = icon;
+    card.append(bg);
+  }
   const body = make("span", "swipe-toast__body");
   body.append(make("span", "swipe-toast__title", title));
   if (description) body.append(make("span", "swipe-toast__desc", description));
@@ -464,7 +489,8 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
   const startFuse = () => {
     if (duration <= 0) return;
     burn?.cancel();
-    burn = fuseEl.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }],
+    // фитиль идёт по контуру карточки (скруглённые углы), поэтому сжимается не масштабом, а размером маски
+    burn = fuseEl.animate([{ maskSize: "100% 100%", webkitMaskSize: "100% 100%" }, { maskSize: "0% 100%", webkitMaskSize: "0% 100%" }],
       { duration, easing: "linear", fill: "forwards" });
     burn.onfinish = () => close("timeout");
     syncFuse();
@@ -549,6 +575,7 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
     try { card.releasePointerCapture(e.pointerId); } catch { /* не страшно */ }
     flags.interacting = false;
     const dy = y, v = velocityOf(d.hist);
+    wasDragged = d.moved;
     if (dy > 0 && (v > ST.flick || (dy >= ST.swipe && v >= 0))) { swipeOut(dy, v); return; }
     if (d.moved) {
       stopSpring = reduce ? runSpring(dy, 0, 0.2, 0, 0, setY)
@@ -560,6 +587,17 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
   };
   card.addEventListener("pointerup", onUp);
   card.addEventListener("pointercancel", onUp);
+  // нажатие на само уведомление (не на кнопку и не после перетаскивания) — действие onTap, окно закрывается
+  const tap = () => { if (phase !== "open" || leaving) return; onTap(); close("tap"); };
+  if (onTap) {
+    card.style.cursor = "pointer";
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("button")) return;
+      if (wasDragged) { wasDragged = false; return; }
+      tap();
+    });
+    card.addEventListener("keydown", (e) => { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); tap(); } });
+  }
   card.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { flags.hover = true; syncFuse(); } });
   card.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { flags.hover = false; syncFuse(); } });
   card.addEventListener("focusin", () => { flags.focus = true; syncFuse(); });
@@ -578,9 +616,9 @@ function showToast({ title, description = "", actionLabel = "", onAction, onClos
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
 // порядок = «кто справа от кого» для анимации; общие, игры, повтор и прогресс — внутри «Настроек» (на панели у них своей кнопки нет)
-const VIEWS = ["learn", "inv", "more", "general", "tenses", "tlesson", "games", "rev", "prog"];
+const VIEWS = ["learn", "inv", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach"];
 const TABS = ["learn", "inv", "more"];
-const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more" };
+const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more" };
 const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Настройки»)
 const tabOf = (v) => TAB_OF[v] || v;
 let view = "learn";
@@ -615,8 +653,10 @@ function showView(name) {
   if (name === "general") renderGeneral();
   if (name === "tenses") tenses.renderMap();
   if (name === "tlesson") tenses.renderLesson();
-  if (name === "more") animateList($("moreBody"), { entrance: true, bottomEl: $("bar") });   // разделы выезжают, как слова в «Закладках»
+  if (name === "more") { setSettingsSearchOpen(false); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // вернулись в «Настройки» — поиск закрыт   // разделы выезжают, как слова в «Закладках»
   if (name === "prog") renderProg();
+  if (name === "ach") renderAch();
+  if (name === "tlesson") markExplored("tenses");
   const still = name === prev || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) {
     finishSwap();
@@ -642,15 +682,15 @@ function emptyNote(text) { return make("div", "empty", text); }
 
 const SIDE = {
   hard: (c) => (c.misses ? `ошибок: ${c.misses}` : "трудно"),
-  learning: (c) => (c.state === "new" ? "видел" : `серия ${c.streak} из ${Core.NEEDED_STREAK}`),
   mastered: () => "выучено",
+  dict: (c) => ({ new: "видел", learning: "учу", mastered: "выучено", known: "знал" })[c?.state] || "",   // у ещё не показанных записи в прогрессе нет
 };
 
 /** Список фраз: в закладках — крестик «убрать», в остальных — подпись справа. */
 function renderList(body, keys, kind, emptyText) {
   body.replaceChildren();
   if (!keys.length) { body.append(emptyNote(emptyText)); return; }
-  const LIMIT = 300;
+  const LIMIT = kind === "dict" ? Infinity : 300;   // словарь показывает всё
   for (const key of keys.slice(0, LIMIT)) {
     const row = make("div", "item");
     const txt = make("div", "txt");
@@ -681,19 +721,171 @@ function renderList(body, keys, kind, emptyText) {
   if (keys.length > LIMIT) body.append(emptyNote(`Показано ${LIMIT} из ${keys.length}. Уточните поиск.`));
 }
 
-// --- Инвентарь: закладки и все слова по состояниям, с поиском ---
+// --- Инвентарь: закладки, трудные, словарь (вся база по алфавиту), выученные; везде поиск ---
 const INV_EMPTY = {
   saved: "Пока пусто.\nНажмите звёздочку на карточке,\nчтобы сохранить фразу сюда.",
   hard:"Трудных слов пока нет.\nОни появятся, если вы часто\nошибаетесь или нажмёте «Трудно».",
-  learning: "Здесь будут слова, которые вы\nсейчас учите.",
   mastered: "Выученных слов пока нет.\nСлово считается выученным после\nтрёх верных ответов подряд.",
 };
 
+let dictSorted = null;   // база не меняется, поэтому алфавитный список считаем один раз
+let dictKind = null;     // фильтр словаря: null — все, иначе вид записи (phrase.type)
 function invKeys(tab) {
   if (tab === "saved") return progress.favorites();
   if (tab === "hard") return progress.hardCards();
-  if (tab === "learning") return progress.keysByState("new", "learning");
+  if (tab === "dict") {
+    dictSorted = dictSorted || [...progress.phrases.keys()].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+    return dictKind ? dictSorted.filter((k) => progress.phrases.get(k).type === dictKind) : dictSorted;
+  }
   return progress.keysByState(tab);
+}
+
+// ---------- «Настройки»: поиск по настройкам (кнопка-лупа справа от заголовка) ----------
+// [название, куда ведёт, слова для поиска]; «куда» — экран, "dict" (Инвентарь → Словарь) или "modes" (окно «Что учить» на вкладке «Учить»).
+// Для пунктов внутри раздела третьим пунктом идёт название раздела (показывается мелко под названием).
+const SETTINGS_INDEX = [
+  ["Общие", "general", "основные настройки"],
+  ["Дневная серия", "general", "цель на день серия огонёк верных ответов", "Общие"],
+  ["Цель на день", "general", "10 20 30 верных ответов", "Общие"],
+  ["Звук при достижении цели", "general", "звук при достижении цели серия", "Общие"],
+  ["Конфетти", "general", "при достижении цели", "Общие"],
+  ["Звук", "general", "звуки включить выключить", "Общие"],
+  ["Задний фон", "general", "анимация без движения выкл фон", "Общие"],
+  ["Время на ответ", "general", "таймер секунд 20 30 45 60", "Общие"],
+  ["Что учить", "modes", "виды слова фразовые глаголы фразы идиомы сленг пословицы", "Учить"],
+  ["Времена", "tenses", "грамматика past present future", ""],
+  ["Входной тест", "tenses", "времена тест уровень", "Времена"],
+  ["Словарь", "dict", "все слова идиомы фразы поиск", ""],
+  ["Игры", "games", "", ""],
+  ["Подставь частицу", "games", "фразовые глаголы игра", "Игры"],
+  ["Диалоги", "games", "разговор игра", "Игры"],
+  ["Прогресс", "prog", "календарь точность статистика", ""],
+  ["Достижения", "ach", "награды", ""],
+  ["Повтор", "rev", "трудные слова повторение", ""],
+];
+
+function goToSetting(where) {
+  if (where === "dict") { invTab = "dict"; showView("inv"); }
+  else if (where === "modes") { showView("learn"); openModes(); }
+  else showView(where);
+}
+
+/** Показать результаты поиска по настройкам; пустой запрос — обычный список разделов. */
+function renderSettingsSearch() {
+  const q = $("setSearch").value.trim().toLowerCase();
+  const res = $("setResults");
+  $("moreBody").hidden = !!q;
+  res.hidden = !q;
+  if (!q) return;
+  res.replaceChildren();
+  const found = SETTINGS_INDEX.filter(([title, , words]) => startsWord(title, q) || words.split(" ").some((w) => w && startsWord(w, q)));
+  if (!found.length) { res.append(emptyNote("Такой настройки нет.")); return; }
+  for (const [title, where, , section] of found) {
+    const sectionRow = [...document.querySelectorAll("#moreBody .menurow")].find((r) => r.dataset.go === where || (where === "dict" && r.id === "dictRow"));
+    const row = make("button", "item menurow");
+    const ico = make("span", "mico");
+    ico.innerHTML = (sectionRow || document.querySelector('#moreBody [data-go="general"]')).querySelector(".mico").innerHTML;
+    const name = make("span", "mtitle", title);
+    if (section) name.append(make("span", "msub", `в разделе «${section}»`));
+    row.append(ico, name);
+    row.insertAdjacentHTML("beforeend", '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>');
+    row.addEventListener("click", () => goToSetting(where));
+    res.append(row);
+  }
+}
+
+/** Поле поиска открывается кнопкой; закрытие стирает запрос и возвращает список разделов. */
+function setSettingsSearchOpen(open) {
+  const wrap = $("setSearchWrap"), btn = $("setSearchBtn"), input = $("setSearch");
+  if (open === !wrap.hidden) return;
+  wrap.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  btn.setAttribute("aria-label", open ? "Закрыть поиск" : "Поиск по настройкам");
+  btn.innerHTML = open
+    ? '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+  if (open) input.focus();
+  else { input.value = ""; renderSettingsSearch(); }
+}
+
+/**
+ * Ряд листается пальцем вручную: у #views стоит touch-action: pan-y (ради свайпа вкладок), и родная прокрутка вбок
+ * внутри него не работает. Тянем scrollLeft сами, после отпускания — небольшая инерция; нажатие после перетаскивания гасим.
+ */
+function dragScroll(row) {
+  let d = null, moved = false, raf = 0;
+  row.addEventListener("pointerdown", (e) => {
+    cancelAnimationFrame(raf);
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    d = { id: e.pointerId, x: e.clientX, left: row.scrollLeft, lastX: e.clientX, lastT: performance.now(), v: 0 };
+    moved = false;
+  });
+  row.addEventListener("pointermove", (e) => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x;
+    if (!moved) {
+      if (Math.abs(dx) < 6) return;
+      moved = true;
+      try { row.setPointerCapture(e.pointerId); } catch { /* не страшно */ }
+    }
+    row.scrollLeft = d.left - dx;
+    const now = performance.now();
+    d.v = (d.lastX - e.clientX) / Math.max(1, now - d.lastT);   // px/мс: куда «едет» содержимое
+    d.lastX = e.clientX; d.lastT = now;
+  });
+  const end = (e) => {
+    if (!d || e.pointerId !== d.id) return;
+    let v = performance.now() - d.lastT < 80 ? d.v : 0;
+    d = null;
+    if (!moved || Math.abs(v) < 0.15) return;
+    let last = performance.now();
+    const step = (now) => {
+      const dt = Math.min(32, now - last); last = now;
+      row.scrollLeft += v * dt;
+      v *= Math.pow(0.94, dt / 16);
+      if (Math.abs(v) > 0.03) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+  row.addEventListener("pointerup", end);
+  row.addEventListener("pointercancel", end);
+  row.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+}
+
+/** Ряд кнопок-фильтров над словарём (создаётся один раз, дальше только меняется выбранная). */
+function renderDictKinds() {
+  const row = $("dictKinds");
+  row.hidden = invTab !== "dict";
+  if (!row.children.length) {
+    const counts = {};
+    for (const p of progress.phrases.values()) counts[p.type] = (counts[p.type] || 0) + 1;
+    dragScroll(row);
+    for (const [value, label] of [[null, "Все"], ...KINDS]) {
+      const b = make("button", "dkind");
+      b.dataset.kind = value ?? "";
+      b.append(label, make("small", "", String(value ? counts[value] || 0 : progress.phrases.size)));
+      b.addEventListener("click", () => {
+        dictKind = value; renderInv();
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        row.scrollTo({ left: b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2, behavior: reduce ? "auto" : "smooth" });   // выбранный фильтр — в середину ряда
+      });
+      row.append(b);
+    }
+  }
+  for (const b of row.children) {
+    const on = b.dataset.kind === (dictKind ?? "");
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  }
+}
+
+/** Запрос q (уже в нижнем регистре) совпадает с НАЧАЛОМ какого-то слова текста: «дом» найдёт «домовладелец», но не «с трудом». */
+function startsWord(text, q) {
+  const t = text.toLowerCase();
+  for (let i = t.indexOf(q); i !== -1; i = t.indexOf(q, i + 1)) {
+    if (i === 0 || !/[\p{L}\p{N}]/u.test(t[i - 1])) return true;
+  }
+  return false;
 }
 
 /** animate = true — строки «выезжают» (при открытии вкладки и смене раздела); false — при поиске и после удаления закладки, без выезда. */
@@ -704,12 +896,10 @@ function renderInv(animate = true) {
     b.setAttribute("aria-pressed", String(b.dataset.tab === invTab));
   }
   invThumb.go(segBtns.findIndex((b) => b.dataset.tab === invTab));   // белая плашка переезжает, как в «Общих»
+  renderDictKinds();
   const q = $("invSearch").value.trim().toLowerCase();
   let keys = invKeys(invTab);
-  if (q) {
-    keys = keys.filter((k) => k.toLowerCase().includes(q)
-      || progress.phrases.get(k).ru.some((r) => r.toLowerCase().includes(q)));
-  }
+  if (q) keys = keys.filter((k) => startsWord(k, q) || progress.phrases.get(k).ru.some((r) => startsWord(r, q)));
   renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
   animateList(el.invBody, { entrance: animate, bottomEl: $("bar") });
 }
@@ -749,6 +939,7 @@ async function startGame(mode) {
   if (!pvData) pvData = await fetch(`data/pv_game.json?v=${VER}`).then((r) => r.json());
   const items = shuffle(pvData).slice(0, GAME_ROUND);
   game = { mode, items, i: 0, right: 0, picked: null, note: "", options: gameOptions(items[0]) };
+  markExplored("pv");
   renderGames();
 }
 
@@ -784,11 +975,92 @@ function whyWrong(item, picked) {
   return `«${other}» здесь не подходит по смыслу. Правильно: «${right}» — ${meaning}.`;
 }
 
+/** Верх карточки любой игры: «Вопрос i из n», счёт, крестик «Выйти» и полоска раунда. */
+function gameTop() {
+  const head = make("div", "gamehead");
+  const quit = make("button", "gamequit");
+  quit.setAttribute("aria-label", "Выйти из игры");
+  quit.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  quit.addEventListener("click", () => { game = null; renderGames(); });
+  head.append(make("span", "muted", `Вопрос ${game.i + 1} из ${game.items.length}`), make("span", "muted", `Верно: ${game.right}`), quit);
+  const bar = make("div", "track"), fill = make("i");
+  fill.style.width = `${(game.i / game.items.length) * 100}%`;
+  bar.append(fill);
+  return [head, bar];
+}
+
+// «Диалоги»: короткий разговор, одна реплика спрятана — выбрать из 4 ответов. Данные — data/dialogs.json (miniapp_tests/make_dialogs.py).
+let dlgData = null;
+async function startDialogs() {
+  if (!dlgData) dlgData = await fetch(`data/dialogs.json?v=${VER}`).then((r) => r.json());
+  const items = shuffle(dlgData).slice(0, GAME_ROUND);
+  game = { kind: "dlg", items, i: 0, right: 0, picked: null, opts: shuffle(items[0].o) };
+  markExplored("dlg");
+  renderGames();
+}
+
+function answerDialog(opt) {
+  if (!game || game.picked !== null) return;
+  game.picked = opt;
+  const ok = opt === game.items[game.i].o[0];          // верный ответ в данных всегда первый
+  if (ok) game.right += 1;
+  play(ok ? "correct" : "error");
+  renderGames();
+}
+
+function renderDialog(body) {
+  const item = game.items[game.i], answered = game.picked !== null, ok = answered && game.picked === item.o[0];
+  const card = make("div", "gamecard");
+  const chat = make("div", "chat");
+  item.l.forEach(([who, en, ru], idx) => {
+    const gap = idx === item.g;
+    const b = make("div", `bubble ${who}${gap ? " gap" + (answered ? " ok" : "") : ""}`);
+    b.append(make("span", "", gap && !answered ? "…" : en));       // после ответа в пропуске всегда верная реплика
+    if (answered) b.append(make("small", "muted", ru));
+    chat.append(b);
+  });
+  card.append(...gameTop(), make("div", "qlabel", `${item.s}. Что вы скажете?`), chat);
+  const opts = make("div", "dlgopts");
+  for (const o of game.opts) {
+    const b = make("button", "btn", o.t);
+    if (answered) { b.disabled = true; if (o === item.o[0]) b.classList.add("ok"); else if (o === game.picked) b.classList.add("bad"); }
+    else b.addEventListener("click", () => answerDialog(o));
+    opts.append(b);
+  }
+  card.append(opts);
+  let fb = null;
+  if (answered) {
+    fb = make("div", "qfeedback " + (ok ? "ok" : "bad"), ok ? "Верно!" : `Неверно. Лучше сказать: «${item.o[0].t}»`);
+    card.append(fb);
+    if (!ok) card.append(make("div", "qnote muted", game.picked.w));
+    const key = make("div", "qkey");
+    key.append(make("span", "muted", "Запомните: "), make("b", "", item.k), ` — ${item.kr}`);
+    card.append(key);
+    const last = game.i + 1 >= game.items.length;
+    const next = make("button", "btn primary wide", last ? "Результат" : "Далее");
+    next.addEventListener("click", () => {
+      game.i += 1; game.picked = null;
+      if (game.i < game.items.length) game.opts = shuffle(game.items[game.i].o);
+      renderGames();
+    });
+    card.append(next);
+  }
+  body.append(card);
+  if (fb) fb.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
 function renderGames() {
   const body = el.gamesBody;
   body.replaceChildren();
   if (!game) {
     const n = [...progress.phrases.values()].filter((p) => p.type === "phrasal verb" && p.en.includes(" ")).length;
+    const dcard = make("div", "gamecard");
+    dcard.append(make("h2", "", "Диалоги"),
+      make("p", "", "Короткий разговор из жизни: выберите реплику, которую сказал бы носитель. Например, на «Thanks a lot!» — «No problem!»"),
+      make("div", "gamemeta", `${GAME_ROUND} диалогов за раунд`));
+    const dplay = make("button", "btn wide primary", "Играть");
+    dplay.addEventListener("click", () => { dplay.disabled = true; startDialogs().catch(() => { dplay.disabled = false; }); });
+    dcard.append(dplay);
     const card = make("div", "gamecard");
     card.append(make("h2", "", "Подставь частицу"),
       make("p", "", "Фразовые глаголы: впишите нужный предлог в предложение, например «I'm looking ___ my keys» → for."),
@@ -800,35 +1072,32 @@ function renderGames() {
       return b;
     });
     card.append(...btns);
-    body.append(card);
+    body.append(card, dcard);
     return;
   }
   if (game.i >= game.items.length) {                       // итоги
+    if (!game.counted) {                                   // экран итогов перерисовывается — раунд считаем один раз
+      game.counted = true;
+      recordRound(progress, game.kind === "dlg" ? "dlg" : "pv", game.right === game.items.length);
+      announceAchievements();
+    }
     const card = make("div", "gamecard");
     const tail = game.right >= 9 ? "Отлично!" : game.right >= 7 ? "Хороший результат" : game.right >= 5 ? "Неплохо, но стоит повторить" : "Есть над чем поработать";
     card.append(make("h2", "", "Результат"), make("div", "gamescore", `${game.right} из ${game.items.length}`), make("p", "", tail));
     const again = make("button", "btn primary wide", "Ещё раз");
-    again.addEventListener("click", () => { const mode = game.mode; game = null; startGame(mode); });
+    again.addEventListener("click", () => { const { kind, mode } = game; game = null; if (kind === "dlg") startDialogs(); else startGame(mode); });
     const menu = make("button", "btn wide", "К играм");
     menu.addEventListener("click", () => { game = null; renderGames(); });
     card.append(again, menu);
     body.append(card);
     return;
   }
+  if (game.kind === "dlg") { renderDialog(body); return; }
   const item = game.items[game.i], answered = game.picked !== null, ok = answered && game.picked === item.answer;
   const card = make("div", "gamecard");
-  const head = make("div", "gamehead");
-  const quit = make("button", "gamequit");
-  quit.setAttribute("aria-label", "Выйти из игры");
-  quit.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-  quit.addEventListener("click", () => { game = null; renderGames(); });
-  head.append(make("span", "muted", `Вопрос ${game.i + 1} из ${game.items.length}`), make("span", "muted", `Верно: ${game.right}`), quit);
-  const bar = make("div", "track"), fill = make("i");
-  fill.style.width = `${(game.i / game.items.length) * 100}%`;
-  bar.append(fill);
   const hint = make("div", "qhint");
   hint.append(make("span", "muted", "Значение: "), item.pv_ru);
-  card.append(head, bar, make("div", "qlabel", "Какая частица пропущена?"),
+  card.append(...gameTop(), make("div", "qlabel", "Какая частица пропущена?"),
     sentence(item, answered ? item.answer : "", answered ? "ok" : ""),      // после ответа в пропуске всегда верная частица
     make("div", "qru muted", item.ru), hint);
   let entry = null;
@@ -858,7 +1127,7 @@ function renderGames() {
     card.append(make("div", "qfeedback " + (ok ? "ok" : "bad"), ok ? "Верно!" : `Неверно. Правильно: «${item.answer}»`));
     if (!ok) card.append(make("div", "qnote muted", whyWrong(item, game.picked)));   // почему неверно — как в уроках «Времён»
     const last = game.i + 1 >= game.items.length;
-    const next = make("button", "btn primary wide", last ? "Результат" : "Дальше");
+    const next = make("button", "btn primary wide", last ? "Результат" : "Далее");
     next.addEventListener("click", () => {
       game.i += 1; game.picked = null; game.note = "";
       if (game.i < game.items.length) game.options = gameOptions(game.items[game.i]);
@@ -875,7 +1144,7 @@ function renderGames() {
 const touchOnly = () => window.matchMedia("(pointer: coarse)").matches;
 
 // «Времена» (tenses.js): карта 12 времён, уроки, тесты
-const tenses = initTenses({ make, play, $, getProgress: () => progress, version: VER, shuffle, animateList, showView, touchOnly });
+const tenses = initTenses({ make, play, $, getProgress: () => progress, version: VER, shuffle, animateList, showView, touchOnly, onResult: () => announceAchievements() });
 
 function answerGame(option) {
   if (!game || game.picked !== null) return;
@@ -935,6 +1204,7 @@ function startReview() {
   const pool = progress.reviewPool();
   if (!pool.length) return;
   session = { total: Math.min(SESSION_SIZE, pool.length), done: 0, correct: 0, seen: [], finished: false };
+  markExplored("rev");
   showView("learn");
   nextCard();
 }
@@ -1014,6 +1284,89 @@ function renderProg() {
     `Видел, но не выучил: ${s.new}\n` +
     `Учу (проверки): ${s.learning}\n` +
     `Выучено (3 подряд): ${s.mastered}`));
+}
+
+// --- Достижения (логика — achievements.js) ---
+/** Выдать новые достижения и показать уведомление снизу (как у закладок, но без кнопки). */
+function announceAchievements() {
+  const fresh = checkAchievements(progress);
+  if (!fresh.length) return;
+  try { sounds.correct.pause(); sounds.correct.currentTime = 0; } catch { /* звук не критичен */ }   // «герольд» заменяет «верно» в этот момент
+  play("herald");
+  showToast({ title: fresh.length > 1 ? "Новые достижения!" : "Новое достижение!", description: fresh.map((a) => a.title).join(", "), icon: TROPHY, duration: 6400,
+    onTap: () => openAchievements(fresh.map((a) => a.id)) });   // дольше закладки (2 с): нужно прочитать названия
+}
+
+const ACH_ICON = {   // контурные значки в стиле остальных иконок
+  fire: `<path d="${FLAME_PATH}"/>`,
+  answers: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',
+  mastery: '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.6L7 21l5-2.6 5 2.6-1.6-7.4"/>',
+  explore: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/>',
+  games: '<path d="M8 4H16A5.6 5.6 0 0 1 21.6 9.7L22.1 16A3.7 3.7 0 0 1 16 18.7L14.5 16.3H9.5L8 18.7A3.7 3.7 0 0 1 1.9 16L2.4 9.7A5.6 5.6 0 0 1 8 4Z"/><path d="M7.7 9v4.2M5.6 11.1h4.2"/><path d="M16 9.7h.02M18.4 12.3h.02" stroke-width="2.6"/>',
+  tenses: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  words: '<path d="M12 7C9.6 5.3 6.6 4.8 3 5.2V18.2c3.6-.4 6.6.1 9 1.8 2.4-1.7 5.4-2.2 9-1.8V5.2C17.4 4.8 14.4 5.3 12 7z"/><path d="M12 7v13"/>',
+};
+
+/** Первая попытка воспользоваться чем-то из списка «Исследователя»; если это в первый раз — проверить достижения. */
+function markExplored(key) { if (recordExplored(progress, key)) announceAchievements(); }
+
+/** Нажатие на уведомление: открыть «Достижения», прокрутить к первому из полученных и подсветить их. */
+function openAchievements(ids) {
+  const go = () => {
+    const rows = ids.map((id) => document.querySelector(`#achBody [data-ach="${id}"]`)).filter(Boolean);
+    if (!rows.length) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    rows[0].scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    for (const r of rows) { r.classList.remove("flash"); void r.offsetWidth; r.classList.add("flash"); setTimeout(() => r.classList.remove("flash"), 2200); }
+  };
+  if (view === "ach") { go(); return; }
+  showView("ach");
+  setTimeout(go, 380);   // после того как экран приехал (переход 340 мс) и строки появились
+}
+
+function renderAch() {
+  announceAchievements();                                   // заслуженное, но ещё не выданное (например, выучено до обновления), выдаём при открытии экрана
+  const list = achievementStatus(progress), got = list.filter((a) => a.date).length;
+  const body = $("achBody");
+  body.replaceChildren();
+  const sum = make("div", "item achsum");
+  const bar = make("div", "track"), fill = make("i");
+  fill.style.width = `${(got / list.length) * 100}%`;
+  bar.setAttribute("aria-hidden", "true");
+  bar.append(fill);
+  sum.append(make("b", "", `Получено ${got} из ${list.length}`), bar);
+  body.append(sum);
+  for (const [group, title] of Object.entries(GROUP_TITLES)) {
+    body.append(make("div", "sechead achhead", title));
+    for (const a of list.filter((x) => x.group === group)) {
+      const row = make("div", "item ach" + (a.date ? " got" : ""));
+      row.dataset.ach = a.id;
+      const ico = make("span", "mico");
+      ico.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${ACH_ICON[group]}</svg>`;
+      const txt = make("div", "txt");
+      txt.append(make("div", "en", a.title), make("div", "ru", a.text));
+      if (a.date) {
+        const [y, m, d] = a.date.split("-").map(Number);
+        txt.append(make("div", "achdate", `Получено ${new Date(y, m - 1, d).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`));
+      } else {
+        const prog = make("div", "achprog"), tr = make("div", "track"), f = make("i");
+        f.style.width = `${(a.cur / a.target) * 100}%`;
+        tr.setAttribute("aria-hidden", "true");
+        tr.append(f);
+        prog.append(tr, make("span", "", `${a.cur} из ${a.target}`));
+        txt.append(prog);
+      }
+      row.append(ico, txt);
+      if (a.date) {
+        const ck = make("span", "achcheck");
+        ck.setAttribute("aria-label", "Получено");
+        ck.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+        row.append(ck);
+      }
+      body.append(row);
+    }
+  }
+  animateList(body, { entrance: true, bottomEl: $("bar") });
 }
 
 // ---------- конфетти: цель дня достигнута, огонёк «загорелся» ----------
@@ -1172,7 +1525,7 @@ function openModes() {
   const sel = allowedTypes() || everyone();
   const save = (set) => {
     settings().kinds = set.size === KINDS.length ? null : [...set];
-    progress.save(); refreshModeBtn(); openModes();
+    progress.save(); refreshModeBtn(); markExplored("mode"); openModes();
   };
   sheetOpen((box) => {
     box.append(make("h2", "", "Что учить"));
@@ -1537,7 +1890,7 @@ function openWelcome(then) {
 // 1) свайп влево/вправо по экрану — соседняя вкладка (влево — следующая, вправо — предыдущая);
 // 2) свайп вниз по окну («Настройки», «Что учить») — закрыть его.
 function setupGestures() {
-  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar";   // отсюда свайп вкладок не начинаем
+  const SKIP = "input, textarea, select, .swipe-toast, .sheet, .spopwrap, #bar, .dkinds";   // отсюда свайп вкладок не начинаем
   let st = null;
   document.addEventListener("pointerdown", (e) => {
     st = e.button === 0 && sheetEl.hidden && !e.target.closest(SKIP)
@@ -1634,8 +1987,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=15").then((r) => r.json()),
-    fetch("data/aspect.json?v=15").then((r) => r.json()),
+    fetch("data/phrases.json?v=16").then((r) => r.json()),
+    fetch("data/aspect.json?v=16").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -1661,6 +2014,9 @@ async function boot() {
     b.addEventListener("click", () => { invTab = b.dataset.tab; renderInv(); });
   }
   $("invSearch").addEventListener("input", () => renderInv(false));
+  $("setSearchBtn").addEventListener("click", () => setSettingsSearchOpen($("setSearchWrap").hidden));
+  $("setSearch").addEventListener("input", renderSettingsSearch);
+  $("setSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setSettingsSearchOpen(false); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("spopWrap").hidden) { closeStreakPop(); return; }
     if (e.key === "Escape" && !sheetEl.hidden && sheetEl.dataset.closable) { sheetClose(); return; }
@@ -1675,6 +2031,7 @@ async function boot() {
   $("chipMore").addEventListener("click", () => { if ($("spopWrap").hidden) openStreakPop(); else closeStreakPop(); });
   $("spopWrap").addEventListener("pointerdown", (e) => { if (e.target === $("spopWrap")) closeStreakPop(); });   // тап мимо окна — закрыть
   for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // строки «Настроек» и кнопки «назад»
+  $("dictRow").addEventListener("click", () => { invTab = "dict"; showView("inv"); });   // «Словарь» в «Настройках» — переход в «Инвентарь → Словарь»
   sheetEl.addEventListener("click", (e) => { if (e.target === sheetEl && sheetEl.dataset.closable) sheetClose(); });
 
   // телефон: тап по пустому месту убирает клавиатуру; пока печатают, панель вкладок прячется

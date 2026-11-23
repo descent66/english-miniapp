@@ -20,6 +20,11 @@ export function pack(data, ts = Date.now()) {
   if (data.goal != null) out.goal = data.goal;
   if (data.settings) out.s = data.settings;
   if (data.tenses) out.t = data.tenses;   // «Времена»: результаты тестов по каждому времени
+  if (data.ach) out.a = data.ach;         // «Достижения»: id → день получения
+  if (data.flawless) out.f = data.flawless;   // игры, пройденные без ошибок
+  if (data.flawRun) out.w = data.flawRun;     // безупречных раундов игр подряд
+  if (data.run) out.r = data.run;             // верных ответов подряд
+  if (data.explored) out.x = data.explored;   // что уже пробовал («Исследователь»)
   return JSON.stringify(out);
 }
 
@@ -38,6 +43,11 @@ export function unpack(text) {
   if (o.goal != null) data.goal = o.goal;
   if (o.s) data.settings = o.s;
   if (o.t) data.tenses = o.t;
+  if (o.a) data.ach = o.a;
+  if (o.f) data.flawless = o.f;
+  if (o.w) data.flawRun = o.w;
+  if (o.r) data.run = o.r;
+  if (o.x) data.explored = o.x;
   return { data, ts: o.ts || 0 };
 }
 

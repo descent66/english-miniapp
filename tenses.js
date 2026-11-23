@@ -2,13 +2,13 @@
 // Данные — data/tenses.json (их делает miniapp_tests/make_tenses.py). Прогресс по временам — progress.data.tenses:
 // { id: { best: лучший результат теста в %, last: последний результат, n: сколько раз проходили, place: 1/0 — итог входного теста } }.
 // Логика ответов строгая (не «похоже на»): в грамматике «has lived» и «have lived» — разные ответы.
-import { normalize } from "./core.js?v=15";
+import { normalize } from "./core.js?v=16";
 
 const ORDER = ["ps", "pc", "pas", "pp", "pac", "fs", "pap", "pcc", "fc", "fp", "pacc", "fpc"];   // в каком порядке советуем учить
 const GROUPS = [["past", "Past"], ["present", "Present"], ["future", "Future"]];
 const ASPECTS = ["Simple", "Continuous", "Perfect", "Perfect Continuous"];
 const SENTENCE = { "+": "Утверждение", "−": "Отрицание", "?": "Вопрос" };
-const MASTERED = 80;     // от этого результата теста время считается освоенным
+export const MASTERED = 80;     // от этого результата теста время считается освоенным
 const ROUND = 10;        // вопросов в обычном тесте
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
 
@@ -38,7 +38,7 @@ export function fitBlanks(root) {
 }
 
 export function initTenses(ctx) {
-  const { make, play, $, getProgress, version, shuffle, animateList, showView, touchOnly } = ctx;
+  const { make, play, $, getProgress, version, shuffle, animateList, showView, touchOnly, onResult } = ctx;
   let data = null;      // tenses.json
   let cur = null;       // { tense | null, kind: "lesson" | "test" | "place", items, i, right, picked, wrong }
 
@@ -212,7 +212,7 @@ export function initTenses(ctx) {
     if (answered) {
       box.append(make("div", "qfeedback " + (ok ? "ok" : "bad"), ok ? "Верно!" : `Неверно. Правильно: «${item.a}»`), make("div", "qnote muted", item.w));
       const last = cur.i + 1 >= cur.items.length;
-      const next = make("button", "btn primary wide", last ? "Результат" : "Дальше");
+      const next = make("button", "btn primary wide", last ? "Результат" : "Далее");
       next.addEventListener("click", () => { cur.i += 1; cur.picked = null; renderTest(); window.scrollTo(0, 0); });
       box.append(next);
     }
@@ -240,6 +240,7 @@ export function initTenses(ctx) {
       r.last = pct; r.best = Math.max(r.best || 0, pct); r.n = (r.n || 0) + 1;
       recs()[cur.tense.id] = r;
       save();
+      onResult?.();   // достижения: «все времена группы освоены»
       const tail = pct >= 90 ? "Отлично!" : pct >= MASTERED ? "Хороший результат — время освоено" : pct >= 50 ? "Неплохо, но стоит повторить" : "Перечитайте урок и попробуйте ещё раз";
       box.append(make("h2", "", cur.tense.en), make("div", "gamescore", `${cur.right} из ${total}`), make("p", "", tail));
     } else {
@@ -249,6 +250,7 @@ export function initTenses(ctx) {
         recs()[it.tense.id] = r;
       }
       save();
+      onResult?.();   // достижение «Входной тест»
       box.append(make("h2", "", "Входной тест"), make("div", "gamescore", `${cur.right} из ${total}`));
       const weak = cur.wrong.map((it) => it.tense).sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
       box.append(make("p", "", weak.length ? "Слабые времена отмечены на карте. Начните с этих:" : "Все времена на месте! Закрепите их тестами."));
