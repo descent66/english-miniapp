@@ -1271,3 +1271,13 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .dkind.on { background: rgba(255, 255, 255, .06); }
 .dkind.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .dkind, .dkind::before { transition: none; } }
+
+/* «Что учить» (фильтр карточек): белая заливка выбранной кнопки растёт кругом из центра, как у нижней панели и фильтров «Инвентаря»;
+   у снятой — плавно сжимается. Окно перестраивается при каждом нажатии, поэтому .on у изменившихся кнопок ставит openModes кадром позже. */
+.kindgrid .btn { position: relative; isolation: isolate; transition: transform .08s, filter .15s, color .3s ease, box-shadow .4s ease, border-color .3s ease; }
+.kindgrid .btn::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
+  clip-path: circle(0% at 50% 50%); opacity: 0; transition: clip-path .4s cubic-bezier(.3, .7, .2, 1), opacity .3s ease; }
+.kindgrid .btn.on { background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .04)); }
+.kindgrid .btn.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .kindgrid .btn, .kindgrid .btn::before { transition: none; } }

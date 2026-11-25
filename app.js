@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=28";
-import * as Store from "./storage.js?v=28";
-import { startMolten } from "./molten.js?v=28";
-import { attachSpecular, detachSpecular } from "./specular.js?v=28";
-import { animateList } from "./animlist.js?v=28";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=28";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=28";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=28";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=28";
+import * as Core from "./core.js?v=29";
+import * as Store from "./storage.js?v=29";
+import { startMolten } from "./molten.js?v=29";
+import { attachSpecular, detachSpecular } from "./specular.js?v=29";
+import { animateList } from "./animlist.js?v=29";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=29";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=29";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=29";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=29";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-26.28";
+const APP_VERSION = "2026-11-26.29";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -1820,6 +1820,7 @@ function applyModes() {
   if (!cur || !fits(progress.phrases.get(cur) || {})) nextCard();
 }
 
+let modesOn = null;   // какие кнопки «Что учить» были выбраны в прошлой отрисовке окна (для плавной заливки)
 function openModes() {
   const everyKind = () => new Set(KINDS.map(([v]) => v)), everyLevel = () => new Set(LEVELS);
   const kindSel = allowedTypes() || everyKind(), levelSel = allowedLevels() || everyLevel();
@@ -1837,17 +1838,27 @@ function openModes() {
     progress.save(); refreshModeBtn(); markExplored("mode"); openModes();
   };
   /** Блок кнопок: «Все …» и по одной на значение; из «Все» выбор начинается с нуля, хотя бы одно значение остаётся выбранным. */
+  const prevOn = modesOn, nowOn = new Set();
+  /** Кнопка выбора: если её выбор поменялся с прошлой отрисовки окна — класс .on ставим/снимаем кадром позже (заливка растёт или сжимается, как у нижней панели). */
+  const pick = (b, key, on) => {
+    if (on) nowOn.add(key);
+    const was = prevOn ? prevOn.has(key) : on;
+    b.classList.toggle("on", was);
+    if (was !== on) requestAnimationFrame(() => requestAnimationFrame(() => b.classList.toggle("on", on)));
+  };
   const group = (title, allLabel, items, sel, isAll, counts, cls, apply) => {
     const wrap = make("div", "kindsec");
     wrap.append(make("div", "kindlabel", title));
     const grid = make("div", "kindgrid" + cls);
-    const all = make("button", "btn all" + (isAll ? " on" : ""), allLabel);
+    const all = make("button", "btn all", allLabel);
+    pick(all, title + "|*", isAll);
     all.setAttribute("aria-pressed", String(isAll));
     all.addEventListener("click", () => apply(new Set(items.map(([v]) => v))));
     grid.append(all);
     for (const [value, label] of items) {
       const on = !isAll && sel.has(value);
-      const b = make("button", "btn" + (on ? " on" : ""));
+      const b = make("button", "btn");
+      pick(b, title + "|" + value, on);
       b.setAttribute("aria-pressed", String(on));
       b.append(label, make("small", "", String(counts[value] || 0)));
       b.addEventListener("click", () => {
@@ -1870,6 +1881,7 @@ function openModes() {
     done.addEventListener("click", sheetClose);
     box.append(done);
   }, true);
+  modesOn = nowOn;
   sheetAfterClose = applyModes;
 }
 
@@ -2908,8 +2920,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=28").then((r) => r.json()),
-    fetch("data/aspect.json?v=28").then((r) => r.json()),
+    fetch("data/phrases.json?v=29").then((r) => r.json()),
+    fetch("data/aspect.json?v=29").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
