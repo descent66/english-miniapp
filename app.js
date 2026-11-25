@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=26";
-import * as Store from "./storage.js?v=26";
-import { startMolten } from "./molten.js?v=26";
-import { attachSpecular, detachSpecular } from "./specular.js?v=26";
-import { animateList } from "./animlist.js?v=26";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=26";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=26";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=26";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=26";
+import * as Core from "./core.js?v=27";
+import * as Store from "./storage.js?v=27";
+import { startMolten } from "./molten.js?v=27";
+import { attachSpecular, detachSpecular } from "./specular.js?v=27";
+import { animateList } from "./animlist.js?v=27";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=27";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=27";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=27";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=27";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-25.26";
+const APP_VERSION = "2026-11-25.27";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -2856,6 +2856,7 @@ function setupAi() {
 // ---------- запуск ----------
 async function boot() {
   attachSpecular(document.querySelector("#learn .glass"), "card");   // два блика бегут по кромке карточки (specular.js)
+  attachSpecular(document.querySelector("#moreBody .tplace"), "more");   // и по кромке блока «Настройки» в «Больше» — как у «Получено N из M» в «Достижениях»
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) {
     tg.ready();
@@ -2892,8 +2893,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=26").then((r) => r.json()),
-    fetch("data/aspect.json?v=26").then((r) => r.json()),
+    fetch("data/phrases.json?v=27").then((r) => r.json()),
+    fetch("data/aspect.json?v=27").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
