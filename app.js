@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=27";
-import * as Store from "./storage.js?v=27";
-import { startMolten } from "./molten.js?v=27";
-import { attachSpecular, detachSpecular } from "./specular.js?v=27";
-import { animateList } from "./animlist.js?v=27";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=27";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=27";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=27";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=27";
+import * as Core from "./core.js?v=28";
+import * as Store from "./storage.js?v=28";
+import { startMolten } from "./molten.js?v=28";
+import { attachSpecular, detachSpecular } from "./specular.js?v=28";
+import { animateList } from "./animlist.js?v=28";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=28";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=28";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=28";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=28";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-25.27";
+const APP_VERSION = "2026-11-26.28";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -100,7 +100,7 @@ function calendarSvg() {
 // 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
 const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound", tab: "tab.m4a" };   // tab — переключение вкладок (нижняя панель, разделы «Инвентаря»)
 const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald", "tab"];   // herald — новое достижение
-const SOUND_VOL = { tab: 0.3 };   // громкость отдельных звуков (1 — как в файле); вкладки — на 70% тише по просьбе
+const SOUND_VOL = { tab: 0.54 };   // громкость отдельных звуков (1 — как в файле); вкладки — на 70% тише по просьбе
 const soundUrl = (n) => { const f = SOUND_FILE[n] || n; return `sounds/${f.includes(".") ? f : f + ".wav"}`; };   // у tab — m4a (файл пользователя), у остальных — wav
 
 // Основной путь — Web Audio: все звуки заранее декодируются в память, и старт почти мгновенный. Обычный <audio> на телефонах
@@ -768,7 +768,7 @@ function showView(name) {
   }
   if (name === "rev") renderRev();
   if (name === "games") renderGames();
-  if (prev === "inv" && name !== "inv") favOpen = false;   // ряды фильтров закладок при следующем заходе спрятаны
+  if (prev === "inv" && name !== "inv") { favOpen = false; const fb = $("favFilters"); for (const a of fb.getAnimations()) a.cancel(); fb.hidden = true; fb.dataset.open = ""; }   // при следующем заходе ряды спрятаны (без анимации на входе)   // ряды фильтров закладок при следующем заходе спрятаны
   if (name === "inv") renderInv();
   if (name === "general") renderGeneral();
   if (name === "tenses") tenses.renderMap();
@@ -852,7 +852,7 @@ function appendRows(body, keys, kind) {
   }
 }
 
-const DICT_PAGE = 60;    // сколько строк словаря рисуется за раз
+const DICT_PAGE = 20;    // сколько строк словаря рисуется за раз (было 60 — на телефоне переход в «Словарь» подтормаживал)
 let dictShown = DICT_PAGE, dictKeys = [];
 /** Словарь: когда прокрутка подошла к низу списка — дорисовать следующую порцию строк (уже показанные не трогаем). */
 function loadMoreDict() {
@@ -879,7 +879,7 @@ function invKeys(tab) {
   if (tab === "saved") return progress.favorites().filter((k) => { const p = progress.phrases.get(k); return (!favKind || p.type === favKind) && (!favLevel || p.level === favLevel); });
   if (tab === "hard") return progress.hardCards();
   if (tab === "dict") {
-    dictSorted = dictSorted || [...progress.phrases.keys()].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+    dictSorted = dictSorted || [...progress.phrases.keys()].sort(new Intl.Collator("en", { sensitivity: "base" }).compare);   // тот же порядок, что localeCompare, но в разы быстрее (один «сравниватель» на все 1200 слов)
     return dictKind ? dictSorted.filter((k) => progress.phrases.get(k).type === dictKind) : dictSorted;
   }
   return progress.keysByState(tab);
@@ -948,7 +948,6 @@ function dragScroll(row) {
 /** Ряд кнопок-фильтров над словарём (создаётся один раз, дальше только меняется выбранная). */
 function renderDictKinds() {
   const row = $("dictKinds");
-  row.hidden = invTab !== "dict";
   if (!row.children.length) {
     const counts = {};
     for (const p of progress.phrases.values()) counts[p.type] = (counts[p.type] || 0) + 1;
@@ -970,17 +969,17 @@ function renderDictKinds() {
     b.classList.toggle("on", on);
     b.setAttribute("aria-pressed", String(on));
   }
+  slideToggle(row, invTab === "dict", DICT_ROW_CLOSED);          // ряд видов плавно выдвигается только в «Словаре» (после того как кнопки готовы — их высота нужна для замера)
 }
 
 /** Два ряда фильтров над закладками: по виду (как в «Словаре») и по уровню. Числа — сколько закладок такого вида/уровня (пересчитываются при каждой перерисовке,
  *  в том числе после удаления закладки); фильтры сочетаются друг с другом и с поиском. */
 function renderFavFilters() {
   const kinds = $("favKinds"), levels = $("favLevels"), on = invTab === "saved", btn = $("favFilterBtn"), box = $("favFilters");
-  btn.hidden = !on;
+  slideToggle(btn, on, FAV_BTN_CLOSED);                          // кнопка «Фильтр» плавно появляется, поле поиска при этом плавно сужается
   btn.classList.toggle("on", !!(favKind || favLevel));           // фильтр выбран — кнопка белая, даже когда ряды спрятаны
   btn.setAttribute("aria-expanded", String(on && favOpen));
-  if (!box.getAnimations().length) box.hidden = !(on && favOpen);   // пока идёт выдвижение/задвижение — им управляет slideFavFilters
-  if (!on) return;
+  if (!on) { slideToggle(box, false, FAV_ROWS_CLOSED); return; }   // ушли с «Закладок» — открытые ряды плавно задвигаются
   const favs = progress.favorites().map((k) => progress.phrases.get(k));
   const fill = (row, items, field, cur, set) => {
     if (!row.children.length) {
@@ -1006,23 +1005,38 @@ function renderFavFilters() {
   };
   fill(kinds, [[null, "Все"], ...KINDS], "type", favKind, (v) => { favKind = v; });
   fill(levels, [[null, "Все уровни"], ...LEVELS.map((l) => [l, l])], "level", favLevel, (v) => { favLevel = v; });
+  slideToggle(box, favOpen, FAV_ROWS_CLOSED);                    // вернулись на «Закладки» с открытым фильтром — ряды снова выдвигаются
 }
 
-/** Кнопка «Фильтр»: ряды фильтров закладок плавно выдвигаются (высота и прозрачность) или задвигаются. */
+/**
+ * Плавно показать или спрятать элемент «Инвентаря» (ряды фильтров, кнопку «Фильтр»). collapsed — как он выглядит «свёрнутым»
+ * (нулевая высота/ширина, прозрачность 0, отступы, при которых соседи стоят ровно как без него); полный вид берётся из его стилей.
+ * Повторный вызов с тем же состоянием ничего не делает (renderInv зовёт это на каждую букву поиска).
+ */
+function slideToggle(el, open, collapsed) {
+  if (open === (el.dataset.open === "1")) return;
+  el.dataset.open = open ? "1" : "";
+  for (const a of el.getAnimations()) a.cancel();
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { el.hidden = !open; return; }
+  el.hidden = false;
+  const cs = getComputedStyle(el), full = {};
+  for (const k in collapsed) full[k] = cs[k];
+  el.style.overflow = "hidden";                                    // только на время движения: иначе обрезалось бы свечение выбранной кнопки
+  const frames = [collapsed, full];
+  // открытие и закрытие — с одной скоростью: когда один ряд уходит, а другой приходит («Закладки» → «Словарь»), список под ними едет ровно, без подскока
+  const anim = el.animate(open ? frames : frames.reverse(), { duration: 320, easing: "cubic-bezier(.23, 1, .32, 1)" });
+  anim.onfinish = () => { el.style.overflow = ""; if (!open) el.hidden = true; };
+  anim.oncancel = () => { el.style.overflow = ""; };
+}
+// «Свёрнутые» виды. У экрана gap 12 px: отрицательный margin-top съедает его, чтобы список не прыгал в начале и в конце движения.
+const FAV_ROWS_CLOSED = { height: "0px", opacity: 0, marginTop: "-12px" };
+const DICT_ROW_CLOSED = { height: "0px", paddingTop: "0px", paddingBottom: "0px", marginBottom: "0px", opacity: 0 };   // у ряда свои −12 px сверху/снизу и 14 px внутри
+const FAV_BTN_CLOSED = { width: "0px", marginLeft: "-8px", opacity: 0, transform: "scale(.6)" };                      // −8 px — зазор до поля поиска: поле плавно расширяется до края
+
+/** Кнопка «Фильтр»: ряды фильтров закладок плавно выдвигаются или задвигаются. */
 function slideFavFilters(open) {
-  const box = $("favFilters");
-  for (const a of box.getAnimations()) a.cancel();
   $("favFilterBtn").setAttribute("aria-expanded", String(open));
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { box.hidden = !open; return; }
-  box.hidden = false;
-  const h = box.offsetHeight;
-  box.style.overflow = "hidden";                                  // только на время движения: иначе обрезалось бы свечение выбранной кнопки
-  // margin-top: −12 px убирает отступ между полем и пустой панелью (у экрана gap 12 px), чтобы список не прыгал в начале и в конце
-  const frames = [{ height: "0px", opacity: 0, marginTop: "-12px" }, { height: h + "px", opacity: 1, marginTop: "0px" }];
-  const anim = box.animate(open ? frames : frames.reverse(),
-    open ? { duration: 320, easing: "cubic-bezier(.23, 1, .32, 1)" } : { duration: 220, easing: "cubic-bezier(.4, 0, 1, 1)" });
-  anim.onfinish = () => { box.style.overflow = ""; if (!open) box.hidden = true; };
-  anim.oncancel = () => { box.style.overflow = ""; };
+  slideToggle($("favFilters"), open, FAV_ROWS_CLOSED);
 }
 
 /** Запрос q (уже в нижнем регистре) совпадает с НАЧАЛОМ какого-то слова текста: «дом» найдёт «домовладелец», но не «с трудом». */
@@ -2012,6 +2026,7 @@ function attachThumb(seg, labels, startIdx) {
     const m = e.m;
     if (!m) return;
     if (m.type === "tw") {
+      if (m.t0 === null) m.t0 = now;   // отсчёт с первого кадра: если телефон задумался (тяжёлый «Словарь»), плашка всё равно проедет целиком, а не «прыгнет»
       const p = Math.min(1, (now - m.t0) / m.dur), nx = m.from + (m.to - m.from) * EASE_THUMB(p);
       e.v = dt ? (nx - e.x) / dt : 0;
       e.x = nx;
@@ -2031,7 +2046,7 @@ function attachThumb(seg, labels, startIdx) {
     if (L.m || R.m) raf = requestAnimationFrame(tick);
   };
   const wake = () => { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } };
-  const tween = (e, to, sec) => { e.m = { type: "tw", from: e.x, to, t0: performance.now(), dur: sec * 1000 }; wake(); };
+  const tween = (e, to, sec) => { e.m = { type: "tw", from: e.x, to, t0: null, dur: sec * 1000 }; wake(); };
   const spring = (e, to, sec, done) => {
     const w = (2 * Math.PI) / sec;                        // bounce 0 = критическое затухание
     e.v = Math.min(2000, Math.max(-2000, e.v));
@@ -2893,8 +2908,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=27").then((r) => r.json()),
-    fetch("data/aspect.json?v=27").then((r) => r.json()),
+    fetch("data/phrases.json?v=28").then((r) => r.json()),
+    fetch("data/aspect.json?v=28").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

@@ -15,12 +15,18 @@
 html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif;
   font-weight: 500; -webkit-font-smoothing: antialiased; letter-spacing: -.01em; }
-body { min-height: 100dvh; display: flex; justify-content: center;
+body { min-height: 100dvh; display: flex; justify-content: center; }
+/* Светлое пятно сверху — отдельный слой, закреплённый на экране (размер = экран). Раньше это был фон body с background-attachment: fixed:
+   телефоны его не поддерживают, пятно растягивалось на всю длину страницы, и на длинном «Словаре» весь фон и стеклянные кнопки светлели.
+   Слой лежит под фоном «Molten Metal» и содержимым (тот же z-index 0, но раньше по порядку). */
+body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
     radial-gradient(120% 55% at 75% -8%, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, .13) 38%, transparent 72%),
-    radial-gradient(80% 40% at 5% 0%, rgba(255, 255, 255, .12) 0%, transparent 70%),
-    var(--bg);
-  background-attachment: fixed; }
+    radial-gradient(80% 40% at 5% 0%, rgba(255, 255, 255, .12) 0%, transparent 70%); }
+/* Полос прокрутки в приложении нет нигде (просьба пользователя): листается пальцем, колёсиком, тачпадом. Заодно ушло дёрганье: в длинном «Словаре» на компьютере
+   появлялась полоса, всё сужалось на 15 px и переключатель разделов прыгал. */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 button, input { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -1249,9 +1255,19 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
    Кнопка белая, когда выбран какой-то фильтр (как кнопка «Что учить»). Между рядами 12 px — как прежний отступ экрана, когда ряды стояли отдельно. */
 .invsrow { display: flex; gap: 8px; align-items: stretch; }
 .invsrow .search { flex: 1; min-width: 0; }
-.favfbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 0 16px 0 13px; border-radius: 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+.favfbtn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 51px; padding: 0; border-radius: 18px; cursor: pointer;   /* квадрат высотой с поле поиска, значок как у «Что учить» на карточке */
   color: var(--fg); background: rgba(255, 255, 255, .06); border: 1px solid var(--line); transition: background .25s ease, color .25s ease, box-shadow .25s ease; }
 .favfbtn svg { flex: none; }
 .favfbtn.on { color: #0b0c12; border-color: transparent; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 14px rgba(255, 255, 255, .35); }
 .favfilters { display: flex; flex-direction: column; gap: 12px; }
 @media (prefers-reduced-motion: reduce) { .favfbtn { transition: none; } }
+
+/* Кнопки-фильтры («Словарь», «Закладки»): белая заливка выбранной растёт кругом из центра, как у активной кнопки нижней панели (.tabbtn::before);
+   у прежней выбранной так же плавно сжимается. Заливка — слой позади текста (isolation + z-index −1), цвета и свечение прежние. */
+.dkind { position: relative; isolation: isolate; transition: color .3s ease, box-shadow .4s ease, border-color .3s ease; }
+.dkind::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%);
+  clip-path: circle(0% at 50% 50%); opacity: 0; transition: clip-path .4s cubic-bezier(.3, .7, .2, 1), opacity .3s ease; }
+.dkind.on { background: rgba(255, 255, 255, .06); }
+.dkind.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .dkind, .dkind::before { transition: none; } }
