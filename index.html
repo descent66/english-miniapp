@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>English widget</title>
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -169,9 +169,16 @@
         <button class="segbtn" data-tab="dict"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M9.5 3v18M13 8h3.5"/></svg>Словарь</button>
         <button class="segbtn" data-tab="mastered"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Выучено</button>
       </div>
-      <input id="invSearch" class="search" type="search" placeholder="Поиск по слову" autocomplete="off"
-             autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск по слову">
+      <div class="invsrow">
+        <input id="invSearch" class="search" type="search" placeholder="Поиск по слову" autocomplete="off"
+               autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск по слову">
+        <button id="favFilterBtn" class="favfbtn" hidden aria-expanded="false" aria-controls="favFilters"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16l-6.2 7.4V19l-3.6-1.8v-4.8z"/></svg>Фильтр</button>
+      </div>
       <div id="dictKinds" class="dkinds" role="group" aria-label="Показывать только" hidden></div>
+      <div id="favFilters" class="favfilters" hidden>
+        <div id="favKinds" class="dkinds" role="group" aria-label="Закладки: только вид"></div>
+        <div id="favLevels" class="dkinds" role="group" aria-label="Закладки: только уровень"></div>
+      </div>
       <div id="invBody" class="list"></div>
     </section>
 
@@ -205,6 +212,6 @@
     </button>
   </nav>
 
-  <script type="module" src="app.js?v=25"></script>
+  <script type="module" src="app.js?v=26"></script>
 </body>
 </html>

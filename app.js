@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=25";
-import * as Store from "./storage.js?v=25";
-import { startMolten } from "./molten.js?v=25";
-import { attachSpecular, detachSpecular } from "./specular.js?v=25";
-import { animateList } from "./animlist.js?v=25";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=25";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=25";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=25";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=25";
+import * as Core from "./core.js?v=26";
+import * as Store from "./storage.js?v=26";
+import { startMolten } from "./molten.js?v=26";
+import { attachSpecular, detachSpecular } from "./specular.js?v=26";
+import { animateList } from "./animlist.js?v=26";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=26";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=26";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=26";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=26";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-24.25";
+const APP_VERSION = "2026-11-25.26";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -98,9 +98,10 @@ function calendarSvg() {
 // leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
 // «correct» (верный ответ, в том числе в играх) теперь играет файл petal.wav (файл пользователя)
 // 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
-const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound" };
-const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald"];   // herald — новое достижение
-const soundUrl = (n) => `sounds/${SOUND_FILE[n] || n}.wav`;
+const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound", tab: "tab.m4a" };   // tab — переключение вкладок (нижняя панель, разделы «Инвентаря»)
+const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald", "tab"];   // herald — новое достижение
+const SOUND_VOL = { tab: 0.3 };   // громкость отдельных звуков (1 — как в файле); вкладки — на 70% тише по просьбе
+const soundUrl = (n) => { const f = SOUND_FILE[n] || n; return `sounds/${f.includes(".") ? f : f + ".wav"}`; };   // у tab — m4a (файл пользователя), у остальных — wav
 
 // Основной путь — Web Audio: все звуки заранее декодируются в память, и старт почти мгновенный. Обычный <audio> на телефонах
 // запускается с задержкой ~0,4 с (пользователь заметил; в самих файлах тишины в начале нет — проверено), поэтому он остался только запасным:
@@ -136,7 +137,8 @@ function play(name) {
     if (actx && buffers[name] && actx.state === "running") {
       const src = actx.createBufferSource();
       src.buffer = buffers[name];
-      src.connect(actx.destination);
+      if (SOUND_VOL[name]) { const g = actx.createGain(); g.gain.value = SOUND_VOL[name]; src.connect(g).connect(actx.destination); }
+      else src.connect(actx.destination);
       live[name] = src;
       src.onended = () => { if (live[name] === src) delete live[name]; };
       src.start();
@@ -145,6 +147,7 @@ function play(name) {
     unlockAudio();
     const a = sounds[name] || (sounds[name] = new Audio(soundUrl(name)));
     a.currentTime = 0;
+    a.volume = SOUND_VOL[name] ?? 1;   // запасной путь; на iPhone громкость <audio> не меняется — там почти всегда работает Web Audio выше
     a.play().catch(() => {});
   } catch { /* звук не критичен */ }
 }
@@ -765,6 +768,7 @@ function showView(name) {
   }
   if (name === "rev") renderRev();
   if (name === "games") renderGames();
+  if (prev === "inv" && name !== "inv") favOpen = false;   // ряды фильтров закладок при следующем заходе спрятаны
   if (name === "inv") renderInv();
   if (name === "general") renderGeneral();
   if (name === "tenses") tenses.renderMap();
@@ -821,7 +825,7 @@ function appendRows(body, keys, kind) {
     const row = make("div", "item");
     const txt = make("div", "txt");
     const en = make("div", "en", key);
-    if (kind === "dict") en.append(" ", make("span", "dlvl", progress.phrases.get(key).level));   // уровень A2/B1/B2 — мелко и бледно после слова
+    if (kind === "dict" || kind === "saved") en.append(" ", make("span", "dlvl", progress.phrases.get(key).level));   // уровень A2/B1/B2 — мелко и бледно после слова (в «Словаре» и «Закладках»)
     txt.append(en, make("div", "ru", progress.phrases.get(key).ru.slice(0, 2).join(" / ")));
     row.append(txt);
     if (kind === "saved") {
@@ -869,8 +873,10 @@ const INV_EMPTY = {
 
 let dictSorted = null;   // база не меняется, поэтому алфавитный список считаем один раз
 let dictKind = null;     // фильтр словаря: null — все, иначе вид записи (phrase.type)
+let favKind = null, favLevel = null;   // фильтры закладок: null — все; не запоминаются между запусками
+let favOpen = false;                   // выдвинута ли панель фильтров закладок (при уходе из «Инвентаря» прячется)
 function invKeys(tab) {
-  if (tab === "saved") return progress.favorites();
+  if (tab === "saved") return progress.favorites().filter((k) => { const p = progress.phrases.get(k); return (!favKind || p.type === favKind) && (!favLevel || p.level === favLevel); });
   if (tab === "hard") return progress.hardCards();
   if (tab === "dict") {
     dictSorted = dictSorted || [...progress.phrases.keys()].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
@@ -966,6 +972,59 @@ function renderDictKinds() {
   }
 }
 
+/** Два ряда фильтров над закладками: по виду (как в «Словаре») и по уровню. Числа — сколько закладок такого вида/уровня (пересчитываются при каждой перерисовке,
+ *  в том числе после удаления закладки); фильтры сочетаются друг с другом и с поиском. */
+function renderFavFilters() {
+  const kinds = $("favKinds"), levels = $("favLevels"), on = invTab === "saved", btn = $("favFilterBtn"), box = $("favFilters");
+  btn.hidden = !on;
+  btn.classList.toggle("on", !!(favKind || favLevel));           // фильтр выбран — кнопка белая, даже когда ряды спрятаны
+  btn.setAttribute("aria-expanded", String(on && favOpen));
+  if (!box.getAnimations().length) box.hidden = !(on && favOpen);   // пока идёт выдвижение/задвижение — им управляет slideFavFilters
+  if (!on) return;
+  const favs = progress.favorites().map((k) => progress.phrases.get(k));
+  const fill = (row, items, field, cur, set) => {
+    if (!row.children.length) {
+      dragScroll(row);
+      for (const [value, label] of items) {
+        const b = make("button", "dkind");
+        b.dataset.v = value ?? "";
+        b.append(label, make("small"));
+        b.addEventListener("click", () => {
+          set(value); renderInv();
+          const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          row.scrollTo({ left: b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2, behavior: reduce ? "auto" : "smooth" });   // выбранный — в середину ряда
+        });
+        row.append(b);
+      }
+    }
+    for (const b of row.children) {
+      const v = b.dataset.v || null;
+      b.lastChild.textContent = String(v ? favs.filter((p) => p[field] === v).length : favs.length);
+      b.classList.toggle("on", v === cur);
+      b.setAttribute("aria-pressed", String(v === cur));
+    }
+  };
+  fill(kinds, [[null, "Все"], ...KINDS], "type", favKind, (v) => { favKind = v; });
+  fill(levels, [[null, "Все уровни"], ...LEVELS.map((l) => [l, l])], "level", favLevel, (v) => { favLevel = v; });
+}
+
+/** Кнопка «Фильтр»: ряды фильтров закладок плавно выдвигаются (высота и прозрачность) или задвигаются. */
+function slideFavFilters(open) {
+  const box = $("favFilters");
+  for (const a of box.getAnimations()) a.cancel();
+  $("favFilterBtn").setAttribute("aria-expanded", String(open));
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { box.hidden = !open; return; }
+  box.hidden = false;
+  const h = box.offsetHeight;
+  box.style.overflow = "hidden";                                  // только на время движения: иначе обрезалось бы свечение выбранной кнопки
+  // margin-top: −12 px убирает отступ между полем и пустой панелью (у экрана gap 12 px), чтобы список не прыгал в начале и в конце
+  const frames = [{ height: "0px", opacity: 0, marginTop: "-12px" }, { height: h + "px", opacity: 1, marginTop: "0px" }];
+  const anim = box.animate(open ? frames : frames.reverse(),
+    open ? { duration: 320, easing: "cubic-bezier(.23, 1, .32, 1)" } : { duration: 220, easing: "cubic-bezier(.4, 0, 1, 1)" });
+  anim.onfinish = () => { box.style.overflow = ""; if (!open) box.hidden = true; };
+  anim.oncancel = () => { box.style.overflow = ""; };
+}
+
 /** Запрос q (уже в нижнем регистре) совпадает с НАЧАЛОМ какого-то слова текста: «дом» найдёт «домовладелец», но не «с трудом». */
 function startsWord(text, q) {
   const t = text.toLowerCase();
@@ -984,11 +1043,13 @@ function renderInv(animate = true) {
   }
   invThumb.go(segBtns.findIndex((b) => b.dataset.tab === invTab));   // белая плашка переезжает, как в «Общих»
   renderDictKinds();
+  renderFavFilters();
   const q = $("invSearch").value.trim().toLowerCase();
   let keys = invKeys(invTab);
   if (q) keys = keys.filter((k) => startsWord(k, q) || progress.phrases.get(k).ru.some((r) => startsWord(r, q)));
   dictKeys = keys; dictShown = DICT_PAGE;
-  renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : INV_EMPTY[invTab]);
+  const favFiltered = invTab === "saved" && (favKind || favLevel) && progress.favorites().length;
+  renderList(el.invBody, keys, invTab, q ? "Ничего не найдено." : favFiltered ? "Таких закладок нет." : INV_EMPTY[invTab]);
   animateList(el.invBody, { entrance: animate, bottomEl: $("bar") });
 }
 
@@ -2831,8 +2892,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=25").then((r) => r.json()),
-    fetch("data/aspect.json?v=25").then((r) => r.json()),
+    fetch("data/phrases.json?v=26").then((r) => r.json()),
+    fetch("data/aspect.json?v=26").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2858,11 +2919,12 @@ async function boot() {
   el.normal.addEventListener("click", () => onRate("normal"));
   el.hard.addEventListener("click", () => onRate("hard"));
   el.fav.addEventListener("click", toggleFav);
-  for (const b of document.querySelectorAll(".tabbtn")) b.addEventListener("click", () => showView(b.dataset.view));
+  for (const b of document.querySelectorAll(".tabbtn")) b.addEventListener("click", () => { if (view !== b.dataset.view) play("tab"); showView(b.dataset.view); });   // звук — только при нажатии (не при свайпе) и не на уже открытой вкладке
   for (const b of document.querySelectorAll(".segbtn")) {
-    b.addEventListener("click", () => { invTab = b.dataset.tab; renderInv(); });
+    b.addEventListener("click", () => { if (invTab !== b.dataset.tab) play("tab"); invTab = b.dataset.tab; renderInv(); });
   }
   $("invSearch").addEventListener("input", () => renderInv(false));
+  $("favFilterBtn").addEventListener("click", () => { favOpen = !favOpen; slideFavFilters(favOpen); });
   $("achSearchBtn").addEventListener("click", () => setAchSearchOpen($("achSearchWrap").hidden));
   $("achSearch").addEventListener("input", renderAch);
   $("achSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setAchSearchOpen(false); });
@@ -2880,6 +2942,7 @@ async function boot() {
   $("chipMore").addEventListener("click", () => { if ($("spopWrap").hidden) openStreakPop(); else closeStreakPop(); });
   $("spopWrap").addEventListener("pointerdown", (e) => { if (e.target === $("spopWrap")) closeStreakPop(); });   // тап мимо окна — закрыть
   for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => showView(b.dataset.go));   // блоки «Больше» и кнопки «назад»
+  for (const b of $("moreBody").querySelectorAll("button")) b.addEventListener("click", () => play("tab"));   // блоки «Больше» звучат как вкладки (кнопки «назад» — по-прежнему notch)
   $("dictRow").addEventListener("click", () => { invTab = "dict"; showView("inv"); });   // «Словарь» в «Настройках» — переход в «Инвентарь → Словарь»
   setupTranslator();
   setupAi();

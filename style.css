@@ -1244,3 +1244,14 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .aititle .aibeta { align-self: flex-start; margin: 3px 0 0 5px; font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--fg); opacity: .45; }
 /* иконки в шапке окна ИИ (очистить, ключ, закрыть) — белые */
 .aiicon { color: #fff; }
+
+/* «Закладки»: справа от поиска кнопка «Фильтр» (только на этой вкладке); по нажатию плавно выдвигаются ряды «вид» и «уровень» (slideFavFilters в app.js).
+   Кнопка белая, когда выбран какой-то фильтр (как кнопка «Что учить»). Между рядами 12 px — как прежний отступ экрана, когда ряды стояли отдельно. */
+.invsrow { display: flex; gap: 8px; align-items: stretch; }
+.invsrow .search { flex: 1; min-width: 0; }
+.favfbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 0 16px 0 13px; border-radius: 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+  color: var(--fg); background: rgba(255, 255, 255, .06); border: 1px solid var(--line); transition: background .25s ease, color .25s ease, box-shadow .25s ease; }
+.favfbtn svg { flex: none; }
+.favfbtn.on { color: #0b0c12; border-color: transparent; background: linear-gradient(180deg, #f7f8fa 0%, #dfe1e6 55%, #c3c6ce 100%); box-shadow: 0 0 14px rgba(255, 255, 255, .35); }
+.favfilters { display: flex; flex-direction: column; gap: 12px; }
+@media (prefers-reduced-motion: reduce) { .favfbtn { transition: none; } }
