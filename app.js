@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=29";
-import * as Store from "./storage.js?v=29";
-import { startMolten } from "./molten.js?v=29";
-import { attachSpecular, detachSpecular } from "./specular.js?v=29";
-import { animateList } from "./animlist.js?v=29";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=29";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=29";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=29";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=29";
+import * as Core from "./core.js?v=30";
+import * as Store from "./storage.js?v=30";
+import { startMolten } from "./molten.js?v=30";
+import { attachSpecular, detachSpecular } from "./specular.js?v=30";
+import { animateList } from "./animlist.js?v=30";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=30";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=30";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=30";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=30";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-26.29";
+const APP_VERSION = "2026-11-26.30";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -2920,8 +2920,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=29").then((r) => r.json()),
-    fetch("data/aspect.json?v=29").then((r) => r.json()),
+    fetch("data/phrases.json?v=30").then((r) => r.json()),
+    fetch("data/aspect.json?v=30").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
