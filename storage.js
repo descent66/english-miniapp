@@ -27,6 +27,8 @@ export function pack(data, ts = Date.now()) {
   if (data.explored) out.x = data.explored;   // что уже пробовал («Исследователь»)
   if (data.achSeen) out.y = data.achSeen;     // какие достижения уже просмотрены (красная точка у «Достижений»)
   if (data.progSeen) out.z = data.progSeen;   // серия и точность при последнем заходе в «Прогресс» (точка и стрелки у «Прогресса»)
+  if (data.xp) out.e = data.xp;               // опыт (верные ответы) для уровней
+  if (data.lvlSeen) out.q = data.lvlSeen;     // уровень и опыт при последнем заходе на экран «Уровень» (точка и «таблетка»)
   return JSON.stringify(out);
 }
 
@@ -52,6 +54,8 @@ export function unpack(text) {
   if (o.x) data.explored = o.x;
   if (o.y) data.achSeen = o.y;
   if (o.z) data.progSeen = o.z;
+  if (o.e) data.xp = o.e;
+  if (o.q) data.lvlSeen = o.q;
   return { data, ts: o.ts || 0 };
 }
 

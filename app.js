@@ -1,16 +1,16 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=30";
-import * as Store from "./storage.js?v=30";
-import { startMolten } from "./molten.js?v=30";
-import { attachSpecular, detachSpecular } from "./specular.js?v=30";
-import { animateList } from "./animlist.js?v=30";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=30";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=30";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=30";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=30";
+import * as Core from "./core.js?v=31";
+import * as Store from "./storage.js?v=31";
+import { startMolten } from "./molten.js?v=31";
+import { attachSpecular, detachSpecular } from "./specular.js?v=31";
+import { animateList } from "./animlist.js?v=31";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=31";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=31";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=31";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=31";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-26.30";
+const APP_VERSION = "2026-11-28.31";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -33,7 +33,7 @@ const el = {
   goalText: document.querySelector(".goaltext"), streakNum: $("streakNum"), streakChip: $("streakChip"), fav: $("favBtn"), mode: $("modeBtn"),
   check: $("checkBtn"), show: $("showBtn"), back: $("backBtn"), next: $("nextBtn"), hintBtn: $("hintBtn"),
   known: $("knownBtn"), easy: $("easyBtn"), normal: $("normalBtn"), hard: $("hardBtn"),
-  gamesBody: $("gamesBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"),
+  gamesBody: $("gamesBody"), invBody: $("invBody"), revBody: $("revBody"), progBody: $("progBody"), lvlBody: $("lvlBody"),
 };
 const actionBtns = [el.known, el.easy, el.normal, el.hard];
 
@@ -98,8 +98,8 @@ function calendarSvg() {
 // leaf — крестик в списке «Закладки», streak — цель дня выполнена (огонёк)
 // «correct» (верный ответ, в том числе в играх) теперь играет файл petal.wav (файл пользователя)
 // 2026-11-23: «назад» (fill) теперь играет notch.wav, огонёк (streak) — wand.wav, изменение настроек в «Общих» (set) — rebound.wav
-const SOUND_FILE = { correct: "petal", fill: "notch", streak: "wand", set: "rebound", tab: "tab.m4a" };   // tab — переключение вкладок (нижняя панель, разделы «Инвентаря»)
-const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald", "tab"];   // herald — новое достижение
+const SOUND_FILE = { correct: "petal", level: "huddle", fill: "notch", streak: "wand", set: "rebound", tab: "tab.m4a" };   // tab — переключение вкладок (нижняя панель, разделы «Инвентаря»)
+const SOUND_NAMES = ["correct", "error", "next", "fill", "ping", "unstar", "leaf", "streak", "set", "herald", "tab", "level"];   // herald — новое достижение, level — новый уровень
 const SOUND_VOL = { tab: 0.54 };   // громкость отдельных звуков (1 — как в файле); вкладки — на 70% тише по просьбе
 const soundUrl = (n) => { const f = SOUND_FILE[n] || n; return `sounds/${f.includes(".") ? f : f + ".wav"}`; };   // у tab — m4a (файл пользователя), у остальных — wav
 
@@ -185,7 +185,7 @@ let phase = "ask", nextAt = Infinity, phaseMs = 1;
 
 const recent = () => progress.data.recent;
 const settings = () => progress.data.settings || (progress.data.settings = {});
-const askSec = () => Number(params.get("ask")) || settings().ask || ASK_DEFAULT;
+const askSec = () => Number(params.get("ask")) || (session && !session.finished ? ASK_DEFAULT : settings().ask) || ASK_DEFAULT;   // в повторе (обычном и закладок) всегда 30 с, что бы ни стояло в настройках
 
 /** Текст с подсказками: часть в скобках («Снимать (жильё)») выводится мелко и бледно рядом со словом. */
 function setHinted(node, text) {
@@ -246,6 +246,96 @@ function updateGoal() {
   el.streakChip.classList.toggle("on", streak > 0);
 }
 
+/** Уровень на карточке (левый нижний угол). При новом уровне: полоска доходит до конца и вспыхивает, плавно уходит в 0, число уровня «выскакивает». */
+let lvlShown = null, lvlTimers = [], xpShown = null;
+const XP_PER = 10;   // на экране опыт ×10: верный ответ = 10 xp (в данных хранится число верных ответов)
+/** Градиент полоски привязан к длине всей дорожки, а не заливки, и идёт слева направо плавно, как у полоски цели дня:
+ *  белое переходит в светло-мятное за первые 3 ответа уровня, дальше долго и мягко — в зелёное. */
+function paintLvl(fill, need) {
+  requestAnimationFrame(() => {
+    const w = fill.parentElement.clientWidth;
+    if (!w) return;
+    fill.style.backgroundSize = `${w}px 100%`;
+    fill.style.setProperty("--s1", (need ? Math.min(w, (3 / need) * w) : 0).toFixed(1) + "px");
+  });
+}
+let levelSoundAt = 0;   // когда играл звук нового уровня: в тот же ответ «достижение» и «цель дня» его не перебивают
+const levelSoundNow = () => Date.now() - levelSoundAt < 1500;
+function updateLevel() {
+  const xp = progress.data.xp || 0;
+  const { level, have, need } = Core.levelInfo(xp);
+  const pct = need ? (have / need) * 100 : 100;
+  const btn = $("lvlBtn"), fill = $("lvlFill"), num = $("lvlNum");
+  if (xpShown !== null && xp > xpShown && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const gain = make("span", "lvlgain", `+${(xp - xpShown) * XP_PER} xp`);   // всплывает рядом с уровнем и тает
+    gain.addEventListener("animationend", () => gain.remove());
+    btn.querySelector(".lvltext").append(gain);
+  }
+  xpShown = xp;
+  for (const t of lvlTimers) clearTimeout(t);
+  lvlTimers = [];
+  btn.setAttribute("aria-label", `Уровень ${level}` + (need ? `: ${have * XP_PER} из ${need * XP_PER} xp` : ", максимум") + ". Открыть экран уровня");
+  if (lvlShown !== null && level > lvlShown) { stopSound("correct"); play("level"); levelSoundAt = Date.now(); }   // «новый уровень» заменяет «верно»
+  const up = lvlShown !== null && level > lvlShown && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  lvlShown = level;
+  if (!up) { num.textContent = String(level); fill.style.width = pct + "%"; paintLvl(fill, need); return; }
+  fill.style.width = "100%";
+  btn.classList.remove("lvlup", "bump"); void btn.offsetWidth; btn.classList.add("lvlup");   // перезапуск анимации свечения
+  lvlTimers.push(setTimeout(() => {
+    fill.classList.add("reset"); fill.style.width = "0%";                                    // плавно в ноль
+    num.textContent = String(level); btn.classList.add("bump");                              // число нового уровня «выскакивает»
+  }, 900));
+  lvlTimers.push(setTimeout(() => { fill.classList.remove("reset"); fill.style.width = pct + "%"; paintLvl(fill, need); }, 1500));
+  lvlTimers.push(setTimeout(() => btn.classList.remove("lvlup", "bump"), 2000));
+}
+
+/** Экран «Уровень» (из «Больше» или по нажатию на уровень на карточке). seen = {l, x} — уровень и опыт при прошлом заходе: рост показывается анимацией. */
+let lvlChipTimer = 0;
+function renderLvl(seen) {
+  const xp = progress.data.xp || 0, { level, have, need } = Core.levelInfo(xp);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dl = seen ? level - seen.l : 0, dx = seen ? xp - seen.x : 0;
+  let toMax = -have;
+  for (let l = level; l < Core.LEVEL_MAX; l++) toMax += Core.levelNeed(l);
+  const p = make("div", "panel lvlpanel");
+  const head = make("div", "lvlhead");
+  const big = make("b", "", String(level));
+  head.append(make("span", "muted", "Уровень"), big, make("span", "muted", `из ${Core.LEVEL_MAX}`));
+  const bar = make("span", "track"), fill = make("i");
+  const pct = need ? (have / need) * 100 : 100;
+  bar.append(fill);
+  paintLvl(fill, need);
+  const line = make("p", "");
+  const lineText = (h) => need ? `${h * XP_PER} из ${need * XP_PER} xp · до ${level + 1} уровня — ${(need - h) * XP_PER} xp` : "Максимальный уровень!";
+  line.textContent = lineText(have);
+  p.append(head, bar, line);
+  const grow = !reduce && (dl > 0 || dx > 0);
+  if (grow) {
+    const fromHave = dl > 0 ? 0 : Math.max(0, have - dx);                 // новый уровень — полоска растёт с нуля, иначе — с прошлого места
+    fill.style.width = (need ? (fromHave / need) * 100 : 0) + "%";
+    fill.style.transition = "width 1.7s cubic-bezier(.45, 0, .25, 1)";   // плавный разгон и торможение
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = pct + "%"; }));
+    if (dl > 0) {   // новый уровень: число светится зелёным и плавно гаснет; новое значение «выскакивает» на середине роста полоски
+      big.textContent = String(level - dl); big.classList.add("glow");
+      setTimeout(() => {   // старое число уходит вверх и тает, новое приезжает снизу и проявляется
+        big.animate([{ transform: "none", opacity: 1, filter: "blur(0)" }, { transform: "translateY(-55%)", opacity: 0, filter: "blur(3px)" }],
+          { duration: 260, easing: "cubic-bezier(.4, 0, 1, 1)" }).onfinish = () => {
+          big.textContent = String(level);
+          big.animate([{ transform: "translateY(55%)", opacity: 0, filter: "blur(3px)" }, { transform: "none", opacity: 1, filter: "blur(0)" }],
+            { duration: 420, easing: "cubic-bezier(.2, 1.3, .4, 1)" });
+        };
+      }, 380);   // сразу после того, как экран приехал (переход 340 мс)
+    }
+    if (need) countTo(line, fromHave, have, lineText, 1700);
+    p.append(dl > 0 ? deltaChip(dl, "", true) : deltaChip(dx * XP_PER, " xp", true));
+  } else fill.style.width = pct + "%";
+  const info = make("div", "panel");
+  info.append(make("p", "", `Всего опыта: ${xp * XP_PER} xp`));
+  if (need) info.append(make("p", "", `До ${Core.LEVEL_MAX} уровня: ${toMax * XP_PER} xp`));
+  info.append(make("p", "", `Верный ответ на карточке (и в повторе) — ${XP_PER} xp. На 1-м уровне нужно ${Core.levelNeed(1) * XP_PER} xp, на каждом следующем — чуть больше.`));
+  el.lvlBody.replaceChildren(p, info);
+}
+
 function loop() {
   updateCountdown();
   updateGoal();
@@ -271,8 +361,13 @@ function nextCard() {
   let key;
   if (session) {
     if (session.finished) { schedule(askSec(), "ask"); return; }
-    const pool = (session.pool || progress.reviewPool()).filter((k) => !session.seen.includes(k));
-    if (session.done >= session.total || !pool.length) { finishSession(); return; }
+    let pool = (session.pool || progress.reviewPool()).filter((k) => !session.seen.includes(k));
+    if (session.loop && !pool.length) {                           // круг пройден — новый круг; последняя карточка не повторяется сразу, если закладок больше одной
+      session.seen = session.pool.length > 1 ? session.seen.slice(-1) : [];
+      pool = session.pool.filter((k) => !session.seen.includes(k));
+      session.seen = [];
+    }
+    if (!session.loop && (session.done >= session.total || !pool.length)) { finishSession(); return; }
     key = pool[Math.floor(Math.random() * pool.length)];
     session.seen.push(key);
   } else {
@@ -349,7 +444,8 @@ function show(key, dir, isRevealed) {
   const p = progress.phrases.get(key);
   const state = progress.state(key);
   const pills = [];
-  if (session && !session.finished) pills.push([`${session.pool ? "Слабые" : "Повтор"} ${session.done + 1}/${session.total}`, "sess"]);
+  if (session && !session.finished) pills.push(session.loop ? [`Закладки ${session.seen.length}/${session.pool.length}`, "sess"]
+    : [`${session.pool ? "Слабые" : "Повтор"} ${session.done + 1}/${session.total}`, "sess"]);
   const kind = TYPE_RU[p.type] || p.type;
   pills.push([kind[0].toUpperCase() + kind.slice(1), ""], [p.level, "lvl"], [dir === "en2ru" ? "EN → RU" : "RU → EN", "mode"]);
   if (state === "learning") pills.push(["↻", "rep"]);
@@ -395,7 +491,8 @@ function submit() {
   const ok = direction === "en2ru"
     ? Core.checkAnswer(text, [...p.ru, ...(p.ru_alt || [])], false) // ru_alt — доп. допустимые ответы (синонимы, формы слова)
     : Core.checkAnswer(text, [p.en, ...p.en_alt], true);
-  play(ok ? "correct" : "error");
+  const xp = progress.data.xp || 0;   // новый уровень: вместо «верно» играет только его звук (в updateLevel)
+  if (!(ok && Core.levelInfo(xp + 1).level > Core.levelInfo(xp).level)) play(ok ? "correct" : "error");
   reveal(ok);
 }
 
@@ -423,15 +520,19 @@ function reveal(ok) {
   if (ok === null) { setStatus(""); popIn([el.answer, el.example]); return; }
   el.entry.className = ok ? "ok" : "bad";
   const before = progress.state(cur);
-  const state = progress.record(cur, ok);
+  const loop = !!(session && session.loop && !session.finished);   // повтор закладок не меняет прогресс слова (сроки, «выучено»), а цель дня и серия считаются
+  const state = loop ? before : progress.record(cur, ok);
   if (session && !session.finished) { session.done += 1; session.correct += ok ? 1 : 0; }
   const todayBefore = progress.todayCorrect();
   recordAnswer(progress, ok);
   progress.logAnswer(ok);
   updateGoal();
+  updateLevel();
   announceAchievements();
   if (ok && todayBefore < progress.goal() && progress.todayCorrect() >= progress.goal()) celebrate();
-  if (state === "mastered") {
+  if (loop) {
+    setStatus(ok ? "Верно!" : "Неверно", ok ? "ok" : "bad");
+  } else if (state === "mastered") {
     setStatus(`Верно! ${Core.NEEDED_STREAK} подряд — фраза выучена навсегда`, "ok");
   } else if (state === "learning" && before === "new") {
     setStatus("Верно! Фраза пошла в повторения (проверим через час)", "ok");
@@ -444,8 +545,14 @@ function reveal(ok) {
   }
   // после неверного ответа кнопок нет; верный на новой фразе — «Уже знал»;
   // верный на повторении — оценка, которая сдвигает срок следующей проверки
-  if ((before === "unseen" || before === "new") && ok) showActions(el.known);
-  else if (before === "learning" && ok && state === "learning") showActions(el.easy, el.normal, el.hard);
+  // та же кнопка «знал» есть и на повторении (4-й после оценок): там она «Я знал» и обычного вида, чтобы не перетягивать внимание с оценок
+  const fresh = before === "unseen" || before === "new";
+  el.known.textContent = fresh ? "Уже знал" : "Я знал";
+  el.known.classList.toggle("primary", fresh);
+  const rate4 = !loop && before === "learning" && ok && state === "learning";
+  $("actions").classList.toggle("grid4", rate4);                 // четыре оценки — ровной сеткой 2×2
+  if (fresh && ok && !loop) showActions(el.known);
+  else if (rate4) showActions(el.easy, el.normal, el.hard, el.known);
   popIn([el.status, el.answer, el.example, ...actionBtns]);
 }
 
@@ -714,9 +821,9 @@ function showToast({ title, description = "", actionLabel = "", icon = "", onAct
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
 // порядок = «кто справа от кого» для анимации; настройки, игры, времена, повтор, прогресс и достижения — внутри «Больше» (на панели у них своей кнопки нет)
-const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach"];
+const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach", "lvl"];
 const TABS = ["learn", "inv", "tr", "more"];
-const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more" };
+const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more", lvl: "more" };
 const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Больше»)
 const tabOf = (v) => TAB_OF[v] || v;
 let view = "learn";
@@ -740,10 +847,13 @@ function renderMore() {
   set("mstTenses", `освоено ${tenses} из ${TENSE_COUNT}`);
   set("mstRev", pool ? `повторить: ${pool}` : "пока нет");
   set("mstDict", `${progress.phrases.size} записей`);
+  const lv = Core.levelInfo(progress.data.xp || 0);
+  set("mstLvl", lv.need ? `ур. ${lv.level} · ${lv.have * XP_PER}/${lv.need * XP_PER}` : `ур. ${lv.level} · максимум`);
   $("dotRev").hidden = !pool || settings().dotRev === false;                            // точки можно выключить в «Настройках → Напоминания»
   $("dotAch").hidden = !unseenAchievements(progress).length || settings().dotAch === false;
   $("dotProg").hidden = progressChange(progress).streak <= 0 || settings().dotProg === false;   // серия выросла с прошлого захода в «Прогресс»
-  for (const dot of [$("dotRev"), $("dotAch"), $("dotProg")]) dot.parentElement.classList.toggle("alert", !dot.hidden);   // пока горит точка, значок блока раз в 10 с «подаёт знак» (CSS: кубок трясётся, стрелки делают круг)
+  $("dotLvl").hidden = lv.level <= (progress.data.lvlSeen?.l ?? lv.level) || settings().dotLvl === false;                       // новый уровень с прошлого захода на экран «Уровень»
+  for (const dot of [$("dotRev"), $("dotAch"), $("dotProg"), $("dotLvl")]) dot.parentElement.classList.toggle("alert", !dot.hidden);   // пока горит точка, значок блока раз в 10 с «подаёт знак» (CSS: кубок трясётся, стрелки делают круг)
 }
 
 /** Завершить переход: убрать служебные классы, оставить видимым только текущий экран. */
@@ -771,6 +881,12 @@ function showView(name) {
   if (prev === "inv" && name !== "inv") { favOpen = false; const fb = $("favFilters"); for (const a of fb.getAnimations()) a.cancel(); fb.hidden = true; fb.dataset.open = ""; }   // при следующем заходе ряды спрятаны (без анимации на входе)   // ряды фильтров закладок при следующем заходе спрятаны
   if (name === "inv") renderInv();
   if (name === "general") renderGeneral();
+  if (name === "lvl") {   // что изменилось с прошлого захода: число уровня «досчитывает», зелёная «таблетка» +N; потом снимок обновляется
+    const xp = progress.data.xp || 0, seen = progress.data.lvlSeen || { l: Core.levelInfo(xp).level, x: xp };
+    renderLvl(seen);
+    progress.data.lvlSeen = { l: Core.levelInfo(xp).level, x: xp }; progress.save();
+    clearTimeout(lvlChipTimer); lvlChipTimer = setTimeout(() => { for (const c of document.querySelectorAll("#lvlBody .delta")) { c.classList.add("out"); setTimeout(() => c.remove(), 1100); } }, 3000);
+  }
   if (name === "tenses") tenses.renderMap();
   if (name === "tlesson") tenses.renderLesson();
   if (name === "more") { renderMore(); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // подписи и точки обновляются, блоки выезжают, как слова в «Закладках»
@@ -977,6 +1093,7 @@ function renderDictKinds() {
 function renderFavFilters() {
   const kinds = $("favKinds"), levels = $("favLevels"), on = invTab === "saved", btn = $("favFilterBtn"), box = $("favFilters");
   slideToggle(btn, on, FAV_BTN_CLOSED);                          // кнопка «Фильтр» плавно появляется, поле поиска при этом плавно сужается
+  slideToggle($("favLoopBtn"), on, FAV_BTN_CLOSED);              // рядом — «Повторять закладки по кругу»
   btn.classList.toggle("on", !!(favKind || favLevel));           // фильтр выбран — кнопка белая, даже когда ряды спрятаны
   btn.setAttribute("aria-expanded", String(on && favOpen));
   if (!on) { slideToggle(box, false, FAV_ROWS_CLOSED); return; }   // ушли с «Закладок» — открытые ряды плавно задвигаются
@@ -1376,7 +1493,7 @@ function renderRev() {
   const body = el.revBody;
   body.replaceChildren();
   if (session && !session.finished) {
-    body.append(panel(`Идёт повтор: ${session.done} из ${session.total}`,
+    body.append(panel(session.loop ? "Идёт повтор закладок" : `Идёт повтор: ${session.done} из ${session.total}`,
       "Отвечайте на карточки во вкладке «Учить».",
       [["Продолжить", true, () => showView("learn")], ["Закончить повтор", false, endSession]]));
   } else if (session) {
@@ -1402,6 +1519,14 @@ function startSession(keys) {
   nextCard();
 }
 const startReview = () => startSession(null);
+/** Повтор закладок (кнопка в «Инвентаре → Закладки»): только закладки (с учётом выбранного фильтра), по кругу без конца — до «Прекратить повтор». */
+function startFavLoop() {
+  const keys = invKeys("saved");
+  if (!keys.length) return;
+  session = { total: keys.length, done: 0, correct: 0, seen: [], finished: false, pool: keys, loop: true };
+  showView("learn");
+  nextCard();
+}
 const startWeak = () => startSession(progress.weakCards().slice(0, SESSION_SIZE));
 
 function finishSession() {
@@ -1545,7 +1670,7 @@ function announceAchievements() {
   const fresh = checkAchievements(progress);
   if (!fresh.length) return;
   stopSound("correct");   // «герольд» заменяет «верно» в этот момент
-  play("herald");
+  if (!levelSoundNow()) play("herald");
   showToast({ title: fresh.length > 1 ? "Новые достижения!" : "Новое достижение!", description: fresh.map((a) => a.title).join(", ") + "!", icon: TROPHY, duration: 6400,
     onTap: () => openAchievements(fresh.map((a) => a.id)) });   // дольше закладки (2 с): нужно прочитать названия
 }
@@ -1553,6 +1678,7 @@ function announceAchievements() {
 const ACH_ICON = {   // контурные значки в стиле остальных иконок
   fire: `<path d="${FLAME_PATH}"/>`,
   answers: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',
+  level: '<path d="M6 13l6-6 6 6M6 19l6-6 6 6"/>',   // как у блока «Уровень» в «Больше»
   saved: '<path d="M7 3.5h10a1.2 1.2 0 0 1 1.2 1.2V20.5L12 15.2l-6.2 5.3V4.7A1.2 1.2 0 0 1 7 3.5z"/>',
   mastery: '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.6L7 21l5-2.6 5 2.6-1.6-7.4"/>',
   explore: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/>',
@@ -1722,7 +1848,7 @@ function confetti(x, y) {
 
 /** Цель дня выполнена: огонёк в шапке подпрыгивает, из него вылетает конфетти. */
 function celebrate() {
-  if (settings().goalSound !== false) {   // «серия» заменяет «верно»; если звук цели выключен — слышен обычный «верно»
+  if (settings().goalSound !== false && !levelSoundNow()) {   // «серия» заменяет «верно»; если звук цели выключен — слышен обычный «верно»
     stopSound("correct");
     play("streak");
   }
@@ -2220,7 +2346,8 @@ function renderGeneral() {
       field("Повтор", ONOFF, settings().dotRev !== false, (v) => { settings().dotRev = v; progress.save(); }),
       field("Достижения", ONOFF, settings().dotAch !== false, (v) => { settings().dotAch = v; progress.save(); }),
       field("Прогресс", ONOFF, settings().dotProg !== false, (v) => { settings().dotProg = v; progress.save(); }),
-      make("p", "asknote remnote", "Напоминания — это красные точки в разделе «Больше». У «Повтора» точка горит, пока есть что повторять. У «Достижений» — когда получено новое достижение, которое вы ещё не просмотрели; она гаснет, как только вы откроете «Достижения». У «Прогресса» — когда ваша серия выросла с прошлого захода в «Прогресс»; она гаснет, как только вы его откроете."),
+      field("Уровень", ONOFF, settings().dotLvl !== false, (v) => { settings().dotLvl = v; progress.save(); }),
+      make("p", "asknote remnote", "Напоминания — это красные точки в разделе «Больше». У «Повтора» точка горит, пока есть что повторять. У «Достижений» — когда получено новое достижение, которое вы ещё не просмотрели; она гаснет, как только вы откроете «Достижения». У «Прогресса» — когда ваша серия выросла с прошлого захода в «Прогресс»; она гаснет, как только вы его откроете. У «Уровня» — когда вы получили новый уровень; она гаснет, как только вы откроете «Уровень»."),
     ], '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'));
   $("generalNote").replaceChildren(
     make("p", "diag", diagText()));
@@ -2920,8 +3047,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=30").then((r) => r.json()),
-    fetch("data/aspect.json?v=30").then((r) => r.json()),
+    fetch("data/phrases.json?v=31").then((r) => r.json()),
+    fetch("data/aspect.json?v=31").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -2929,6 +3056,7 @@ async function boot() {
   progress = new Core.Progress(phrases, saved, Store.save);
   initAchSeen(progress);   // что получено до обновления — считается просмотренным, красная точка только для новых
   initProgSeen(progress);  // то же для «Прогресса»: сравниваем с состоянием на момент первого запуска
+  if (!progress.data.lvlSeen) { progress.data.lvlSeen = { l: Core.levelInfo(progress.data.xp || 0).level, x: progress.data.xp || 0 }; progress.save(); }   // и для «Уровня»
   if (Store.usingCloud) Store.save(progress.data); // если локальная копия была новее — подтянуть облако
   applyBg();
   refreshModeBtn();
@@ -2953,6 +3081,7 @@ async function boot() {
   }
   $("invSearch").addEventListener("input", () => renderInv(false));
   $("favFilterBtn").addEventListener("click", () => { favOpen = !favOpen; slideFavFilters(favOpen); });
+  $("favLoopBtn").addEventListener("click", startFavLoop);
   $("achSearchBtn").addEventListener("click", () => setAchSearchOpen($("achSearchWrap").hidden));
   $("achSearch").addEventListener("input", renderAch);
   $("achSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") setAchSearchOpen(false); });
@@ -2992,6 +3121,7 @@ async function boot() {
 
   for (const s of document.querySelectorAll(".flame-slot")) s.innerHTML = FLAME;
   updateGoal();
+  updateLevel();
   setInterval(loop, 250);
   const firstRun = progress.data.goal == null && Object.keys(progress.cards).length === 0;
   if (firstRun) openWelcome(nextCard);

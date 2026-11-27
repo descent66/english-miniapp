@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES } from "./core.js?v=30";
-import { MASTERED } from "./tenses.js?v=30";
+import { dayKey, HARD_MISSES, levelInfo } from "./core.js?v=31";
+import { MASTERED } from "./tenses.js?v=31";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -49,6 +49,8 @@ export const ACHIEVEMENTS = [
   { id: "weekend", group: "fire", title: "Выходной боец", text: "Выполнить цель дня и в субботу, и в воскресенье одной недели", target: 2, value: bestWeekend },
   ...[[100, "Сто верных"], [500, "Пятьсот верных"], [777, "Счастливые 777"], [1000, "Тысяча верных"]]
     .map(([n, title]) => ({ id: `correct${n}`, group: "answers", title, text: `${n} верных ответов за всё время`, target: n, value: totalCorrect })),
+  ...[[5, "Разогрев"], [10, "Десятый уровень"], [25, "Четверть пути"], [50, "Полпути"], [77, "Счастливый уровень"], [100, "Легенда"]]
+    .map(([n, title]) => ({ id: `level${n}`, group: "level", title, text: `Достичь ${n} уровня`, target: n, value: (p) => levelInfo(p.data.xp || 0).level })),
   { id: "run10", group: "answers", title: "Десять подряд", text: "10 верных ответов подряд без ошибок", target: 10, value: (p) => p.data.run || 0 },
   { id: "flawlessPv", group: "games", title: "Частица без ошибок", text: "Пройти раунд «Подставь частицу» без ошибок (от 10 вопросов)", target: 1, value: (p) => (p.data.flawless?.pv ? 1 : 0) },
   { id: "flawlessDlg", group: "games", title: "Диалоги без ошибок", text: "Пройти раунд «Диалоги» без ошибок (от 10 вопросов)", target: 1, value: (p) => (p.data.flawless?.dlg ? 1 : 0) },
@@ -81,7 +83,7 @@ export const ACHIEVEMENTS = [
     value: (p) => EXPLORE.filter((k) => p.data.explored?.[k]).length },
 ];
 
-export const GROUP_TITLES = { fire: "Огонёк", answers: "Ответы", games: "Игры", tenses: "Времена", words: "Выученные слова", saved: "Закладки", mastery: "Мастерство", explore: "Исследование" };
+export const GROUP_TITLES = { fire: "Огонёк", answers: "Ответы", level: "Уровень", games: "Игры", tenses: "Времена", words: "Выученные слова", saved: "Закладки", mastery: "Мастерство", explore: "Исследование" };
 
 /** Игрок впервые попробовал что-то из списка EXPLORE ("pv", "dlg", "tenses", "rev", "mode"). true — это было в первый раз. */
 export function recordExplored(p, key) {
@@ -95,6 +97,7 @@ export function recordExplored(p, key) {
 /** Ответ в обычной карточке: считает «верных подряд». Сохраняет logAnswer, который вызывается следом. */
 export function recordAnswer(p, ok) {
   p.data.run = ok ? (p.data.run || 0) + 1 : 0;
+  if (ok) p.data.xp = (p.data.xp || 0) + 1;   // опыт для уровней (считается с момента их появления)
 }
 
 /** Раунд игры закончен (один раз): запомнить «без ошибок» и посчитать безупречные раунды подряд. */

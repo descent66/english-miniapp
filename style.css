@@ -1136,8 +1136,11 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .tile > .delta.out { animation: delta-out .45s ease forwards; }
 @media (prefers-reduced-motion: reduce) { .tile > .delta.out { animation: none; opacity: 0; } }
 
-/* «ИИ-помощник»: блок «Donald Ai» в «Больше» (в сетке 3×2 он седьмой — стоит один в последнем ряду, по центру) и высокое окно чата */
-#moreBody .tgrid #aiRow { grid-column: 2; }
+/* «ИИ-помощник»: блок «Donald Ai» в «Больше» и высокое окно чата. Последний ряд — «Уровень» и «Donald Ai» вдвоём по центру:
+   сетка из 6 узких колонок, каждый блок шириной в две (ширина та же, что при 3 колонках), «Уровень» начинается со 2-й */
+#moreBody .tgrid { grid-template-columns: repeat(6, 1fr); }
+#moreBody .tgrid .tcell { grid-column: span 2; }
+#moreBody .tgrid #lvlRow { grid-column: 2 / span 2; }
 .sheet.aiopen { padding-top: calc(env(safe-area-inset-top) + 34px); box-sizing: border-box; }
 .sheet.aiopen .sheetbox:not(.ai) { max-height: 100%; }
 .sheet.aiopen { touch-action: none; overscroll-behavior: contain; }   /* полоса над окном ИИ не прокручивает страницу под ним */
@@ -1281,3 +1284,67 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .kindgrid .btn.on { background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .04)); }
 .kindgrid .btn.on::before { clip-path: circle(80% at 50% 50%); opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .kindgrid .btn, .kindgrid .btn::before { transition: none; } }
+
+/* «Я знал» на повторении — четвёртой, после «Легко · Нормально · Трудно» (в разметке кнопка стоит первой — для «Уже знал» на новой карточке) */
+#knownBtn:not(.primary) { order: 1; }
+/* четыре оценки на повторении («Легко · Нормально / Трудно · Я знал») — сетка 2×2 одинаковых кнопок (класс ставит app.js) */
+#actions.grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#actions.grid4 .btn { padding-left: 8px; padding-right: 8px; }
+
+/* Уровень на карточке (левый нижний угол, напротив «Что учить»): «Ур. 5» и полоска опыта. Полоска зелёная с градиентом, как у цели дня, только в зелёный */
+.row.bottom { justify-content: space-between; align-items: flex-end; }
+.lvlbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 6px 4px 8px 2px; background: none; border: 0;
+  color: var(--muted); font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lvltext { font-size: 15px; line-height: 1; }
+.lvltext b { display: inline-block; font-weight: 600; color: #8fe0ad; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, rgba(214, 255, 228, .98) 25%, #4cc479);   /* строение как у «20/20» (сверху вниз), цвета — зелёные, как у полоски уровня */
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: .22px rgba(143, 224, 173, .85); }   /* «толще», чем полужирный: жирного файла шрифта нет — утолщено обводкой (выбор пользователя) */
+.lvlbtn .track, .lvlpanel .track { width: 112px; height: 5px; overflow: visible; }
+.lvlpanel .track { width: 100%; height: 8px; }
+.lvlbtn .track i, .lvlpanel .track i { background: linear-gradient(90deg, #fff 0%, rgba(214, 255, 228, .98) var(--s1, 15%), rgba(95, 208, 138, .95) 70%, #4cc479 100%) left / 112px 100% no-repeat;
+  box-shadow: 0 0 8px rgba(95, 208, 138, .5); transition: width .4s cubic-bezier(.22, 1, .36, 1); }
+.lvlbtn .track i.reset { transition: width .5s ease-in-out; }
+/* новый уровень: полоска вспыхивает зелёным, число «выскакивает» */
+.lvlbtn.lvlup .track i { animation: lvl-glow .9s ease-out; }
+@keyframes lvl-glow { 0%, 100% { box-shadow: 0 0 8px rgba(95, 208, 138, .5); } 45% { box-shadow: 0 0 16px 3px rgba(95, 208, 138, .95), 0 0 30px 6px rgba(95, 208, 138, .45); } }
+.lvlbtn.bump .lvltext b { animation: lvl-bump .6s cubic-bezier(.3, 1.6, .5, 1); color: var(--ok); background: none; -webkit-text-fill-color: currentColor; text-shadow: 0 0 10px rgba(95, 208, 138, .7); }
+@keyframes lvl-bump { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lvlbtn .track i { transition: none; } }
+/* экран «Уровень» */
+.lvlhead { display: flex; align-items: baseline; gap: 8px; }
+.lvlhead b { font-size: 44px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+/* «+1 exp» за каждый верный ответ: всплывает справа от «Ур. N», поднимается и тает */
+.lvltext { position: relative; }
+.lvlgain { position: absolute; left: 100%; top: -1px; margin-left: 7px; white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--ok);
+  text-shadow: 0 0 8px rgba(95, 208, 138, .7); pointer-events: none; animation: lvl-gain 1.2s ease-out forwards; }
+@keyframes lvl-gain { 0% { opacity: 0; transform: translateY(4px) scale(.8); } 18% { opacity: 1; transform: translateY(0) scale(1.08); }
+  70% { opacity: 1; transform: translateY(-4px) scale(1); } 100% { opacity: 0; transform: translateY(-10px); } }
+
+/* «Больше»: у «Уровня» красная точка, когда с прошлого захода на экран «Уровень» вырос уровень; пока она горит, двойная стрелка раз в 5 с дважды подпрыгивает вверх (как стрелка «Прогресса») */
+#moreBody .tcell.alert[data-go="lvl"] .mico svg { animation: lvl-hop 5s ease-in-out .8s infinite; }
+@keyframes lvl-hop { 0%, 10%, 20%, 100% { transform: translateY(0); } 5%, 15% { transform: translateY(-3.6px); } }
+@media (prefers-reduced-motion: reduce) { #moreBody .tcell.alert[data-go="lvl"] .mico svg { animation: none; } }
+/* экран «Уровень»: зелёная «таблетка» +N (уровней или xp) в углу, как на плитках «Прогресса»; через 3 с тает */
+.lvlpanel { position: relative; }
+.lvlpanel > .delta { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 2px; padding: 3px 8px 3px 5px;
+  border-radius: 999px; background: rgba(0, 0, 0, .3); font-size: 12px; font-weight: 600; font-style: normal; font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--ok); box-shadow: 0 0 10px rgba(80, 220, 140, .28); }
+.lvlpanel > .delta.go { animation: delta-pop .5s cubic-bezier(.3, 1.4, .5, 1) .15s both; }
+.lvlpanel > .delta.out { animation: delta-out .45s ease forwards; }
+@media (prefers-reduced-motion: reduce) { .lvlpanel > .delta.go { animation: none; } .lvlpanel > .delta.out { animation: none; opacity: 0; } }
+/* лёгкое свечение у полосок, как у цели дня и таймера: в «Достижениях» — белое, у уровня — зелёное чуть ярче */
+.achprog .track { overflow: visible; }
+.achprog .track i { box-shadow: 0 0 8px rgba(255, 255, 255, .5); }
+.lvlbtn .track i, .lvlpanel .track i { box-shadow: 0 0 9px rgba(95, 208, 138, .6); }
+
+/* экран «Уровень», новый уровень: число светится зелёным ~3 с и плавно возвращается к белому; «таблетка» светится ярче и тает дольше (1 с) */
+.lvlhead b.glow { animation: lvl-num-glow 3.4s ease-in-out; }
+@keyframes lvl-num-glow { 0% { color: var(--fg); text-shadow: none; } 15%, 65% { color: var(--ok); text-shadow: 0 0 14px rgba(95, 208, 138, .8), 0 0 28px rgba(95, 208, 138, .4); }
+  100% { color: var(--fg); text-shadow: 0 0 0 rgba(95, 208, 138, 0); } }
+.lvlpanel > .delta { box-shadow: 0 0 14px rgba(80, 220, 140, .5); text-shadow: 0 0 8px rgba(95, 208, 138, .7); }
+.lvlpanel > .delta.out { animation: delta-out 1s ease forwards; }
+@media (prefers-reduced-motion: reduce) { .lvlhead b.glow { animation: none; } }
+/* анимация нового уровня на экране «Уровень» на ~23% быстрее: свечение 2,6 с; число — inline-block, чтобы уезжать вверх/вниз */
+.lvlhead b { display: inline-block; }
+.lvlhead b.glow { animation: lvl-num-glow 2.6s ease-in-out; }

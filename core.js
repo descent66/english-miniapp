@@ -393,3 +393,12 @@ export function hintMask(answer, level) {
 export function redLead(total) {
   return total <= 9 ? 2 : total <= 15 ? 3 : total <= 20 ? 4 : total <= 30 ? 5 : total <= 45 ? 7 : 10;
 }
+
+/** Только в Mini App. Уровни 1–100: опыт = верные ответы с момента появления уровней. На 1-м уровне нужно 20, каждый следующий — на 2,5% больше. */
+export const LEVEL_MAX = 100;
+export const levelNeed = (level) => Math.round(20 * 1.025 ** (level - 1));
+export function levelInfo(xp) {
+  let level = 1, have = xp;
+  while (level < LEVEL_MAX && have >= levelNeed(level)) { have -= levelNeed(level); level++; }
+  return level === LEVEL_MAX ? { level, have: 0, need: 0 } : { level, have, need: levelNeed(level) };   // need = 0 — максимум
+}
