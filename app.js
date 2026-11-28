@@ -1,17 +1,17 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=32";
-import * as Store from "./storage.js?v=32";
-import { startMolten } from "./molten.js?v=32";
-import { attachSpecular, detachSpecular } from "./specular.js?v=32";
-import { animateList } from "./animlist.js?v=32";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=32";
-import { initAssoc, assocStatus, ASSOC } from "./assoc.js?v=32";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=32";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=32";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=32";
+import * as Core from "./core.js?v=33";
+import * as Store from "./storage.js?v=33";
+import { startMolten } from "./molten.js?v=33";
+import { attachSpecular, detachSpecular } from "./specular.js?v=33";
+import { animateList } from "./animlist.js?v=33";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=33";
+import { initAssoc, assocStatus, ASSOC } from "./assoc.js?v=33";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=33";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=33";
+import { GROUP_TITLES, GAMES, recordAnswer, recordSkip, nextXp, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=33";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-28.32";
+const APP_VERSION = "2026-11-28.33";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -249,7 +249,8 @@ function updateGoal() {
 
 /** Уровень на карточке (левый нижний угол). При новом уровне: полоска доходит до конца и вспыхивает, плавно уходит в 0, число уровня «выскакивает». */
 let lvlShown = null, lvlTimers = [], xpShown = null;
-const XP_PER = 10;   // на экране опыт ×10: верный ответ = 10 xp (в данных хранится число верных ответов)
+const XP_PER = 10;   // на экране опыт ×10: верный ответ = 10 xp (в данных хранится число верных ответов; с комбо — дробное)
+const pts = (x) => Math.round(x * XP_PER);   // опыт для экрана
 /** Градиент полоски привязан к длине всей дорожки, а не заливки, и идёт слева направо плавно, как у полоски цели дня:
  *  белое переходит в светло-мятное за первые 3 ответа уровня, дальше долго и мягко — в зелёное. */
 function paintLvl(fill, need) {
@@ -276,14 +277,15 @@ function updateLevel() {
   const pct = need ? (have / need) * 100 : 100;
   const btn = $("lvlBtn"), fill = $("lvlFill"), num = $("lvlNum");
   if (xpShown !== null && xp > xpShown && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    const gain = make("span", "lvlgain", `+${(xp - xpShown) * XP_PER} xp`);   // всплывает рядом с уровнем и тает
+    const combo = progress.data.combo || 0;
+    const gain = make("span", "lvlgain", `+${pts(xp - xpShown)} xp` + (combo >= 3 ? ` ×${combo}` : ""));   // всплывает рядом с уровнем и тает
     gain.addEventListener("animationend", () => gain.remove());
     btn.querySelector(".lvltext").append(gain);
   }
   xpShown = xp;
   for (const t of lvlTimers) clearTimeout(t);
   lvlTimers = [];
-  btn.setAttribute("aria-label", `Уровень ${level}` + (need ? `: ${have * XP_PER} из ${need * XP_PER} xp` : ", максимум") + ". Открыть экран уровня");
+  btn.setAttribute("aria-label", `Уровень ${level}` + (need ? `: ${pts(have)} из ${pts(need)} xp` : ", максимум") + ". Открыть экран уровня");
   if (lvlShown !== null && level > lvlShown) { stopSound("correct"); play("level"); levelSoundAt = Date.now(); }   // «новый уровень» заменяет «верно»
   const up = lvlShown !== null && level > lvlShown && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   lvlShown = level;
@@ -315,7 +317,7 @@ function renderLvl(seen) {
   bar.append(fill);
   paintLvl(fill, need);
   const line = make("p", "");
-  const lineText = (h) => need ? `${h * XP_PER} из ${need * XP_PER} xp · до ${level + 1} уровня — ${(need - h) * XP_PER} xp` : "Максимальный уровень!";
+  const lineText = (h) => need ? `${pts(h)} из ${pts(need)} xp · до ${level + 1} уровня — ${pts(need - h)} xp` : "Максимальный уровень!";
   line.textContent = lineText(have);
   p.append(head, bar, line);
   const grow = !reduce && (dl > 0 || dx > 0);
@@ -336,12 +338,12 @@ function renderLvl(seen) {
       }, 380);   // сразу после того, как экран приехал (переход 340 мс)
     }
     if (need) countTo(line, fromHave, have, lineText, 1700);
-    p.append(dl > 0 ? deltaChip(dl, "", true) : deltaChip(dx * XP_PER, " xp", true));
+    p.append(dl > 0 ? deltaChip(dl, "", true) : deltaChip(pts(dx), " xp", true));
   } else fill.style.width = pct + "%";
   const info = make("div", "panel");
-  info.append(make("p", "", `Всего опыта: ${xp * XP_PER} xp`));
-  if (need) info.append(make("p", "", `До ${Core.LEVEL_MAX} уровня: ${toMax * XP_PER} xp`));
-  info.append(make("p", "", `Верный ответ на карточке (и в повторе) — ${XP_PER} xp. На 1-м уровне нужно ${Core.levelNeed(1) * XP_PER} xp, на каждом следующем — чуть больше.`));
+  info.append(make("p", "", `Всего опыта: ${pts(xp)} xp`));
+  if (need) info.append(make("p", "", `До ${Core.LEVEL_MAX} уровня: ${pts(toMax)} xp`));
+  info.append(make("p", "", `Верный ответ на карточке (и в повторе) — ${XP_PER} xp. С 3-го верного подряд — комбо: 3–5 — ×1,1, 6–9 — ×1,3, 10–15 — ×1,6, 16–20 — ×2; сбрасывает ошибка или 3 пропуска подряд. На 1-м уровне нужно ${Core.levelNeed(1) * XP_PER} xp, на каждом следующем — чуть больше.`));
   el.lvlBody.replaceChildren(p, info);
 }
 
@@ -359,6 +361,7 @@ function onTick() {
       // ответа не было: показываем правильный (без штрафа в статистике), потом новая фраза
       reveal(null);
       setStatus("Время вышло. Правильный ответ:", "bad");
+      recordSkip(progress); progress.save();
     }
     return;
   }
@@ -380,12 +383,14 @@ function nextCard() {
     key = pool[Math.floor(Math.random() * pool.length)];
     session.seen.push(key);
   } else {
-    key = progress.pick(recent(), undefined, allowedTypes(), allowedLevels());
+    if (onlyNew() && cur !== null && progress.state(cur) === "unseen") { progress._card(cur); progress.save(); }   // показанное без ответа (пропуск, время вышло) больше не всплывёт
+    key = progress.pick(recent(), undefined, allowedTypes(), allowedLevels(), onlyNew());
   }
   if (key === null) {
     cur = null;
     schedule(askSec(), "ask");
-    setIdle(!filterOn() ? "Все фразы выучены 🎉" : [...progress.phrases.values()].some(fits) ? "В выбранном всё выучено 🎉" : "Таких карточек нет — измените выбор в «Что учить»");
+    setIdle(!filterOn() ? "Все фразы выучены 🎉" : ![...progress.phrases.values()].some(fits) ? "Таких карточек нет — измените выбор в «Что учить»"
+      : onlyNew() ? "Новых слов не осталось — выключите «Только новые» в «Что учить»" : "В выбранном всё выучено 🎉");
     return;
   }
   progress.data.recent = [...recent(), key].slice(-Core.RECENT_SKIP);
@@ -501,7 +506,7 @@ function submit() {
     ? Core.checkAnswer(text, [...p.ru, ...(p.ru_alt || [])], false) // ru_alt — доп. допустимые ответы (синонимы, формы слова)
     : Core.checkAnswer(text, [p.en, ...p.en_alt], true);
   const xp = progress.data.xp || 0;   // новый уровень: вместо «верно» играет только его звук (в updateLevel)
-  if (!(ok && Core.levelInfo(xp + 1).level > Core.levelInfo(xp).level)) play(ok ? "correct" : "error");
+  if (!(ok && Core.levelInfo(xp + nextXp(progress)).level > Core.levelInfo(xp).level)) play(ok ? "correct" : "error");
   reveal(ok);
 }
 
@@ -860,7 +865,7 @@ function renderMore() {
   set("mstDict", `${progress.phrases.size} записей`);
   const lv = Core.levelInfo(progress.data.xp || 0);
   set("mstAssoc", `${assocStatus(progress).learned} из ${ASSOC.length}`);
-  set("mstLvl", lv.need ? `ур. ${lv.level} · ${lv.have * XP_PER}/${lv.need * XP_PER}` : `ур. ${lv.level} · максимум`);
+  set("mstLvl", lv.need ? `ур. ${lv.level} · ${pts(lv.have)}/${pts(lv.need)}` : `ур. ${lv.level} · максимум`);
   $("dotRev").hidden = !pool || settings().dotRev === false;                            // точки можно выключить в «Настройках → Напоминания»
   $("dotAch").hidden = !unseenAchievements(progress).length || settings().dotAch === false;
   $("dotProg").hidden = progressChange(progress).streak <= 0 || settings().dotProg === false;   // серия выросла с прошлого захода в «Прогресс»
@@ -1938,7 +1943,8 @@ function allowedLevels() {
   return set.size && set.size < LEVELS.length ? set : null;
 }
 
-const filterOn = () => !!(allowedTypes() || allowedLevels());
+const onlyNew = () => !!settings().onlyNew;   // «Только новые»: карточки лишь из ни разу не показанных
+const filterOn = () => !!(allowedTypes() || allowedLevels() || onlyNew());
 /** Подходит ли запись под выбранные виды и уровни. */
 const fits = (p) => (!allowedTypes() || allowedTypes().has(p.type)) && (!allowedLevels() || allowedLevels().has(p.level));
 
@@ -1959,7 +1965,7 @@ const refreshModeBtn = () => {
 function applyModes() {
   refreshModeBtn();
   if (session) return;                          // сессия «Повтор» живёт по своим правилам
-  if (!cur || !fits(progress.phrases.get(cur) || {})) nextCard();
+  if (!cur || !fits(progress.phrases.get(cur) || {}) || (onlyNew() && progress.state(cur) !== "unseen")) nextCard();
 }
 
 let modesOn = null;   // какие кнопки «Что учить» были выбраны в прошлой отрисовке окна (для плавной заливки)
@@ -1969,9 +1975,11 @@ function openModes() {
   const kindsAll = kindSel.size === KINDS.length, levelsAll = levelSel.size === LEVELS.length;
   // числа на кнопках учитывают второй фильтр: сколько записей этого вида при выбранных уровнях и наоборот
   const kindCount = {}, levelCount = {};
-  for (const p of progress.phrases.values()) {
+  let fitCount = 0, newCount = 0;   // для «Карточки»: сколько записей при выбранных видах и уровнях и сколько из них ни разу не показывались
+  for (const [key, p] of progress.phrases) {
     if (levelSel.has(p.level)) kindCount[p.type] = (kindCount[p.type] || 0) + 1;
     if (kindSel.has(p.type)) levelCount[p.level] = (levelCount[p.level] || 0) + 1;
+    if (kindSel.has(p.type) && levelSel.has(p.level)) { fitCount++; if (progress.state(key) === "unseen") newCount++; }
   }
   const save = (kinds, levels) => {
     const s = settings();
@@ -2019,6 +2027,17 @@ function openModes() {
     box.append(group("Виды", "Все виды", KINDS, kindSel, kindsAll, kindCount, "", (k) => save(k, levelSel)));
     box.append(group("Уровень", "Все уровни", LEVELS.map((l) => [l, l]), levelSel, levelsAll, levelCount, " levels", (l) => save(kindSel, l)));
     box.append(make("p", "levelnote", "A2 — попроще, B1 — средний, B2 — выше среднего."));
+    const cards = make("div", "kindsec"), cgrid = make("div", "kindgrid");
+    for (const [v, label, n] of [[false, "Все", fitCount], [true, "Только новые", newCount]]) {
+      const b = make("button", "btn");
+      pick(b, "Карточки|" + v, onlyNew() === v);
+      b.setAttribute("aria-pressed", String(onlyNew() === v));
+      b.append(label, make("small", "", String(n)));
+      b.addEventListener("click", () => { settings().onlyNew = v; save(kindSel, levelSel); });
+      cgrid.append(b);
+    }
+    cards.append(make("div", "kindlabel", "Карточки"), cgrid);
+    box.append(cards);
     const done = make("button", "btn primary wide", "Готово");
     done.addEventListener("click", sheetClose);
     box.append(done);
@@ -3064,8 +3083,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=32").then((r) => r.json()),
-    fetch("data/aspect.json?v=32").then((r) => r.json()),
+    fetch("data/phrases.json?v=33").then((r) => r.json()),
+    fetch("data/aspect.json?v=33").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;
@@ -3086,7 +3105,7 @@ async function boot() {
   el.hintBtn.addEventListener("mousedown", (e) => e.preventDefault());   // нажатие не снимает фокус с поля и не закрывает клавиатуру
   el.hintBtn.addEventListener("click", onHint);
   el.back.addEventListener("click", () => { play("fill"); back(); });
-  el.next.addEventListener("click", () => { play("next"); nextCard(); }); // звук «Дальше» — только по клику
+  el.next.addEventListener("click", () => { play("next"); if (cur !== null && !revealed) { recordSkip(progress); progress.save(); } nextCard(); }); // звук «Дальше» — только по клику
   el.known.addEventListener("click", onKnown);
   el.easy.addEventListener("click", () => onRate("easy"));
   el.normal.addEventListener("click", () => onRate("normal"));

@@ -2,8 +2,8 @@
 // Выданное достижение не отбирается: progress.data.ach = { id: "ГГГГ-ММ-ДД" } (день получения).
 // Счётчики: data.flawless = { pv: 1, dlg: 1 } — игры, пройденные без ошибок; data.flawRun — безупречных раундов подряд;
 // data.run — верных ответов подряд в обычных карточках, data.explored — что уже пробовал («Исследователь»). Всё это надо добавлять и в pack/unpack (storage.js).
-import { dayKey, HARD_MISSES, levelInfo } from "./core.js?v=32";
-import { MASTERED } from "./tenses.js?v=32";
+import { dayKey, HARD_MISSES, levelInfo } from "./core.js?v=33";
+import { MASTERED } from "./tenses.js?v=33";
 
 export const GAMES = ["pv", "dlg"];   // «Подставь частицу», «Диалоги»; новую игру добавить сюда, в ACHIEVEMENTS и вызывать recordRound
 const TENSES = {                       // id времён из data/tenses.json по группам карты
@@ -97,7 +97,21 @@ export function recordExplored(p, key) {
 /** Ответ в обычной карточке: считает «верных подряд». Сохраняет logAnswer, который вызывается следом. */
 export function recordAnswer(p, ok) {
   p.data.run = ok ? (p.data.run || 0) + 1 : 0;
-  if (ok) p.data.xp = (p.data.xp || 0) + 1;   // опыт для уровней (считается с момента их появления)
+  p.data.skips = 0;
+  if (ok) p.data.xp = (p.data.xp || 0) + nextXp(p);   // опыт для уровней (считается с момента их появления); с комбо — больше
+  p.data.combo = ok ? Math.min((p.data.combo || 0) + 1, COMBO_MAX) : 0;
+  if (ok) p.data.xp = Math.round(p.data.xp * 10) / 10;   // опыт хранится в «верных ответах» (×10 на экране) — с комбо дробный, до десятых
+}
+
+// Комбо опыта: data.combo — верных подряд (до 20), с 3-го опыт умножается; сбрасывает ошибка или 3 пропуска подряд (data.skips; «Далее» без ответа, время вышло).
+export const COMBO_MAX = 20, COMBO_SKIPS = 3;
+export const comboMult = (n) => (n >= 16 ? 2 : n >= 10 ? 1.6 : n >= 6 ? 1.3 : n >= 3 ? 1.1 : 1);
+/** Сколько опыта даст следующий верный ответ (в «верных ответах»: 1 = 10 xp). */
+export const nextXp = (p) => comboMult(Math.min((p.data.combo || 0) + 1, COMBO_MAX));
+/** Слово пропущено без ответа: третий пропуск подряд сбрасывает комбо. */
+export function recordSkip(p) {
+  p.data.skips = (p.data.skips || 0) + 1;
+  if (p.data.skips >= COMBO_SKIPS) p.data.combo = p.data.skips = 0;
 }
 
 /** Раунд игры закончен (один раз): запомнить «без ошибок» и посчитать безупречные раунды подряд. */

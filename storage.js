@@ -12,7 +12,8 @@ const LS_KEY = "english-miniapp-progress";
 export function pack(data, ts = Date.now()) {
   const cards = {};
   for (const [k, c] of Object.entries(data.cards)) {
-    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? 1 : 0, c.misses || 0, c.hard ? 1 : 0, ...(c.chk ? [c.chk] : [])];   // 7-й элемент (chk) — сколько проверок выученного пройдено, только если есть
+    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? 1 : 0, c.misses || 0, c.hard ? 1 : 0,
+      ...(c.chk || c.t ? [c.chk || 0] : []), ...(c.t ? [Math.round(c.t)] : [])];   // 7-й (chk) — сколько проверок выученного пройдено; 8-й (t) — когда карточка менялась; только если есть
   }
   const days = {};
   for (const [d, v] of Object.entries(data.days || {})) days[d] = [v.correct, v.answered];
@@ -27,7 +28,9 @@ export function pack(data, ts = Date.now()) {
   if (data.explored) out.x = data.explored;   // что уже пробовал («Исследователь»)
   if (data.achSeen) out.y = data.achSeen;     // какие достижения уже просмотрены (красная точка у «Достижений»)
   if (data.progSeen) out.z = data.progSeen;   // серия и точность при последнем заходе в «Прогресс» (точка и стрелки у «Прогресса»)
-  if (data.xp) out.e = data.xp;               // опыт (верные ответы) для уровней
+  if (data.xp) out.e = data.xp;
+  if (data.combo) out.c = data.combo;         // комбо опыта (верных подряд, до 20)
+  if (data.skips) out.k = data.skips;         // пропусков подряд (3 — комбо сброшено)               // опыт (верные ответы) для уровней
   if (data.lvlSeen) out.q = data.lvlSeen;
   if (data.assoc) out.m = data.assoc;         // «Ассоциации»: en → { s: ступень, d: срок проверки, m: своя ассоциация }     // уровень и опыт при последнем заходе на экран «Уровень» (точка и «таблетка»)
   return JSON.stringify(out);
@@ -41,6 +44,7 @@ export function unpack(text) {
     if (a[4]) c.misses = a[4];
     if (a[5]) c.hard = true;
     if (a[6]) c.chk = a[6];
+    if (a[7]) c.t = a[7];
     cards[k] = c;
   }
   const days = {};
@@ -57,9 +61,37 @@ export function unpack(text) {
   if (o.y) data.achSeen = o.y;
   if (o.z) data.progSeen = o.z;
   if (o.e) data.xp = o.e;
+  if (o.c) data.combo = o.c;
+  if (o.k) data.skips = o.k;
   if (o.q) data.lvlSeen = o.q;
   if (o.m) data.assoc = o.m;
   return { data, ts: o.ts || 0 };
+}
+
+/** Объединить прогресс с двух устройств: в target (он и возвращается) добавляется то, что новее в other.
+ *  Карточки — по времени изменения t (у старых записей t нет — тогда остаётся из target); достижения, игры, «Исследователь» — объединение;
+ *  опыт — больший; «Времена» — лучший результат; «Ассоциации» — недостающие слова. Остальное (настройки, недавние…) — из target. */
+export function merge(target, other) {
+  if (!target || !other) return target || other;
+  const a = target, b = other;
+  a.cards = a.cards || {};
+  for (const [k, c] of Object.entries(b.cards || {})) if (!a.cards[k] || (c.t || 0) > (a.cards[k].t || 0)) a.cards[k] = c;
+  // shortcut: за день берётся устройство, где ответов больше (не сумма) — если в один день отвечали на двух, счёт дня занижен; точно — только счётчики по устройствам
+  a.days = a.days || {};
+  for (const [d, v] of Object.entries(b.days || {})) if (!a.days[d] || v.answered > a.days[d].answered) a.days[d] = v;
+  if (b.ach) { a.ach = a.ach || {}; for (const [id, day] of Object.entries(b.ach)) if (!a.ach[id] || day < a.ach[id]) a.ach[id] = day; }
+  for (const f of ["flawless", "explored"]) if (b[f]) a[f] = { ...b[f], ...a[f] };
+  if (b.achSeen) a.achSeen = [...new Set([...(a.achSeen || []), ...b.achSeen])];
+  if (b.xp) a.xp = Math.max(a.xp || 0, b.xp);
+  if (b.tenses) {
+    a.tenses = a.tenses || {};
+    for (const [id, r] of Object.entries(b.tenses)) {
+      const m = a.tenses[id];
+      a.tenses[id] = !m ? r : r && (r.best || 0) > (m.best || 0) ? { ...m, ...r } : m;
+    }
+  }
+  if (b.assoc) a.assoc = { ...b.assoc, ...a.assoc };
+  return a;
 }
 
 const tg = window.Telegram && window.Telegram.WebApp;
@@ -79,51 +111,71 @@ function readLocal() {
   } catch { return null; }
 }
 
-async function readCloud() {
-  if (!cloud) return null;
-  try {
-    const meta = JSON.parse((await call("getItem", "m")) || "null");
-    if (!meta || !meta.n) return null;
-    const keys = Array.from({ length: meta.n }, (_, i) => "p" + i);
-    const got = await call("getItems", keys);
-    lastWritten = keys.map((k) => got[k] || "");
-    return unpack(lastWritten.join(""));
-  } catch { return null; }
+// Облако: куски прогресса лежат в одном из двух наборов ключей — p0, p1… или q0, q1…; «m» = { n, ts, k } говорит, какой набор целый.
+// Пишем всегда в другой набор и только в конце переключаем «m»: если бот закрыли посреди записи, в облаке остаётся прежний целый прогресс.
+let lastWritten = { p: [], q: [] };   // что лежит в каждом наборе (по кускам), чтобы писать только изменившееся
+let curSet = "p";                     // набор, на который сейчас указывает «m»
+let cloudTs = null;                   // ts облака, которое мы последний раз читали или писали; другое — значит, писало другое устройство
+let timer = null, pending = null, writing = Promise.resolve();
+
+const readMeta = async () => JSON.parse((await call("getItem", "m")) || "null");
+
+async function readCloud(meta) {
+  if (!meta || !meta.n) return null;
+  const k = meta.k || "p";
+  const keys = Array.from({ length: meta.n }, (_, i) => k + i);
+  const got = await call("getItems", keys);
+  const parts = keys.map((key) => got[key] || "");
+  const res = unpack(parts.join(""));
+  lastWritten[k] = parts; curSet = k; cloudTs = meta.ts;
+  return res;
 }
 
-/** Загрузить прогресс: берём более свежий из облака и локальной копии. */
+/** Загрузить прогресс: облако и локальная копия объединяются (более свежая — основа, из другой добавляется то, что новее). */
 export async function load() {
-  const [c, l] = await Promise.all([readCloud(), Promise.resolve(readLocal())]);
-  if (c && l) return c.ts >= l.ts ? c.data : l.data;
+  let c = null;
+  if (cloud) { try { c = await readCloud(await readMeta()); } catch { c = null; } }
+  const l = readLocal();
+  if (c && l) return c.ts >= l.ts ? merge(c.data, l.data) : merge(l.data, c.data);
   return (c || l || { data: null }).data;
 }
 
-let lastWritten = [];   // что уже лежит в облаке (по кускам), чтобы писать только изменившееся
-let timer = null, pending = null, writing = Promise.resolve();
-
 async function writeCloud(text, ts) {
+  const k = curSet === "p" ? "q" : "p", old = lastWritten[k];
   const parts = [];
   for (let i = 0; i < text.length; i += CHUNK) parts.push(text.slice(i, i + CHUNK));
   for (let i = 0; i < parts.length; i++) {
-    if (lastWritten[i] !== parts[i]) await call("setItem", "p" + i, parts[i]);
+    if (old[i] !== parts[i]) await call("setItem", k + i, parts[i]);
   }
-  if (lastWritten.length > parts.length) {
+  if (old.length > parts.length) {
     const stale = [];
-    for (let i = parts.length; i < lastWritten.length; i++) stale.push("p" + i);
+    for (let i = parts.length; i < old.length; i++) stale.push(k + i);
     await call("removeItems", stale);
   }
-  await call("setItem", "m", JSON.stringify({ n: parts.length, ts }));
-  lastWritten = parts;
+  await call("setItem", "m", JSON.stringify({ n: parts.length, ts, k }));
+  lastWritten[k] = parts; curSet = k; cloudTs = ts;
+}
+
+const writeLocal = (text) => { try { localStorage.setItem(LS_KEY, text); } catch { /* память переполнена — не страшно */ } };
+
+/** Перед записью в облако: если его успело поменять другое устройство — сначала забрать оттуда то, что новее. data — живой прогресс приложения, меняется на месте. */
+async function syncCloud(data) {
+  const meta = await readMeta();
+  if (meta && meta.ts !== cloudTs) {
+    const other = await readCloud(meta);
+    if (other) merge(data, other.data);
+  }
+  const ts = Date.now(), text = pack(data, ts);
+  writeLocal(text);
+  await writeCloud(text, ts);
 }
 
 function flushNow() {
   if (!pending) return;
   const data = pending;
   pending = null;
-  const ts = Date.now();
-  const text = pack(data, ts);
-  try { localStorage.setItem(LS_KEY, text); } catch { /* память переполнена — не страшно */ }
-  if (cloud) writing = writing.then(() => writeCloud(text, ts)).catch(() => { lastWritten = []; });
+  writeLocal(pack(data));
+  if (cloud) writing = writing.then(() => syncCloud(data)).catch(() => { lastWritten = { p: [], q: [] }; });
 }
 
 /** Сохранить с небольшой задержкой (ответы идут часто, облако не нужно дёргать каждый раз). */

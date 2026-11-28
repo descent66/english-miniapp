@@ -186,17 +186,20 @@ export class Progress {
     return Object.hasOwn(this.cards, key) ? this.cards[key].state : "unseen";
   }
 
-  _card(key, now) {
+  /** Запись карточки для изменения; t — когда менялась (по нему объединяются прогрессы с разных устройств, только core.js). */
+  _card(key, now = nowSec()) {
     if (!Object.hasOwn(this.cards, key)) {
       this.cards[key] = { state: "new", streak: 0, due: now, fav: false };
     }
+    this.cards[key].t = now;
     return this.cards[key];
   }
 
   // --- выбор следующей карточки ---
   /** types — необязательный набор видов (Set строк phrase.type): режим «что учить». null = все виды.
-   *  levels — необязательный набор уровней (Set строк phrase.level: "A2", "B1", "B2"); null = все. Только в core.js (в core.py нет). */
-  pick(recent = [], now = nowSec(), types = null, levels = null) {
+   *  levels — необязательный набор уровней (Set строк phrase.level: "A2", "B1", "B2"); null = все. Только в core.js (в core.py нет).
+   *  onlyNew — «Только новые»: только ни разу не показанные, без повторений и проверок. Только в core.js. */
+  pick(recent = [], now = nowSec(), types = null, levels = null, onlyNew = false) {
     const skip = new Set(recent.slice(-RECENT_SKIP));
     const dueLearning = [], dueNew = [], unseen = [], waiting = [], dueCheck = [];
     for (const key of this.phrases.keys()) {
@@ -212,6 +215,11 @@ export class Progress {
     }
     const sorted = (pairs) => [...pairs].sort((x, y) => x[0] - y[0] || (x[1] < y[1] ? -1 : x[1] > y[1] ? 1 : 0));
     const free = (pairs) => sorted(pairs).map((x) => x[1]).filter((k) => !skip.has(k));
+
+    if (onlyNew) {
+      const fresh = unseen.filter((k) => !skip.has(k));
+      return fresh.length ? this._pickByCategory(fresh) : unseen.length ? pick1(unseen) : null;
+    }
 
     // проверка выученного — примерно каждая пятая карточка, пока такие есть
     if (dueCheck.length && Math.random() < CHECK_SHARE) return pick1(dueCheck);
@@ -281,6 +289,7 @@ export class Progress {
   rate(key, rating, now = nowSec()) {
     const c = Object.hasOwn(this.cards, key) ? this.cards[key] : null;
     if (!c || c.state !== "learning") return;
+    c.t = now;
     const base = Math.max(c.due - now, 0);
     c.due = now + Math.max(base * RATING_FACTOR[rating], 10 * MIN);
     if (rating === "hard") c.hard = true;
