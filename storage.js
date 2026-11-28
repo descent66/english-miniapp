@@ -12,7 +12,7 @@ const LS_KEY = "english-miniapp-progress";
 export function pack(data, ts = Date.now()) {
   const cards = {};
   for (const [k, c] of Object.entries(data.cards)) {
-    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? 1 : 0, c.misses || 0, c.hard ? 1 : 0];
+    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? 1 : 0, c.misses || 0, c.hard ? 1 : 0, ...(c.chk ? [c.chk] : [])];   // 7-й элемент (chk) — сколько проверок выученного пройдено, только если есть
   }
   const days = {};
   for (const [d, v] of Object.entries(data.days || {})) days[d] = [v.correct, v.answered];
@@ -28,7 +28,8 @@ export function pack(data, ts = Date.now()) {
   if (data.achSeen) out.y = data.achSeen;     // какие достижения уже просмотрены (красная точка у «Достижений»)
   if (data.progSeen) out.z = data.progSeen;   // серия и точность при последнем заходе в «Прогресс» (точка и стрелки у «Прогресса»)
   if (data.xp) out.e = data.xp;               // опыт (верные ответы) для уровней
-  if (data.lvlSeen) out.q = data.lvlSeen;     // уровень и опыт при последнем заходе на экран «Уровень» (точка и «таблетка»)
+  if (data.lvlSeen) out.q = data.lvlSeen;
+  if (data.assoc) out.m = data.assoc;         // «Ассоциации»: en → { s: ступень, d: срок проверки, m: своя ассоциация }     // уровень и опыт при последнем заходе на экран «Уровень» (точка и «таблетка»)
   return JSON.stringify(out);
 }
 
@@ -39,6 +40,7 @@ export function unpack(text) {
     const c = { state: STATE_NAME[a[0]], streak: a[1], due: a[2], fav: !!a[3] };
     if (a[4]) c.misses = a[4];
     if (a[5]) c.hard = true;
+    if (a[6]) c.chk = a[6];
     cards[k] = c;
   }
   const days = {};
@@ -56,6 +58,7 @@ export function unpack(text) {
   if (o.z) data.progSeen = o.z;
   if (o.e) data.xp = o.e;
   if (o.q) data.lvlSeen = o.q;
+  if (o.m) data.assoc = o.m;
   return { data, ts: o.ts || 0 };
 }
 

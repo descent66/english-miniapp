@@ -1,16 +1,17 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=31";
-import * as Store from "./storage.js?v=31";
-import { startMolten } from "./molten.js?v=31";
-import { attachSpecular, detachSpecular } from "./specular.js?v=31";
-import { animateList } from "./animlist.js?v=31";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=31";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=31";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=31";
-import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=31";
+import * as Core from "./core.js?v=32";
+import * as Store from "./storage.js?v=32";
+import { startMolten } from "./molten.js?v=32";
+import { attachSpecular, detachSpecular } from "./specular.js?v=32";
+import { animateList } from "./animlist.js?v=32";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=32";
+import { initAssoc, assocStatus, ASSOC } from "./assoc.js?v=32";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=32";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=32";
+import { GROUP_TITLES, GAMES, recordAnswer, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=32";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-28.31";
+const APP_VERSION = "2026-11-28.32";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -258,6 +259,14 @@ function paintLvl(fill, need) {
     fill.style.backgroundSize = `${w}px 100%`;
     fill.style.setProperty("--s1", (need ? Math.min(w, (3 / need) * w) : 0).toFixed(1) + "px");
   });
+}
+/** Опыт за верный ответ вне карточек («Ассоциации → Проверь себя»): без анимации полоски и уровня — число и полоска на карточке обновляются тихо. */
+function gainXp() {
+  progress.data.xp = (progress.data.xp || 0) + 1;
+  progress.save();
+  xpShown = progress.data.xp; lvlShown = Core.levelInfo(xpShown).level;
+  updateLevel();
+  return `+${XP_PER} xp`;
 }
 let levelSoundAt = 0;   // когда играл звук нового уровня: в тот же ответ «достижение» и «цель дня» его не перебивают
 const levelSoundNow = () => Date.now() - levelSoundAt < 1500;
@@ -532,6 +541,8 @@ function reveal(ok) {
   if (ok && todayBefore < progress.goal() && progress.todayCorrect() >= progress.goal()) celebrate();
   if (loop) {
     setStatus(ok ? "Верно!" : "Неверно", ok ? "ok" : "bad");
+  } else if (before === "mastered") {   // проверка выученного (раз в 3, 6, 12… недель)
+    setStatus(ok ? "Верно! Проверка выученного пройдена" : "Неверно. Фраза вернулась в «Учу»", ok ? "ok" : "bad");
   } else if (state === "mastered") {
     setStatus(`Верно! ${Core.NEEDED_STREAK} подряд — фраза выучена навсегда`, "ok");
   } else if (state === "learning" && before === "new") {
@@ -821,9 +832,9 @@ function showToast({ title, description = "", actionLabel = "", icon = "", onAct
 
 // ---------- нижняя панель: Учить / Повтор / Игры / Инвентарь (в нём закладки) / Прогресс ----------
 // порядок = «кто справа от кого» для анимации; настройки, игры, времена, повтор, прогресс и достижения — внутри «Больше» (на панели у них своей кнопки нет)
-const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach", "lvl"];
+const VIEWS = ["learn", "inv", "tr", "more", "general", "tenses", "tlesson", "games", "rev", "prog", "ach", "lvl", "assoc"];
 const TABS = ["learn", "inv", "tr", "more"];
-const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more", lvl: "more" };
+const TAB_OF = { general: "more", tenses: "more", tlesson: "more", games: "more", rev: "more", prog: "more", ach: "more", lvl: "more", assoc: "more" };
 const BACK_OF = { tlesson: "tenses" };   // куда ведёт «назад» (по умолчанию — в «Больше»)
 const tabOf = (v) => TAB_OF[v] || v;
 let view = "learn";
@@ -848,6 +859,7 @@ function renderMore() {
   set("mstRev", pool ? `повторить: ${pool}` : "пока нет");
   set("mstDict", `${progress.phrases.size} записей`);
   const lv = Core.levelInfo(progress.data.xp || 0);
+  set("mstAssoc", `${assocStatus(progress).learned} из ${ASSOC.length}`);
   set("mstLvl", lv.need ? `ур. ${lv.level} · ${lv.have * XP_PER}/${lv.need * XP_PER}` : `ур. ${lv.level} · максимум`);
   $("dotRev").hidden = !pool || settings().dotRev === false;                            // точки можно выключить в «Настройках → Напоминания»
   $("dotAch").hidden = !unseenAchievements(progress).length || settings().dotAch === false;
@@ -888,6 +900,7 @@ function showView(name) {
     clearTimeout(lvlChipTimer); lvlChipTimer = setTimeout(() => { for (const c of document.querySelectorAll("#lvlBody .delta")) { c.classList.add("out"); setTimeout(() => c.remove(), 1100); } }, 3000);
   }
   if (name === "tenses") tenses.renderMap();
+  if (name === "assoc") { if (prev !== "assoc") assoc.reset(); assoc.render(); }
   if (name === "tlesson") tenses.renderLesson();
   if (name === "more") { renderMore(); animateList($("moreBody"), { entrance: true, bottomEl: $("bar") }); }   // подписи и точки обновляются, блоки выезжают, как слова в «Закладках»
   if (name === "prog") { progChange = progressChange(progress); renderProg(true); markProgressSeen(progress); clearTimeout(chipTimer); chipTimer = setTimeout(hideChips, 3000); }   // стрелки показывают, что изменилось с прошлого захода; потом снимок обновляется
@@ -1192,7 +1205,9 @@ const VER = new URL(import.meta.url).searchParams.get("v") || "0";
 const ROUND_MIN = 3, ROUND_MAX = 20, ROUND_DEFAULT = 10;
 const FLAWLESS_MIN = 10;   // «без ошибок» и «Хет-трик» считаются только за раунды от 10 вопросов (иначе 3 вопроса — слишком легко)
 /** Сколько вопросов в раунде этой игры ("pv" / "dlg") — выбирается ползунком перед игрой, хранится в settings.rounds. */
-const roundSize = (g) => Math.min(ROUND_MAX, Math.max(ROUND_MIN, Number(settings().rounds?.[g]) || ROUND_DEFAULT));
+const ASSOC_BATCH = 5;   // «Ассоциации»: новых слов за раз по умолчанию (ползунок — в самом блоке и в «Настройках»)
+const roundSize = (g) => Math.min(ROUND_MAX, Math.max(ROUND_MIN, Number(settings().rounds?.[g]) || (g === "assoc" ? ASSOC_BATCH : ROUND_DEFAULT)));
+const assocBatchField = () => roundField("assoc", (n) => `${n} ${plural(n, "новое слово", "новых слова", "новых слов")} за раз`, "Новых слов за раз");
 let pvData = null;      // данные игры, загружаются при первом запуске
 let game = null;        // идущий раунд: { items, i, right, picked, options }
 
@@ -1333,12 +1348,12 @@ function renderDialog(body) {
 }
 
 /** Ползунок «сколько вопросов в раунде» (3–20) перед игрой g; text(n) — подпись над ним. Значение сохраняется сразу, как «Время на ответ». */
-function roundField(g, text) {
+function roundField(g, text, label = "Вопросов в раунде") {
   const f = make("div", "field askfield");
   const meta = make("div", "gamemeta");
   const range = make("input");
   Object.assign(range, { type: "range", min: ROUND_MIN, max: ROUND_MAX, step: 1, value: roundSize(g) });
-  range.setAttribute("aria-label", "Вопросов в раунде");
+  range.setAttribute("aria-label", label);
   const show = () => {
     const n = Number(range.value);
     meta.textContent = text(n);
@@ -1453,6 +1468,7 @@ function renderGames() {
 const touchOnly = () => window.matchMedia("(pointer: coarse)").matches;
 
 // «Времена» (tenses.js): карта 12 времён, уроки, тесты
+const assoc = initAssoc({ make, play, $, getProgress: () => progress, phrases: () => progress.phrases, shuffle, batch: () => roundSize("assoc"), batchField: assocBatchField, popIn, startsWord, bar: () => $("bar"), gainXp });
 const tenses = initTenses({ make, play, $, getProgress: () => progress, version: VER, shuffle, animateList, showView, touchOnly, onResult: () => announceAchievements() });
 
 function answerGame(option) {
@@ -2342,6 +2358,7 @@ function renderGeneral() {
       settings().bg = v; progress.save(); applyBg();
     })], '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3 3-2.5 4.5 4"/>'),
     card("Время на ответ", [askSlider()], '<circle cx="12" cy="13.5" r="7"/><path d="M12 10v4l2.5 1.5M9.5 3.5h5"/>'),
+    card("Ассоциации", [assocBatchField()], '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/>'),
     card("Напоминания", [                                    // в «Больше»: точка у «Повтора» (есть что повторять) и у «Достижений» (есть новое)
       field("Повтор", ONOFF, settings().dotRev !== false, (v) => { settings().dotRev = v; progress.save(); }),
       field("Достижения", ONOFF, settings().dotAch !== false, (v) => { settings().dotAch = v; progress.save(); }),
@@ -3047,8 +3064,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=31").then((r) => r.json()),
-    fetch("data/aspect.json?v=31").then((r) => r.json()),
+    fetch("data/phrases.json?v=32").then((r) => r.json()),
+    fetch("data/aspect.json?v=32").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

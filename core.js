@@ -147,6 +147,10 @@ export const DAY = 86400;
 export const RETRY_AFTER_MISS = 10 * MIN;  // ошибка -> вернётся через 10 минут
 export const FIRST_REVIEW = 1 * HOUR;      // первая проверка через час
 export const AFTER_CORRECT = [1 * DAY, 3 * DAY]; // после 1-го и 2-го верного ответа
+// Проверка выученного (только в core.js): через 3 недели после «выучено», потом через 6, 12… недель. Не вспомнил — снова «учу».
+export const CHECK_AFTER = 21 * DAY;
+export const CHECK_SHARE = 0.2;            // доля карточек-проверок, когда они есть (подмешиваются, а не идут подряд)
+export const checkDue = (c) => c.due + CHECK_AFTER * 2 ** (c.chk || 0);
 export const NEEDED_STREAK = 3;            // верных подряд до «выучено»
 export const RATING_FACTOR = { easy: 2.5, normal: 1.0, hard: 0.4 };
 export const HARD_MISSES = 2;              // столько ошибок — и слово попадает в «трудные»
@@ -194,11 +198,12 @@ export class Progress {
    *  levels — необязательный набор уровней (Set строк phrase.level: "A2", "B1", "B2"); null = все. Только в core.js (в core.py нет). */
   pick(recent = [], now = nowSec(), types = null, levels = null) {
     const skip = new Set(recent.slice(-RECENT_SKIP));
-    const dueLearning = [], dueNew = [], unseen = [], waiting = [];
+    const dueLearning = [], dueNew = [], unseen = [], waiting = [], dueCheck = [];
     for (const key of this.phrases.keys()) {
       if (types && !types.has(this.phrases.get(key).type)) continue;
       if (levels && !levels.has(this.phrases.get(key).level)) continue;
       const st = this.state(key);
+      if (st === "mastered" && checkDue(this.cards[key]) <= now && !skip.has(key)) dueCheck.push(key);
       if (st === "mastered" || st === "known") continue;
       const c = this.cards[key];
       if (st === "unseen") unseen.push(key);
@@ -208,12 +213,15 @@ export class Progress {
     const sorted = (pairs) => [...pairs].sort((x, y) => x[0] - y[0] || (x[1] < y[1] ? -1 : x[1] > y[1] ? 1 : 0));
     const free = (pairs) => sorted(pairs).map((x) => x[1]).filter((k) => !skip.has(k));
 
+    // проверка выученного — примерно каждая пятая карточка, пока такие есть
+    if (dueCheck.length && Math.random() < CHECK_SHARE) return pick1(dueCheck);
     // проверки «учу» (по расписанию) идут первыми, но среди них — случайно
     const due = free(dueLearning);
     if (due.length) return pick1(due);
     // остальное — один общий случайный пул: ещё не виденные + «новые» после ошибки
     const pool = unseen.filter((k) => !skip.has(k)).concat(free(dueNew));
     if (pool.length) return this._pickByCategory(pool);
+    if (dueCheck.length) return pick1(dueCheck);
     // всё на паузе: берём то, что наступит раньше всех
     for (const group of [dueLearning, dueNew, waiting]) {
       const keys = sorted(group).map((x) => x[1]);
@@ -252,12 +260,15 @@ export class Progress {
     } else if (c.state === "learning") {
       if (correct) {
         c.streak += 1;
-        if (c.streak >= NEEDED_STREAK) c.state = "mastered";
+        if (c.streak >= NEEDED_STREAK) { c.state = "mastered"; c.due = now; }   // от этого момента отсчитывается проверка выученного
         else c.due = now + AFTER_CORRECT[Math.min(c.streak - 1, AFTER_CORRECT.length - 1)];
       } else {
         c.streak = 0;
         c.due = now + RETRY_AFTER_MISS;
       }
+    } else if (c.state === "mastered") {   // проверка выученного
+      if (correct) { c.chk = (c.chk || 0) + 1; c.due = now; }
+      else { Object.assign(c, { state: "learning", streak: 0, due: now + RETRY_AFTER_MISS }); delete c.chk; }
     } else if (c.state === "new") {
       c.streak = 0;
       c.due = now + RETRY_AFTER_MISS;
