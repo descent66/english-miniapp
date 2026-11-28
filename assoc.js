@@ -3,8 +3,8 @@
 // Прогресс — progress.data.assoc: { en: { s: ступень, d: когда проверять (сек), m: своя ассоциация } }; в хранилище ключ "m".
 // Разметка истории: [ключевое слово] — подсветка, *смысл* — жирным. Пустой «как звучит» (фразовые глаголы, пословицы) — строки нет,
 // там приём другой: жизненная сценка, где английские слова буквально описывают происходящее, а из него следует смысл; CS2 — только где подходит точно.
-import { checkAnswer, hintMask } from "./core.js?v=33";
-import { animateList } from "./animlist.js?v=33";
+import { checkAnswer, hintMask } from "./core.js?v=34";
+import { animateList } from "./animlist.js?v=34";
 
 export const ASSOC = [
   ["Claim", "КЛЕЙМ", "Фермер *требует* корову назад и *утверждает*, что она его: на боку его [клеймо].", "🐄"],
@@ -416,18 +416,28 @@ export function initAssoc(ctx) {
     const card = make("div", "gamecard");
     card.append(make("p", "", "Глаголы B2, фразовые глаголы и пословицы — через созвучие и понятные жизненные сценки. Например, run out of — «молоко убежало»: молока больше нет, оно закончилось."),
       make("div", "gamemeta", `Запомнено: ${st.learned} из ${ASSOC.length} · проверить сейчас: ${st.due.length}`), ctx.batchField());
-    const learn = make("button", "btn primary wide", st.fresh.length ? "Запомнить новые" : "Все слова уже изучены");
+    const learn = make("button", "btn primary wide amain", st.fresh.length ? "Запомнить новые" : "Все слова уже изучены");
     learn.disabled = !st.fresh.length;
     learn.addEventListener("click", () => { run = { kind: "learn", items: shuffle(st.fresh).slice(0, ctx.batch()), i: 0 }; render(); });
-    const check = make("button", "btn wide", st.due.length ? `Проверь себя (${st.due.length})` : "Проверь себя");
-    check.disabled = !st.due.length;
-    check.addEventListener("click", () => { run = { kind: "check", items: shuffle(st.due).slice(0, 10), i: 0, answer: null }; render(); });
-    const loop = make("button", "btn wide", known.length ? `Повторить запомненное (${known.length})` : "Повторить запомненное");
-    loop.disabled = !known.length;
-    loop.addEventListener("click", () => { run = { kind: "loop", items: shuffle(learned()), i: 0, answer: null }; render(); });
-    const all = make("button", "btn wide", "Все слова");
-    all.addEventListener("click", () => { run = { kind: "list", q: "" }; render(); });
-    card.append(learn, check, loop, all);
+    // остальное — ряд компактных плиток, как блоки в «Больше»: значок, название, строка-статус
+    const tile = (name, stat, icon, go, dot) => {
+      const t = make("button", "item tcell");
+      const ico = make("span", "mico");
+      ico.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${icon}</svg>`;
+      t.append(ico, make("span", "tname", name), make("span", "tstat", stat));
+      if (dot) t.append(make("i", "rdot"));
+      if (go) t.addEventListener("click", go); else t.disabled = true;
+      return t;
+    };
+    const grid = make("div", "tgrid agrid");
+    grid.append(
+      tile("Проверка", st.due.length ? `сейчас: ${st.due.length}` : "пока нет", '<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.3l2.5 2.5 5-5.3"/>',
+        st.due.length && (() => { run = { kind: "check", items: shuffle(st.due).slice(0, 10), i: 0, answer: null }; render(); }), st.due.length > 0),
+      tile("Повтор", known.length ? `слов: ${known.length}` : "пока нет", '<path d="M20 11a8 8 0 0 0-14-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 20v-4h-4"/>',
+        known.length && (() => { run = { kind: "loop", items: shuffle(learned()), i: 0, answer: null }; render(); })),
+      tile("Все слова", `${ASSOC.length} слов`, '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H19v13H5.5A1.5 1.5 0 0 0 4 18.5z"/><path d="M4 18.5A1.5 1.5 0 0 0 5.5 20H19M8 8h7M8 11h5"/>',
+        () => { run = { kind: "list", q: "" }; render(); }));
+    card.append(learn, grid);
     body.append(card);
   }
 

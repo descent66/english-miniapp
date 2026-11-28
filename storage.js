@@ -12,7 +12,7 @@ const LS_KEY = "english-miniapp-progress";
 export function pack(data, ts = Date.now()) {
   const cards = {};
   for (const [k, c] of Object.entries(data.cards)) {
-    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? 1 : 0, c.misses || 0, c.hard ? 1 : 0,
+    cards[k] = [STATE_CODE[c.state], c.streak, Math.round(c.due), c.fav ? Math.round(c.favAt || 1) : 0, c.misses || 0, c.hard ? 1 : 0,
       ...(c.chk || c.t ? [c.chk || 0] : []), ...(c.t ? [Math.round(c.t)] : [])];   // 7-й (chk) — сколько проверок выученного пройдено; 8-й (t) — когда карточка менялась; только если есть
   }
   const days = {};
@@ -45,6 +45,7 @@ export function unpack(text) {
     if (a[5]) c.hard = true;
     if (a[6]) c.chk = a[6];
     if (a[7]) c.t = a[7];
+    if (a[3] > 1) c.favAt = a[3];   // 4-й элемент: 0 — не в закладках, 1 — в закладках (старая запись без даты), иначе — когда добавлена
     cards[k] = c;
   }
   const days = {};

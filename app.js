@@ -1,17 +1,17 @@
 // Экран Mini App: повторяет поведение настольного виджета (widget.py).
-import * as Core from "./core.js?v=33";
-import * as Store from "./storage.js?v=33";
-import { startMolten } from "./molten.js?v=33";
-import { attachSpecular, detachSpecular } from "./specular.js?v=33";
-import { animateList } from "./animlist.js?v=33";
-import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=33";
-import { initAssoc, assocStatus, ASSOC } from "./assoc.js?v=33";
-import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=33";
-import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=33";
-import { GROUP_TITLES, GAMES, recordAnswer, recordSkip, nextXp, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=33";
+import * as Core from "./core.js?v=34";
+import * as Store from "./storage.js?v=34";
+import { startMolten } from "./molten.js?v=34";
+import { attachSpecular, detachSpecular } from "./specular.js?v=34";
+import { animateList } from "./animlist.js?v=34";
+import { initTenses, fitBlanks, MASTERED } from "./tenses.js?v=34";
+import { initAssoc, assocStatus, ASSOC } from "./assoc.js?v=34";
+import { checkKey, askWithFallback, googleMessage, richLines, toBase64, KEY_PAGE, MAX_FILES, MAX_PDF_BYTES, FILE_QUESTION, LEVELS as AI_LEVELS, DEFAULT_LEVEL as AI_DEFAULT } from "./ai.js?v=34";
+import { translate, recognizeText, guessDir, prepareImage, TranslateError, MAX_CHARS } from "./translator.js?v=34";
+import { GROUP_TITLES, GAMES, recordAnswer, recordSkip, nextXp, recordRound, recordExplored, checkAchievements, achievementStatus, initAchSeen, unseenAchievements, markAchievementsSeen, initProgSeen, progressChange, markProgressSeen } from "./achievements.js?v=34";
 
 // версия страницы: видна внизу настроек — так сразу понятно, загрузилась ли свежая
-const APP_VERSION = "2026-11-28.33";
+const APP_VERSION = "2026-11-28.34";
 let tgRef = null;
 const fsInfo = { supported: null, requested: false, failed: "" };
 
@@ -1008,12 +1008,21 @@ const INV_EMPTY = {
 let dictSorted = null;   // база не меняется, поэтому алфавитный список считаем один раз
 let dictKind = null;     // фильтр словаря: null — все, иначе вид записи (phrase.type)
 let favKind = null, favLevel = null;   // фильтры закладок: null — все; не запоминаются между запусками
+let favSort = "new";                   // порядок закладок: "new" — сначала новые, "abc" — по алфавиту, "level" — по уровню (A2 → B2, внутри по алфавиту)
+const enCollator = new Intl.Collator("en", { sensitivity: "base" });
+/** Закладки в выбранном порядке. Старые закладки без даты добавления — в конце (из них сначала те, что позже появились в прогрессе). */
+function sortFavs(keys) {
+  const at = (k) => progress.cards[k].favAt || 0, lvl = (k) => progress.phrases.get(k).level || "~", idx = new Map(keys.map((k, i) => [k, i]));
+  if (favSort === "abc") return keys.sort(enCollator.compare);
+  if (favSort === "level") return keys.sort((a, b) => (lvl(a) < lvl(b) ? -1 : lvl(a) > lvl(b) ? 1 : enCollator.compare(a, b)));
+  return keys.sort((a, b) => at(b) - at(a) || idx.get(b) - idx.get(a));
+}
 let favOpen = false;                   // выдвинута ли панель фильтров закладок (при уходе из «Инвентаря» прячется)
 function invKeys(tab) {
-  if (tab === "saved") return progress.favorites().filter((k) => { const p = progress.phrases.get(k); return (!favKind || p.type === favKind) && (!favLevel || p.level === favLevel); });
+  if (tab === "saved") return sortFavs(progress.favorites().filter((k) => { const p = progress.phrases.get(k); return (!favKind || p.type === favKind) && (!favLevel || p.level === favLevel); }));
   if (tab === "hard") return progress.hardCards();
   if (tab === "dict") {
-    dictSorted = dictSorted || [...progress.phrases.keys()].sort(new Intl.Collator("en", { sensitivity: "base" }).compare);   // тот же порядок, что localeCompare, но в разы быстрее (один «сравниватель» на все 1200 слов)
+    dictSorted = dictSorted || [...progress.phrases.keys()].sort(enCollator.compare);   // тот же порядок, что localeCompare, но в разы быстрее (один «сравниватель» на все 1200 слов)
     return dictKind ? dictSorted.filter((k) => progress.phrases.get(k).type === dictKind) : dictSorted;
   }
   return progress.keysByState(tab);
@@ -1109,10 +1118,10 @@ function renderDictKinds() {
 /** Два ряда фильтров над закладками: по виду (как в «Словаре») и по уровню. Числа — сколько закладок такого вида/уровня (пересчитываются при каждой перерисовке,
  *  в том числе после удаления закладки); фильтры сочетаются друг с другом и с поиском. */
 function renderFavFilters() {
-  const kinds = $("favKinds"), levels = $("favLevels"), on = invTab === "saved", btn = $("favFilterBtn"), box = $("favFilters");
+  const kinds = $("favKinds"), levels = $("favLevels"), sorts = $("favSorts"), on = invTab === "saved", btn = $("favFilterBtn"), box = $("favFilters");
   slideToggle(btn, on, FAV_BTN_CLOSED);                          // кнопка «Фильтр» плавно появляется, поле поиска при этом плавно сужается
   slideToggle($("favLoopBtn"), on, FAV_BTN_CLOSED);              // рядом — «Повторять закладки по кругу»
-  btn.classList.toggle("on", !!(favKind || favLevel));           // фильтр выбран — кнопка белая, даже когда ряды спрятаны
+  btn.classList.toggle("on", !!(favKind || favLevel || favSort !== "new"));   // фильтр или порядок выбран — кнопка белая, даже когда ряды спрятаны
   btn.setAttribute("aria-expanded", String(on && favOpen));
   if (!on) { slideToggle(box, false, FAV_ROWS_CLOSED); return; }   // ушли с «Закладок» — открытые ряды плавно задвигаются
   const favs = progress.favorites().map((k) => progress.phrases.get(k));
@@ -1122,7 +1131,8 @@ function renderFavFilters() {
       for (const [value, label] of items) {
         const b = make("button", "dkind");
         b.dataset.v = value ?? "";
-        b.append(label, make("small"));
+        b.append(label);
+        if (field) b.append(make("small"));   // у ряда «порядок» чисел нет
         b.addEventListener("click", () => {
           set(value); renderInv();
           const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1133,13 +1143,14 @@ function renderFavFilters() {
     }
     for (const b of row.children) {
       const v = b.dataset.v || null;
-      b.lastChild.textContent = String(v ? favs.filter((p) => p[field] === v).length : favs.length);
+      if (field) b.lastChild.textContent = String(v ? favs.filter((p) => p[field] === v).length : favs.length);
       b.classList.toggle("on", v === cur);
       b.setAttribute("aria-pressed", String(v === cur));
     }
   };
   fill(kinds, [[null, "Все"], ...KINDS], "type", favKind, (v) => { favKind = v; });
   fill(levels, [[null, "Все уровни"], ...LEVELS.map((l) => [l, l])], "level", favLevel, (v) => { favLevel = v; });
+  fill(sorts, [["new", "Сначала новые"], ["abc", "По алфавиту"], ["level", "По уровню"]], null, favSort, (v) => { favSort = v; });
   slideToggle(box, favOpen, FAV_ROWS_CLOSED);                    // вернулись на «Закладки» с открытым фильтром — ряды снова выдвигаются
 }
 
@@ -3083,8 +3094,8 @@ async function boot() {
     fit();
   }
   const [list, aspect, saved] = await Promise.all([
-    fetch("data/phrases.json?v=33").then((r) => r.json()),
-    fetch("data/aspect.json?v=33").then((r) => r.json()),
+    fetch("data/phrases.json?v=34").then((r) => r.json()),
+    fetch("data/aspect.json?v=34").then((r) => r.json()),
     Store.load(),
   ]);
   phrases = list;

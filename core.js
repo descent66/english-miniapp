@@ -48,14 +48,17 @@ export function normalize(text, english) {
   return s;
 }
 
+/** Число опечаток; две соседние буквы, переставленные местами («cancle» → «cancel»), — одна опечатка. */
 function editDistance(a, b) {
-  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  let pp = null, prev = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
     const cur = [i];
     for (let j = 1; j <= b.length; j++) {
-      cur.push(Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] !== b[j - 1] ? 1 : 0)));
+      let d = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] !== b[j - 1] ? 1 : 0));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d = Math.min(d, pp[j - 2] + 1);
+      cur.push(d);
     }
-    prev = cur;
+    pp = prev; prev = cur;
   }
   return prev[prev.length - 1];
 }
@@ -379,6 +382,7 @@ export class Progress {
   toggleFav(key, now = nowSec()) {
     const c = this._card(key, now);
     c.fav = !c.fav;
+    if (c.fav) c.favAt = now; else delete c.favAt;   // когда добавлена закладка — для сортировки «Сначала новые» (только core.js)
     this.save();
     return c.fav;
   }

@@ -1378,3 +1378,13 @@ body.compact #endSessBtn, body.compact2 #endSessBtn { --sh: 36px; }
 .anone { text-align: center; padding: 18px 0; }
 .axpgain { display: inline-block; margin-left: 8px; font-size: 13px; font-weight: 600; color: var(--ok); text-shadow: 0 0 8px rgba(95, 208, 138, .7);
   pointer-events: none; animation: lvl-gain 1.2s ease-out .25s both; }   /* «+10 xp» в «Ассоциациях»: та же анимация, что у уровня на карточке */
+
+/* «Ассоциации»: главная кнопка пониже и ряд из трёх плиток, как блоки в «Больше» */
+.gamecard .btn.amain { padding: 15px 24px; font-size: 18px; }
+.agrid { margin-top: 10px; }
+.agrid .tcell { position: relative; justify-content: center; gap: 6px; padding: 14px 4px 12px; }
+.agrid .tcell .mico { width: 44px; height: 44px; border-radius: 14px; }
+.agrid .tcell .tname { font-size: 14px; }
+.agrid .tcell .tstat { font-size: 11.5px; line-height: 1.25; margin-top: -2px; }
+.agrid .tcell:disabled { opacity: .45; cursor: default; }
+@media (max-width: 340px) { .agrid .tcell .tname { font-size: 12px; } .agrid .tcell .tstat { font-size: 11px; } }
